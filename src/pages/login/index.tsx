@@ -1,50 +1,77 @@
-import { FC } from 'react';
-import { Button, Checkbox, Form, Input } from 'antd';
+import { FC, useState } from 'react';
+import { Button, Checkbox, Form, Input, notification } from 'antd';
 import './index.less';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { LoginParams } from '@/interface/user/login';
-import { loginAsync } from '@/stores/user.store';
-import { useDispatch } from 'react-redux';
+import Logo from '@/assets/logo/Logo.jpg';
+import { userAsyncActions } from '@/stores/user.store';
 import { formatSearch } from '@/utils/formatSearch';
+import { useAppDispatch } from '@/hooks/store';
 
 const initialValues: LoginParams = {
   username: 'guest',
   password: 'guest',
-  // remember: true
+  remember: true,
 };
 
 const LoginForm: FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
+  const [form] = Form.useForm();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onFinished = async (form: LoginParams) => {
-    const res = dispatch(await loginAsync(form));
+    setIsSubmitting(true);
+    const result = await dispatch(userAsyncActions.login(form)).unwrap();
 
-    if (!!res) {
+    setIsSubmitting(false);
+
+    console.log('Result: ', result);
+
+    if (!!result) {
       const search = formatSearch(location.search);
       const from = search.from || { pathname: '/' };
 
+      notification.success({
+        message: 'Đăng nhập thành công',
+      });
       navigate(from);
     }
   };
 
   return (
     <div className="login-page">
-      <Form<LoginParams> onFinish={onFinished} className="login-page-form" initialValues={initialValues}>
-        <h2>REACT ANTD ADMIN</h2>
-        <Form.Item name="username" rules={[{ required: true, message: '请输入用户名！' }]}>
-          <Input placeholder="用户名" />
+      <img src={Logo} alt="" />
+      <Form<LoginParams>
+        form={form}
+        onFinish={onFinished}
+        className="login-page-form"
+        initialValues={initialValues}
+        requiredMark={false}
+        layout="vertical"
+      >
+        <h2>Đăng nhập</h2>
+        <Form.Item
+          name="username"
+          label="Tài khoản"
+          rules={[{ required: true, message: 'Tài khoản không được để trống' }]}
+        >
+          <Input placeholder="Tài khoản" />
         </Form.Item>
-        <Form.Item name="password" rules={[{ required: true, message: '请输入密码！' }]}>
-          <Input type="password" placeholder="密码" />
+        <Form.Item
+          name="password"
+          label="Mật khẩu"
+          rules={[{ required: true, message: 'Mật khẩu không được để trống' }]}
+        >
+          <Input type="password" placeholder="mật khẩu" />
         </Form.Item>
         <Form.Item name="remember" valuePropName="checked">
-          <Checkbox>记住用户</Checkbox>
+          <Checkbox>Nhớ mật khẩu</Checkbox>
         </Form.Item>
         <Form.Item>
-          <Button htmlType="submit" type="primary" className="login-page-form_button">
-            登录
+          <Button htmlType="submit" type="primary" className="login-page-form_button" loading={isSubmitting}>
+            Đăng nhập
           </Button>
         </Form.Item>
       </Form>

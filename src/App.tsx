@@ -3,10 +3,10 @@ import { IntlProvider } from 'react-intl';
 import { localeConfig, LocaleFormatter } from './locales';
 import { ConfigProvider, Spin } from 'antd';
 import { ThemeSwitcherProvider } from 'react-css-theme-switcher';
-import enUS from 'antd/es/locale/en_US';
-import zhCN from 'antd/es/locale/zh_CN';
+// import enUS from 'antd/es/locale/en_US';
+// import zhCN from 'antd/es/locale/zh_CN';
 import moment from 'moment';
-import 'moment/locale/zh-cn';
+// import 'moment/locale/zh-cn';
 import RenderRouter from './routes';
 import { useDispatch, useSelector } from 'react-redux';
 import { history, HistoryRouter } from '@/routes/history';
@@ -64,16 +64,16 @@ const App: React.FC = () => {
    * information to ConfigProvider for
    * setting language across text components
    */
-  const getAntdLocale = () => {
-    if (locale === 'en_US') {
-      return enUS;
-    } else if (locale === 'zh_CN') {
-      return zhCN;
-    }
-  };
+  // const getAntdLocale = () => {
+  //   if (locale === 'en_US') {
+  //     return enUS;
+  //   } else if (locale === 'zh_CN') {
+  //     return zhCN;
+  //   }
+  // };
 
   return (
-    <ConfigProvider locale={getAntdLocale()} componentSize="middle">
+    <ConfigProvider>
       <ThemeSwitcherProvider defaultTheme={theme} themeMap={themes}>
         <IntlProvider locale={locale.split('_')[0]} messages={localeConfig[locale]}>
           <HistoryRouter history={history}>

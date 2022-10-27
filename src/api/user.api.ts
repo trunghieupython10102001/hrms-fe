@@ -1,8 +1,14 @@
 import { request } from './request';
 import { LoginResult, LoginParams, LogoutParams, LogoutResult } from '../interface/user/login';
 
-/** 登录接口 */
-export const apiLogin = (data: LoginParams) => request<LoginResult>('post', '/user/login', data);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const apiLogin = (data: LoginParams) => {
+  console.log('Login data: ', data);
 
-/** 登出接口 */
+  return new Promise<{ result: LoginResult }>(res => {
+    setTimeout(() => res({ result: { username: 'Hoangzzzsss', token: '123', role: 'admin' } }), 1500);
+  });
+  //   request<LoginResult>('post', '/user/login', data);
+};
+
 export const apiLogout = (data: LogoutParams) => request<LogoutResult>('post', '/user/logout', data);

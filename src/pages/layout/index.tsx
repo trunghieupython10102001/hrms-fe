@@ -1,13 +1,11 @@
-import { FC, useEffect, useCallback, useState, Suspense } from 'react';
+import { FC, useEffect, useState, Suspense } from 'react';
 import { Layout, Drawer } from 'antd';
 import './index.less';
 import MenuComponent from './menu';
 import HeaderComponent from './header';
 import { getGlobalState } from '@/utils/getGloabal';
 import TagsView from './tagView';
-import { getMenuList } from '@/api/layout.api';
-import { MenuList, MenuChild } from '@/interface/layout/menu.interface';
-import { useGuide } from '../guide/useGuide';
+import { MenuList } from '@/interface/layout/menu.interface';
 import { Outlet, useLocation } from 'react-router';
 import { setUserItem } from '@/stores/user.store';
 import { useDispatch, useSelector } from 'react-redux';
@@ -21,10 +19,9 @@ const LayoutPage: FC = () => {
   const [openKey, setOpenkey] = useState<string>();
   const [selectedKey, setSelectedKey] = useState<string>(location.pathname);
   const [menuList, setMenuList] = useState<MenuList>([]);
-  const { device, collapsed, newUser } = useSelector(state => state.user);
+  const { device, collapsed } = useSelector(state => state.user);
   const isMobile = device === 'MOBILE';
   const dispatch = useDispatch();
-  const { driverStart } = useGuide();
 
   useEffect(() => {
     const code = getFirstPathCode(location.pathname);
@@ -40,38 +37,37 @@ const LayoutPage: FC = () => {
     );
   };
 
-  const initMenuListAll = (menu: MenuList) => {
-    const MenuListAll: MenuChild[] = [];
-
-    menu.forEach(m => {
-      if (!m?.children?.length) {
-        MenuListAll.push(m);
-      } else {
-        m?.children.forEach(mu => {
-          MenuListAll.push(mu);
-        });
-      }
-    });
-
-    return MenuListAll;
-  };
-
-  const fetchMenuList = useCallback(async () => {
-    const { status, result } = await getMenuList();
-
-    if (status) {
-      setMenuList(result);
-      dispatch(
-        setUserItem({
-          menuList: initMenuListAll(result),
-        }),
-      );
-    }
-  }, [dispatch]);
-
   useEffect(() => {
-    fetchMenuList();
-  }, [fetchMenuList]);
+    setMenuList([
+      {
+        code: 'dashboard',
+        label: {
+          zh_CN: '首页',
+          en_US: 'Dashboard',
+        },
+        icon: 'dashboard',
+        path: '/dashboard',
+      },
+      {
+        code: 'documentation',
+        label: {
+          zh_CN: '文档',
+          en_US: 'Documentation',
+        },
+        icon: 'documentation',
+        path: '/documentation',
+      },
+      {
+        code: 'permissionManagement',
+        label: {
+          zh_CN: '文档',
+          en_US: 'Permission management',
+        },
+        icon: 'documentation',
+        path: '/permissionManagement',
+      },
+    ]);
+  }, []);
 
   useEffect(() => {
     window.onresize = () => {
@@ -87,10 +83,6 @@ const LayoutPage: FC = () => {
       );
     };
   }, [dispatch]);
-
-  useEffect(() => {
-    newUser && driverStart();
-  }, [newUser]);
 
   return (
     <Layout className="layout-page">

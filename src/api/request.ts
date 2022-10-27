@@ -49,20 +49,21 @@ axiosInstance.interceptors.response.use(
     );
     // if needs to navigate to login page when request exception
     // history.replace('/login');
-    let errorMessage = '系统异常';
+    // let errorMessage = '系统异常';
 
-    if (error?.message?.includes('Network Error')) {
-      errorMessage = '网络错误，请检查您的网络';
-    } else {
-      errorMessage = error?.message;
-    }
-    console.dir(error);
-    error.message && $message.error(errorMessage);
+    // if (error?.message?.includes('Network Error')) {
+    //   errorMessage = '网络错误，请检查您的网络';
+    // } else {
+    //   errorMessage = error?.message;
+    // }
+    // console.dir(error);
+    // error.message && $message.error(errorMessage);
 
     return {
       status: false,
-      message: errorMessage,
+      // message: errorMessage,
       result: null,
+      error,
     };
   },
 );
