@@ -1,11 +1,12 @@
 import { FC, lazy } from 'react';
-import Dashboard from '@/pages/dashboard';
+// import Dashboard from '@/pages/dashboard';
 import LoginPage from '@/pages/login';
 import LayoutPage from '@/pages/layout';
 import { Navigate, RouteObject } from 'react-router';
 import WrapperRouteComponent from './config';
 import { useRoutes } from 'react-router-dom';
 import VoidLayout from '@/pages/layout/VoidLayout';
+import UserListPage from '@/pages/users';
 
 const NotFound = lazy(() => import(/* webpackChunkName: "404'"*/ '@/pages/404'));
 // const Documentation = lazy(() => import(/* webpackChunkName: "404'"*/ '@/pages/doucumentation'));
@@ -44,11 +45,15 @@ const routeList: RouteObject[] = [
     children: [
       {
         path: '',
-        element: <Navigate to="dashboard" />,
+        element: <Navigate to="nguoi-dung" />,
       },
+      // {
+      //   path: 'dashboard',
+      //   element: <WrapperRouteComponent auth element={<Dashboard />} titleId="title.dashboard" />,
+      // },
       {
-        path: 'dashboard',
-        element: <WrapperRouteComponent auth element={<Dashboard />} titleId="title.dashboard" />,
+        path: 'nguoi-dung',
+        element: <WrapperRouteComponent auth element={<UserListPage />} titleId="title.dashboard" />,
       },
       // {
       //   path: 'documentation',
@@ -58,58 +63,59 @@ const routeList: RouteObject[] = [
         path: 'permissionManagement',
         element: <WrapperRouteComponent auth element={<PermissionManagement />} titleId="title.documentation" />,
       },
-      // {
-      //   path: 'guide',
-      //   element: <WrapperRouteComponent element={<Guide />} titleId="title.guide" />,
-      // },
-      // {
-      //   path: 'permission/route',
-      //   element: <WrapperRouteComponent element={<RoutePermission />} titleId="title.permission.route" auth />,
-      // },
-      // {
-      //   path: 'component/form',
-      //   element: <WrapperRouteComponent element={<FormPage />} titleId="title.account" />,
-      // },
-      // {
-      //   path: 'component/table',
-      //   element: <WrapperRouteComponent element={<TablePage />} titleId="title.account" />,
-      // },
-      // {
-      //   path: 'component/search',
-      //   element: <WrapperRouteComponent element={<SearchPage />} titleId="title.account" />,
-      // },
-      // {
-      //   path: 'component/tabs',
-      //   element: <WrapperRouteComponent element={<TabsPage />} titleId="title.account" />,
-      // },
-      // {
-      //   path: 'component/aside',
-      //   element: <WrapperRouteComponent element={<AsidePage />} titleId="title.account" />,
-      // },
-      // {
-      //   path: 'component/radio-cards',
-      //   element: <WrapperRouteComponent element={<RadioCardsPage />} titleId="title.account" />,
-      // },
-      // {
-      //   path: 'business/basic',
-      //   element: <WrapperRouteComponent element={<BusinessBasicPage />} titleId="title.account" />,
-      // },
-      // {
-      //   path: 'business/with-search',
-      //   element: <WrapperRouteComponent element={<BusinessWithSearchPage />} titleId="title.account" />,
-      // },
-      // {
-      //   path: 'business/with-aside',
-      //   element: <WrapperRouteComponent element={<BusinessWithAsidePage />} titleId="title.account" />,
-      // },
-      // {
-      //   path: 'business/with-radio-cards',
-      //   element: <WrapperRouteComponent element={<BusinessWithRadioCardsPage />} titleId="title.account" />,
-      // },
-      // {
-      //   path: 'business/with-tabs',
-      //   element: <WrapperRouteComponent element={<BusinessWithTabsPage />} titleId="title.account" />,
-      // },
+
+      /*  {
+        path: 'guide',
+        element: <WrapperRouteComponent element={<Guide />} titleId="title.guide" />,
+      },
+      {
+        path: 'permission/route',
+        element: <WrapperRouteComponent element={<RoutePermission />} titleId="title.permission.route" auth />,
+      },
+      {
+        path: 'component/form',
+        element: <WrapperRouteComponent element={<FormPage />} titleId="title.account" />,
+      },
+      {
+        path: 'component/table',
+        element: <WrapperRouteComponent element={<TablePage />} titleId="title.account" />,
+      },
+      {
+        path: 'component/search',
+        element: <WrapperRouteComponent element={<SearchPage />} titleId="title.account" />,
+      },
+      {
+        path: 'component/tabs',
+        element: <WrapperRouteComponent element={<TabsPage />} titleId="title.account" />,
+      },
+      {
+        path: 'component/aside',
+        element: <WrapperRouteComponent element={<AsidePage />} titleId="title.account" />,
+      },
+      {
+        path: 'component/radio-cards',
+        element: <WrapperRouteComponent element={<RadioCardsPage />} titleId="title.account" />,
+      },
+      {
+        path: 'business/basic',
+        element: <WrapperRouteComponent element={<BusinessBasicPage />} titleId="title.account" />,
+      },
+      {
+        path: 'business/with-search',
+        element: <WrapperRouteComponent element={<BusinessWithSearchPage />} titleId="title.account" />,
+      },
+      {
+        path: 'business/with-aside',
+        element: <WrapperRouteComponent element={<BusinessWithAsidePage />} titleId="title.account" />,
+      },
+      {
+        path: 'business/with-radio-cards',
+        element: <WrapperRouteComponent element={<BusinessWithRadioCardsPage />} titleId="title.account" />,
+      },
+      {
+        path: 'business/with-tabs',
+        element: <WrapperRouteComponent element={<BusinessWithTabsPage />} titleId="title.account" />,
+      }, */
       {
         path: '*',
         element: <WrapperRouteComponent element={<NotFound />} titleId="title.notFount" />,

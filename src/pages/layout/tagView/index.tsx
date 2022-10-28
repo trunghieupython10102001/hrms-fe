@@ -9,7 +9,7 @@ const { TabPane } = Tabs;
 
 const TagsView: FC = () => {
   const { tags, activeTagId } = useSelector(state => state.tagsView);
-  const { menuList, locale } = useSelector(state => state.user);
+  const { menuList } = useSelector(state => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -73,7 +73,7 @@ const TagsView: FC = () => {
         tabBarExtraContent={<TagsViewAction />}
       >
         {tags.map(tag => (
-          <TabPane tab={tag.label[locale]} key={tag.path} closable={tag.closable} />
+          <TabPane tab={tag.label} key={tag.path} closable={tag.closable} />
         ))}
       </Tabs>
     </div>

@@ -18,7 +18,7 @@ interface MenuProps {
 
 const MenuComponent: FC<MenuProps> = props => {
   const { menuList, openKey, onChangeOpenKey, selectedKey, onChangeSelectedKey } = props;
-  const { device, locale } = useSelector(state => state.user);
+  const { device } = useSelector(state => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -26,7 +26,7 @@ const MenuComponent: FC<MenuProps> = props => {
     return (
       <span style={{ display: 'flex', alignItems: 'center' }}>
         <CustomIcon type={menu.icon!} />
-        <span>{menu.label[locale]}</span>
+        <span>{menu.label}</span>
       </span>
     );
   };
@@ -59,7 +59,7 @@ const MenuComponent: FC<MenuProps> = props => {
         menu.children ? (
           <SubMenu key={menu.code} title={getTitie(menu)}>
             {menu.children.map(child => (
-              <Item key={child.path}>{child.label[locale]}</Item>
+              <Item key={child.path}>{child.label}</Item>
             ))}
           </SubMenu>
         ) : (

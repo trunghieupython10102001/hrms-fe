@@ -39,30 +39,21 @@ const LayoutPage: FC = () => {
 
   useEffect(() => {
     setMenuList([
+      // {
+      //   code: 'dashboard',
+      //   label: 'Trang chủ',
+      //   icon: 'dashboard',
+      //   path: '/dashboard',
+      // },
       {
-        code: 'dashboard',
-        label: {
-          zh_CN: '首页',
-          en_US: 'Dashboard',
-        },
+        code: 'nguoi-dung',
+        label: 'Danh sách người dùng',
+        path: '/nguoi-dung',
         icon: 'dashboard',
-        path: '/dashboard',
-      },
-      {
-        code: 'documentation',
-        label: {
-          zh_CN: '文档',
-          en_US: 'Documentation',
-        },
-        icon: 'documentation',
-        path: '/documentation',
       },
       {
         code: 'permissionManagement',
-        label: {
-          zh_CN: '文档',
-          en_US: 'Permission management',
-        },
+        label: 'Quản lý người dùng',
         icon: 'documentation',
         path: '/permissionManagement',
       },
@@ -96,6 +87,7 @@ const LayoutPage: FC = () => {
             collapsedWidth={isMobile ? 0 : 80}
             collapsed={collapsed}
             breakpoint="md"
+            width={250}
           >
             <MenuComponent
               menuList={menuList}
