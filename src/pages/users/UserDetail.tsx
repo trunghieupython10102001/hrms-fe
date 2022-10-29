@@ -1,16 +1,36 @@
 import { getUserDetail } from '@/api/user.api';
-import { useEffect } from 'react';
+import { useAppDispatch } from '@/hooks/store';
+import { IUser } from '@/interface/user/user';
+import { setGlobalState } from '@/stores/global.store';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import UserForm from './shared/UserForm';
 
 import './UserDetail.less';
 
 export default function UserDetail() {
   const params = useParams();
-
-  console.log(params);
+  const [detailInfo, setDetailInfo] = useState<IUser | undefined>();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    getUserDetail(params.id as string).then(console.log);
+    const getUserDetailInfo = async () => {
+      dispatch(
+        setGlobalState({
+          loading: true,
+        }),
+      );
+      const detail: IUser = (await getUserDetail(params.id as string)) as any;
+
+      dispatch(
+        setGlobalState({
+          loading: false,
+        }),
+      );
+      setDetailInfo(detail);
+    };
+
+    getUserDetailInfo();
   }, []);
 
   return (
@@ -21,7 +41,7 @@ export default function UserDetail() {
           Quay lại
         </Link>
       </div>
-      {/* <UserForm onSubmit={createNewUser} isSubmitting={isSubmitting} /> */}
+      <UserForm user={detailInfo} isEditable={false} />
     </div>
   );
 }

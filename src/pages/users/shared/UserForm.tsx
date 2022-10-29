@@ -4,7 +4,7 @@ import { readFileAsync } from '@/utils/promisifiedFileReader';
 import { CloseOutlined } from '@ant-design/icons';
 import { Button, DatePicker, Form, Input, Upload, UploadProps } from 'antd';
 import moment from 'moment';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import './UserForm.less';
 
@@ -40,12 +40,7 @@ const defaultForm: IUser = {
   avatarUrl: '',
 };
 
-export default function UserForm({
-  user = { ...defaultForm },
-  isEditable = true,
-  isSubmitting,
-  onSubmit,
-}: IComponentProps) {
+export default function UserForm({ user, isEditable = true, isSubmitting, onSubmit }: IComponentProps) {
   const [form] = Form.useForm<IUser>();
   const avatar = form.getFieldValue('avatarUrl');
   const [, forceUpdate] = useState(0);
@@ -87,8 +82,21 @@ export default function UserForm({
     }
   };
 
+  useEffect(() => {
+    if (user) {
+      form.setFieldsValue({ ...user, dateOfBirth: moment(user.dateOfBirth) });
+      forceUpdate(i => i + 1);
+    }
+  }, [user]);
+
   return (
-    <Form<IUser> className="user-form" form={form} layout="vertical" initialValues={user} onFinish={onSubmitForm}>
+    <Form
+      className="user-form"
+      form={form}
+      layout="vertical"
+      initialValues={{ ...defaultForm }}
+      onFinish={onSubmitForm}
+    >
       <div className="flex gap-10">
         <div className="w-1/2">
           <Form.Item
@@ -170,11 +178,13 @@ export default function UserForm({
           </Form.Item>
         </div>
       </div>
-      <div className="submit-container">
-        <Button htmlType="submit" type="primary" loading={isSubmitting}>
-          Lưu thông tin
-        </Button>
-      </div>
+      {isEditable && (
+        <div className="submit-container">
+          <Button htmlType="submit" type="primary" loading={isSubmitting}>
+            Lưu thông tin
+          </Button>
+        </div>
+      )}
     </Form>
   );
 }

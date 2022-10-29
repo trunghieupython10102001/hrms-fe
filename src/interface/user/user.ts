@@ -1,5 +1,6 @@
 import { Device } from '@/interface/layout/index.interface';
 import { MenuChild } from '@/interface/layout/menu.interface';
+import { Moment } from 'moment';
 import { Role } from './login';
 
 export type Locale = 'zh_CN' | 'en_US';
@@ -49,7 +50,7 @@ export interface IUser {
   email: string;
   fullname: string;
   phoneNumber: string;
-  dateOfBirth: string;
+  dateOfBirth: string | Moment;
   avatarUrl: string;
   createdBy?: number;
   createdAt?: string;

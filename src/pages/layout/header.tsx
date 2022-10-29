@@ -18,7 +18,7 @@ interface HeaderProps {
 type Action = 'userInfo' | 'userSetting' | 'logout';
 
 const HeaderComponent: FC<HeaderProps> = ({ collapsed, toggle }) => {
-  const { logged, device } = useSelector(state => state.user);
+  const { logged, device, id: uid } = useSelector(state => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -43,16 +43,16 @@ const HeaderComponent: FC<HeaderProps> = ({ collapsed, toggle }) => {
   const menu = (
     <Menu>
       <Menu.Item key="1">
-        <span>
+        <span className="layout-page-user-options">
           <UserOutlined />
-          <span onClick={() => navigate('/dashboard')}>
+          <span onClick={() => navigate(`/nguoi-dung/${uid}`)}>
             <LocaleFormatter id="header.avator.account" />
           </span>
         </span>
       </Menu.Item>
       <Menu.Divider />
       <Menu.Item key="2">
-        <span>
+        <span className="layout-page-user-options">
           <LogoutOutlined />
           <span onClick={() => onActionClick('logout')}>
             <LocaleFormatter id="header.avator.logout" />
