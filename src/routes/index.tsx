@@ -7,6 +7,8 @@ import WrapperRouteComponent from './config';
 import { useRoutes } from 'react-router-dom';
 import VoidLayout from '@/pages/layout/VoidLayout';
 import UserListPage from '@/pages/users';
+import CreateNewUser from '@/pages/users/CreateNewUser';
+import UserDetail from '@/pages/users/UserDetail';
 
 const NotFound = lazy(() => import(/* webpackChunkName: "404'"*/ '@/pages/404'));
 // const Documentation = lazy(() => import(/* webpackChunkName: "404'"*/ '@/pages/doucumentation'));
@@ -55,12 +57,20 @@ const routeList: RouteObject[] = [
         path: 'nguoi-dung',
         element: <WrapperRouteComponent auth element={<UserListPage />} titleId="title.dashboard" />,
       },
+      {
+        path: 'nguoi-dung/tao-moi',
+        element: <WrapperRouteComponent auth element={<CreateNewUser />} titleId="title.dashboard" />,
+      },
+      {
+        path: 'nguoi-dung/:id',
+        element: <WrapperRouteComponent auth element={<UserDetail />} titleId="title.dashboard" />,
+      },
       // {
       //   path: 'documentation',
       //   element: <WrapperRouteComponent element={<Documentation />} titleId="title.documentation" />,
       // },
       {
-        path: 'permissionManagement',
+        path: 'quan-ly-nguoi-dung',
         element: <WrapperRouteComponent auth element={<PermissionManagement />} titleId="title.documentation" />,
       },
 

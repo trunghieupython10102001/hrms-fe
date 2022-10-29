@@ -1,7 +1,7 @@
-import { createSlice, PayloadAction, Dispatch, createAsyncThunk } from '@reduxjs/toolkit';
-import { apiLogin, apiLogout } from '@/api/user.api';
+import { createSlice, PayloadAction, createAsyncThunk, CaseReducer } from '@reduxjs/toolkit';
+import { apiLogin, getAllUser } from '@/api/user.api';
 import { LoginParams, Role } from '@/interface/user/login';
-import { Locale, UserState } from '@/interface/user/user';
+import { IUser, Locale, UserState } from '@/interface/user/user';
 import { getGlobalState } from '@/utils/getGloabal';
 
 const KEY_ACCESS_TOKEN = 'accessToken';
@@ -9,25 +9,63 @@ const KEY_ACCESS_TOKEN = 'accessToken';
 const initialState: UserState = {
   ...getGlobalState(),
   noticeCount: 0,
+  id: Number(localStorage.getItem('uid')) || 1,
   locale: (localStorage.getItem('locale')! || 'en_US') as Locale,
   newUser: JSON.parse(localStorage.getItem('newUser')!) ?? true,
   logged: localStorage.getItem(KEY_ACCESS_TOKEN) ? true : false,
   menuList: [],
   username: localStorage.getItem('username') || '',
   role: (localStorage.getItem('username') || '') as Role,
+  userList: {
+    data: [],
+    totalUser: 0,
+    status: 'init',
+  },
 };
 
 const login = createAsyncThunk('user/login', async (payload: LoginParams) => {
-  const { result } = await apiLogin({ username: payload.username, password: payload.password });
+  const [response, error] = (await apiLogin({ username: payload.username, password: payload.password })) as any;
 
-  if (payload.remember) {
-    localStorage.setItem(KEY_ACCESS_TOKEN, result.token);
+  if (error) {
+    return [undefined, error];
   }
 
-  return {
-    username: result.username,
-  };
+  if (payload.remember) {
+    localStorage.setItem(KEY_ACCESS_TOKEN, response.accessToken);
+  }
+
+  if (response.data) {
+    localStorage.setItem('uid', response.data.user.userId);
+    localStorage.setItem('username', response.data.user.username);
+
+    return [
+      {
+        username: response.data.user.username,
+        id: response.data.user.userId,
+      },
+      undefined,
+    ];
+  }
+
+  return [undefined, error];
 });
+
+const getUserList = createAsyncThunk('user/getUserList', async () => {
+  const [response, error] = (await getAllUser()) as any;
+
+  if (error) {
+    return [undefined, error];
+  }
+
+  return [response, undefined];
+});
+
+const _logout: CaseReducer<UserState> = state => {
+  state.username = '';
+  state.id = undefined;
+  state.logged = false;
+  localStorage.clear();
+};
 
 const userSlice = createSlice({
   name: 'user',
@@ -42,34 +80,42 @@ const userSlice = createSlice({
 
       Object.assign(state, action.payload);
     },
+    logout: _logout,
   },
   extraReducers(builder) {
-    builder.addCase(login.fulfilled, state => {
+    builder.addCase(login.fulfilled, (state, action) => {
       state.logged = true;
+      const [userInfo, error] = action.payload as any;
+
+      if (error) {
+        return;
+      }
+
+      state.username = userInfo.username;
+      state.id = userInfo.id;
+    });
+
+    builder.addCase(getUserList.pending, state => {
+      state.userList.status = 'loading';
+    });
+
+    builder.addCase(getUserList.fulfilled, (state, action) => {
+      const [users, error] = action.payload;
+
+      if (error) {
+        state.userList.status = 'error';
+
+        return;
+      }
+
+      state.userList.data = users as IUser[];
+      state.userList.totalUser = users?.length || 0;
+      state.userList.status = 'success';
     });
   },
 });
 
-export const { setUserItem } = userSlice.actions;
-export const userAsyncActions = { login };
+export const { setUserItem, logout } = userSlice.actions;
+export const userAsyncActions = { login, getUserList };
 
 export default userSlice.reducer;
-
-export const logoutAsync = () => {
-  return async (dispatch: Dispatch) => {
-    const { status } = await apiLogout({ token: localStorage.getItem('t')! });
-
-    if (status) {
-      localStorage.clear();
-      dispatch(
-        setUserItem({
-          logged: false,
-        }),
-      );
-
-      return true;
-    }
-
-    return false;
-  };
-};

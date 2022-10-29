@@ -10,6 +10,7 @@ import { Outlet, useLocation } from 'react-router';
 import { setUserItem } from '@/stores/user.store';
 import { useDispatch, useSelector } from 'react-redux';
 import { getFirstPathCode } from '@/utils/getFirstPathCode';
+import { ProfileOutlined, UsergroupAddOutlined } from '@ant-design/icons';
 
 const { Sider, Content } = Layout;
 const WIDTH = 992;
@@ -39,23 +40,17 @@ const LayoutPage: FC = () => {
 
   useEffect(() => {
     setMenuList([
-      // {
-      //   code: 'dashboard',
-      //   label: 'Trang chủ',
-      //   icon: 'dashboard',
-      //   path: '/dashboard',
-      // },
       {
         code: 'nguoi-dung',
         label: 'Danh sách người dùng',
         path: '/nguoi-dung',
-        icon: 'dashboard',
+        icon: <UsergroupAddOutlined />,
       },
       {
-        code: 'permissionManagement',
+        code: 'quan-ly-nguoi-dung',
         label: 'Quản lý người dùng',
-        icon: 'documentation',
-        path: '/permissionManagement',
+        path: '/quan-ly-nguoi-dung',
+        icon: <ProfileOutlined />,
       },
     ]);
   }, []);

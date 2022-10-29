@@ -11,6 +11,7 @@ import RenderRouter from './routes';
 import { useDispatch, useSelector } from 'react-redux';
 import { history, HistoryRouter } from '@/routes/history';
 import { setGlobalState } from './stores/global.store';
+import vi_VN from 'antd/lib/locale/vi_VN';
 
 const isDev = import.meta.env.MODE === 'development';
 
@@ -73,7 +74,7 @@ const App: React.FC = () => {
   // };
 
   return (
-    <ConfigProvider>
+    <ConfigProvider locale={vi_VN}>
       <ThemeSwitcherProvider defaultTheme={theme} themeMap={themes}>
         <IntlProvider locale={locale.split('_')[0]} messages={localeConfig[locale]}>
           <HistoryRouter history={history}>

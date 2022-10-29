@@ -2,7 +2,6 @@ import { FC } from 'react';
 import { Menu } from 'antd';
 import { MenuList } from '../../interface/layout/menu.interface';
 import { useNavigate } from 'react-router-dom';
-import { CustomIcon } from './customIcon';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserItem } from '@/stores/user.store';
 
@@ -25,7 +24,7 @@ const MenuComponent: FC<MenuProps> = props => {
   const getTitie = (menu: MenuList[0]) => {
     return (
       <span style={{ display: 'flex', alignItems: 'center' }}>
-        <CustomIcon type={menu.icon!} />
+        {menu.icon}
         <span>{menu.label}</span>
       </span>
     );

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Avator from '@/assets/header/avator.jpeg';
 import Logo from '@/assets/logo/Logo.jpg';
 import { LocaleFormatter } from '@/locales';
-import { logoutAsync } from '@/stores/user.store';
+import { logout } from '@/stores/user.store';
 import { useDispatch, useSelector } from 'react-redux';
 
 const { Header } = Layout;
@@ -29,9 +29,8 @@ const HeaderComponent: FC<HeaderProps> = ({ collapsed, toggle }) => {
       case 'userSetting':
         return;
       case 'logout':
-        const res = Boolean(await dispatch(logoutAsync()));
-
-        res && navigate('/login');
+        dispatch(logout());
+        navigate('/login');
 
         return;
     }

@@ -8,10 +8,11 @@ export interface LoginParams {
 }
 
 export interface LoginResult {
-  /** auth token */
-  token: string;
-  username: string;
-  role: Role;
+  user: {
+    username: string;
+    id: string | number;
+  };
+  accessToken: string;
 }
 
 export interface LogoutParams {

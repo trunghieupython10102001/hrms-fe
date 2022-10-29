@@ -1,9 +1,9 @@
 import { QUERY_KEYS } from '@/constants/keys';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
-import { enterpriseAsyncActions } from '@/stores/enterprise.store';
-import { Button, Input } from 'antd';
+import { userAsyncActions } from '@/stores/user.store';
+import { Input } from 'antd';
 import { useEffect, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 import './index.less';
 import UserList from './UserList';
@@ -13,9 +13,9 @@ const DEFAULT_PAGE_SIZE = 10;
 
 export default function UserListPage() {
   const [queryParams, setQueryParams] = useSearchParams();
-  const data = useAppSelector(state => state.enterprise.data.enterprises);
-  const loadingStatus = useAppSelector(state => state.enterprise.status);
-  const total = useAppSelector(state => state.enterprise.data.total);
+  const data = useAppSelector(state => state.user.userList.data);
+  const loadingStatus = useAppSelector(state => state.user.userList.status);
+  const total = useAppSelector(state => state.user.userList.totalUser);
 
   const dispatch = useAppDispatch();
 
@@ -37,15 +37,17 @@ export default function UserListPage() {
   };
 
   useEffect(() => {
-    dispatch(enterpriseAsyncActions.getEnterpriseList());
+    dispatch(userAsyncActions.getUserList());
   }, [dispatch]);
 
   return (
     <div className="user-list-page">
       <h1 className="page-title">Danh sách người dùng</h1>
       <div className="page-action-main">
-        <Input.Search placeholder="Tìm kiếm" onSearch={onSearchUser} enterButton />
-        <Button type="primary">Thêm mới</Button>
+        <Input.Search className="page-search-box" placeholder="Tìm kiếm" onSearch={onSearchUser} enterButton />
+        <Link to="/nguoi-dung/tao-moi" className="page-navigate-link">
+          Thêm mới
+        </Link>
       </div>
       <UserList data={data} pagination={pagination} loading={loadingStatus === 'loading'} />
     </div>

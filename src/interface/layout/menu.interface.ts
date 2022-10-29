@@ -1,7 +1,9 @@
+import { ReactNode } from 'react';
+
 interface MenuItem {
   code: string;
   label: string;
-  icon?: string;
+  icon?: ReactNode;
   path: string;
   children?: MenuItem[];
 }

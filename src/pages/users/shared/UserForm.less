@@ -1,0 +1,40 @@
+.user-form {
+  .remove-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    border: 2px solid black;
+    border-radius: 99999px;
+    line-height: 1;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.25s;
+
+    &:hover {
+      background-color: blue;
+    }
+  }
+
+  .avatar {
+    width: 200px;
+  }
+
+  .avatar-container {
+    &:hover .remove-btn {
+      opacity: 1;
+    }
+  }
+
+  .submit {
+    &-container {
+      display: flex;
+      justify-content: end;
+    }
+  }
+}

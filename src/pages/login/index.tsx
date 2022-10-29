@@ -23,13 +23,16 @@ const LoginForm: FC = () => {
 
   const onFinished = async (form: LoginParams) => {
     setIsSubmitting(true);
-    const result = await dispatch(userAsyncActions.login(form)).unwrap();
 
-    setIsSubmitting(false);
+    const [, error] = await dispatch(userAsyncActions.login(form)).unwrap();
 
-    console.log('Result: ', result);
-
-    if (!!result) {
+    if (error) {
+      notification.error({
+        message: 'Có lỗi xảy ra',
+        description: 'Đăng nhập không thành công',
+      });
+      setIsSubmitting(false);
+    } else {
       const search = formatSearch(location.search);
       const from = search.from || { pathname: '/' };
 

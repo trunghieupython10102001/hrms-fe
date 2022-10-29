@@ -1,34 +1,35 @@
-import { IEnterprise, EEnterpriseStatus, EEnterpriseType } from '@/interface/business';
+import { IUser } from '@/interface/user/user';
 import { Table, TableColumnsType } from 'antd';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import moment from 'moment';
 
 interface IComponentProps {
-  data: IEnterprise[];
+  data: IUser[];
   pagination: any;
   loading: boolean;
 }
 
 export default function UserList({ data, pagination, loading }: IComponentProps) {
-  const tableColumns: TableColumnsType<IEnterprise> = useMemo<TableColumnsType<IEnterprise>>(() => {
+  const tableColumns: TableColumnsType<IUser> = useMemo<TableColumnsType<IUser>>(() => {
     return [
       {
-        title: 'Mã doanh nghiệp',
+        title: 'Mã người dùng',
         dataIndex: 'id',
         key: 'id',
         render: id => <Link to={`/nguoi-dung/${id}`}>{id}</Link>,
       },
       {
-        title: 'Tên doanh nghiệp',
-        dataIndex: 'name',
-        key: 'name',
-        render: name => <span className="capitalized">{name}</span>,
+        title: 'Tài khoản',
+        dataIndex: 'username',
+        key: 'username',
+        render: username => <span className="capitalized">{username}</span>,
       },
       {
-        title: 'Loại doanh nghiệp',
-        dataIndex: 'type',
-        key: 'type',
-        render: type => <span className="capitalized">{EEnterpriseType[type]}</span>,
+        title: 'Họ tên',
+        dataIndex: 'fullname',
+        key: 'fullname',
+        render: fullname => <span className="capitalized">{fullname}</span>,
       },
       {
         title: 'Email',
@@ -38,15 +39,15 @@ export default function UserList({ data, pagination, loading }: IComponentProps)
       },
       {
         title: 'Số điện thoại',
-        dataIndex: 'phone',
-        key: 'phone',
-        render: phone => <span className="capitalized">{phone}</span>,
+        dataIndex: 'phoneNumber',
+        key: 'phoneNumber',
+        render: phoneNumber => <span className="capitalized">{phoneNumber}</span>,
       },
       {
-        title: 'Trạng thái',
-        dataIndex: 'status',
-        key: 'status',
-        render: status => <span className="capitalized">{EEnterpriseStatus[status]}</span>,
+        title: 'Ngày sinh',
+        dataIndex: 'dateOfBirth',
+        key: 'dateOfBirth',
+        render: dateOfBirth => <span className="capitalized">{moment(dateOfBirth).format('DD/MM/YYYY')}</span>,
       },
     ];
   }, []);

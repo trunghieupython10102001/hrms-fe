@@ -5,6 +5,7 @@ import { Role } from './login';
 export type Locale = 'zh_CN' | 'en_US';
 
 export interface UserState {
+  id?: number;
   username: string;
 
   /** menu list for init tagsView */
@@ -29,4 +30,28 @@ export interface UserState {
 
   /** Is first time to view the site ? */
   newUser: boolean;
+
+  userList: {
+    data: IUser[];
+
+    totalUser: number;
+
+    status: 'init' | 'loading' | 'success' | 'error';
+
+    error?: any;
+  };
+}
+
+export interface IUser {
+  id?: number;
+  username: string;
+  password?: string;
+  email: string;
+  fullname: string;
+  phoneNumber: string;
+  dateOfBirth: string;
+  avatarUrl: string;
+  createdBy?: number;
+  createdAt?: string;
+  upDatedAt?: string;
 }

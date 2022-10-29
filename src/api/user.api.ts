@@ -1,14 +1,25 @@
 import { request } from './request';
-import { LoginResult, LoginParams, LogoutParams, LogoutResult } from '../interface/user/login';
+import { LoginResult, LoginParams } from '../interface/user/login';
+import { IUser } from '@/interface/user/user';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const apiLogin = (data: LoginParams) => {
-  console.log('Login data: ', data);
+export const apiLogin = async (data: LoginParams) => {
+  try {
+    const response = await request<LoginResult>('post', '/auth/signin', data);
 
-  return new Promise<{ result: LoginResult }>(res => {
-    setTimeout(() => res({ result: { username: 'Hoangzzzsss', token: '123', role: 'admin' } }), 1500);
-  });
-  //   request<LoginResult>('post', '/user/login', data);
+    return [response, undefined];
+  } catch (error) {
+    return [undefined, error];
+  }
 };
 
-export const apiLogout = (data: LogoutParams) => request<LogoutResult>('post', '/user/logout', data);
+export const createNewUser = (form: IUser) => request('post', '/auth/signup', form);
+export const getUserDetail = (id: string | number) => request('get', `/user/${id}`);
+export const getAllUser = async () => {
+  try {
+    const response: any = await request('get', '/auth/getAll');
+
+    return [response.data, undefined];
+  } catch (error) {
+    return [undefined, error];
+  }
+};
