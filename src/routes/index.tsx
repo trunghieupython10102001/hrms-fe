@@ -9,10 +9,13 @@ import VoidLayout from '@/pages/layout/VoidLayout';
 import UserListPage from '@/pages/users';
 import CreateNewUser from '@/pages/users/CreateNewUser';
 import UserDetail from '@/pages/users/UserDetail';
+import EnterpriseListPage from '@/pages/Enterprise';
+import DetailEnterprise from '@/pages/Enterprise/DetailEnterprise';
+import CreateNewEnterprise from '@/pages/Enterprise/CreateNewEnterprise';
 
 const NotFound = lazy(() => import(/* webpackChunkName: "404'"*/ '@/pages/404'));
 // const Documentation = lazy(() => import(/* webpackChunkName: "404'"*/ '@/pages/doucumentation'));
-const PermissionManagement = lazy(() => import(/* webpackChunkName: "404'"*/ '@/pages/permissionManagement'));
+// const PermissionManagement = lazy(() => import(/* webpackChunkName: "404'"*/ '@/pages/permissionManagement'));
 // const Guide = lazy(() => import(/* webpackChunkName: "guide'"*/ '@/pages/guide'));
 // const RoutePermission = lazy(() => import(/* webpackChunkName: "route-permission"*/ '@/pages/permission/route'));
 // const FormPage = lazy(() => import(/* webpackChunkName: "form'"*/ '@/pages/components/form'));
@@ -46,8 +49,8 @@ const routeList: RouteObject[] = [
     element: <WrapperRouteComponent element={<LayoutPage />} titleId="" />,
     children: [
       {
-        path: '',
-        element: <Navigate to="nguoi-dung" />,
+        index: true,
+        element: <Navigate to="nguoi-dung" replace />,
       },
       // {
       //   path: 'dashboard',
@@ -65,14 +68,26 @@ const routeList: RouteObject[] = [
         path: 'nguoi-dung/:id',
         element: <WrapperRouteComponent auth element={<UserDetail />} titleId="title.dashboard" />,
       },
+      {
+        path: 'doanh-nghiep',
+        element: <WrapperRouteComponent auth element={<EnterpriseListPage />} titleId="title.dashboard" />,
+      },
+      {
+        path: 'doanh-nghiep/tao-moi',
+        element: <WrapperRouteComponent auth element={<CreateNewEnterprise />} titleId="title.dashboard" />,
+      },
+      {
+        path: 'doanh-nghiep/:id',
+        element: <WrapperRouteComponent auth element={<DetailEnterprise />} titleId="title.dashboard" />,
+      },
       // {
       //   path: 'documentation',
       //   element: <WrapperRouteComponent element={<Documentation />} titleId="title.documentation" />,
       // },
-      {
-        path: 'quan-ly-nguoi-dung',
-        element: <WrapperRouteComponent auth element={<PermissionManagement />} titleId="title.documentation" />,
-      },
+      // {
+      //   path: 'quan-ly-nguoi-dung',
+      //   element: <WrapperRouteComponent auth element={<PermissionManagement />} titleId="title.documentation" />,
+      // },
 
       /*  {
         path: 'guide',

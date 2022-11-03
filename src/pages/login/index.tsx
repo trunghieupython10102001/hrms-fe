@@ -9,8 +9,8 @@ import { formatSearch } from '@/utils/formatSearch';
 import { useAppDispatch } from '@/hooks/store';
 
 const initialValues: LoginParams = {
-  username: 'guest',
-  password: 'guest',
+  username: 'hoangzzzsss',
+  password: '123',
   remember: true,
 };
 

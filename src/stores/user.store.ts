@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk, CaseReducer } from '@reduxjs/toolkit';
-import { apiLogin, getAllUser } from '@/api/user.api';
+import { apiLogin, getAllRoles, getAllUser } from '@/api/user.api';
 import { LoginParams, Role } from '@/interface/user/login';
 import { IUser, Locale, UserState } from '@/interface/user/user';
 import { getGlobalState } from '@/utils/getGloabal';
@@ -21,6 +21,7 @@ const initialState: UserState = {
     totalUser: 0,
     status: 'init',
   },
+  roleList: [],
 };
 
 const login = createAsyncThunk('user/login', async (payload: LoginParams) => {
@@ -31,7 +32,7 @@ const login = createAsyncThunk('user/login', async (payload: LoginParams) => {
   }
 
   if (payload.remember) {
-    localStorage.setItem(KEY_ACCESS_TOKEN, response.accessToken);
+    localStorage.setItem(KEY_ACCESS_TOKEN, response.data.accessToken);
   }
 
   if (response.data) {
@@ -58,6 +59,16 @@ const getUserList = createAsyncThunk('user/getUserList', async () => {
   }
 
   return [response, undefined];
+});
+
+const getRolesList = createAsyncThunk('user/getRolesList', async () => {
+  const [data, error] = (await getAllRoles()) as any;
+
+  if (error) {
+    return [undefined, error];
+  }
+
+  return [data, undefined];
 });
 
 const _logout: CaseReducer<UserState> = state => {
@@ -112,10 +123,20 @@ const userSlice = createSlice({
       state.userList.totalUser = users?.length || 0;
       state.userList.status = 'success';
     });
+
+    builder.addCase(getRolesList.fulfilled, (state, action) => {
+      const [roles, error] = action.payload;
+
+      if (error) {
+        return;
+      }
+
+      state.roleList = roles;
+    });
   },
 });
 
 export const { setUserItem, logout } = userSlice.actions;
-export const userAsyncActions = { login, getUserList };
+export const userAsyncActions = { login, getUserList, getRolesList };
 
 export default userSlice.reducer;

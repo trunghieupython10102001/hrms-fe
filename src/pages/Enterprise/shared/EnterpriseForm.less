@@ -1,4 +1,4 @@
-.user-form {
+.enterprise-form {
   .remove-btn {
     position: absolute;
     top: 0.5rem;
@@ -20,16 +20,8 @@
       background-color: blue;
     }
   }
-
-  .avatar {
-    width: 200px;
-    height: 200px;
-  }
-
-  .avatar-container {
-    &:hover .remove-btn {
-      opacity: 1;
-    }
+  .flex > .ant-form-item {
+    width: 50%;
   }
 
   .submit {
@@ -41,7 +33,8 @@
   }
 
   input,
-  input:disabled {
+  input:disabled,
+  .ant-select-selector {
     color: black !important;
   }
 }

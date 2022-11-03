@@ -10,7 +10,7 @@ import { Outlet, useLocation } from 'react-router';
 import { setUserItem } from '@/stores/user.store';
 import { useDispatch, useSelector } from 'react-redux';
 import { getFirstPathCode } from '@/utils/getFirstPathCode';
-import { ProfileOutlined, UsergroupAddOutlined } from '@ant-design/icons';
+import { UsergroupAddOutlined } from '@ant-design/icons';
 
 const { Sider, Content } = Layout;
 const WIDTH = 992;
@@ -47,10 +47,10 @@ const LayoutPage: FC = () => {
         icon: <UsergroupAddOutlined />,
       },
       {
-        code: 'quan-ly-nguoi-dung',
-        label: 'Quản lý người dùng',
-        path: '/quan-ly-nguoi-dung',
-        icon: <ProfileOutlined />,
+        code: 'doanh-nghiep',
+        label: 'Danh sách doanh nghiệp',
+        path: '/doanh-nghiep',
+        icon: <UsergroupAddOutlined />,
       },
     ]);
   }, []);

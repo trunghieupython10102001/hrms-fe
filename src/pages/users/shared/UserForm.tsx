@@ -1,10 +1,11 @@
 import { useAppSelector } from '@/hooks/store';
-import { IUser } from '@/interface/user/user';
+import { IUser, IUserRole } from '@/interface/user/user';
 import { readFileAsync } from '@/utils/promisifiedFileReader';
 import { CloseOutlined } from '@ant-design/icons';
 import { Button, DatePicker, Form, Input, Upload, UploadProps } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
+import PermisstionList from './PermisstionList';
 
 import './UserForm.less';
 
@@ -12,6 +13,7 @@ interface IComponentProps {
   user?: IUser;
   isEditable?: boolean;
   isSubmitting?: boolean;
+  userPermisions?: IUserRole[];
   onSubmit?: (form: IUser) => Promise<void>;
 }
 
@@ -40,7 +42,7 @@ const defaultForm: IUser = {
   avatarUrl: '',
 };
 
-export default function UserForm({ user, isEditable = true, isSubmitting, onSubmit }: IComponentProps) {
+export default function UserForm({ user, isEditable = true, isSubmitting, onSubmit, userPermisions }: IComponentProps) {
   const [form] = Form.useForm<IUser>();
   const avatar = form.getFieldValue('avatarUrl');
   const [, forceUpdate] = useState(0);
@@ -178,6 +180,10 @@ export default function UserForm({ user, isEditable = true, isSubmitting, onSubm
           </Form.Item>
         </div>
       </div>
+
+      <h2 className="page-title">Quyền hạn của người dùng</h2>
+      <PermisstionList isEditable={isEditable} roles={userPermisions} />
+
       {isEditable && (
         <div className="submit-container">
           <Button htmlType="submit" type="primary" loading={isSubmitting}>

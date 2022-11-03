@@ -44,7 +44,12 @@ export default function UserListPage() {
     <div className="user-list-page">
       <h1 className="page-title">Danh sách người dùng</h1>
       <div className="page-action-main">
-        <Input.Search className="page-search-box" placeholder="Tìm kiếm" onSearch={onSearchUser} enterButton />
+        <Input.Search
+          className="page-search-box"
+          placeholder="Tìm kiếm theo tên người dùng"
+          onSearch={onSearchUser}
+          enterButton
+        />
         <Link to="/nguoi-dung/tao-moi" className="page-navigate-link">
           Thêm mới
         </Link>

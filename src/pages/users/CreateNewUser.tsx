@@ -2,13 +2,33 @@ import UserForm from './shared/UserForm';
 
 import './CreateNewUser.less';
 import { Link, useNavigate } from 'react-router-dom';
-import { IUser } from '@/interface/user/user';
-import { useState } from 'react';
+import { IUser, IUserRole } from '@/interface/user/user';
+import { useEffect, useState } from 'react';
 import { createNewUser as createNewUserAPI } from '@/api/user.api';
 import { notification } from 'antd';
+import { useAppDispatch, useAppSelector } from '@/hooks/store';
+import { userAsyncActions } from '@/stores/user.store';
+import _cloneDeep from 'lodash/cloneDeep';
+
+function transformRoleToUserRoles(roles: IUserRole[]) {
+  const transformedRoles = _cloneDeep(roles);
+
+  transformedRoles.forEach(role => {
+    role.isGrant = false;
+    role.isInsert = false;
+    role.isUpdate = false;
+    role.isDelete = false;
+  });
+
+  return transformedRoles;
+}
 
 export default function CreateNewUser() {
+  const roleList = useAppSelector(state => state.user.roleList);
+  const dispatch = useAppDispatch();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userPermissons, setUserPermissons] = useState<IUserRole[]>([]);
   const navigator = useNavigate();
 
   const createNewUser = async (form: IUser) => {
@@ -33,6 +53,21 @@ export default function CreateNewUser() {
     }
   };
 
+  useEffect(() => {
+    const getRolesList = async () => {
+      if (roleList.length === 0) {
+        const [data] = await dispatch(userAsyncActions.getRolesList()).unwrap();
+        const transformedData = transformRoleToUserRoles(data);
+
+        console.log(transformedData);
+
+        setUserPermissons(transformedData);
+      }
+    };
+
+    getRolesList();
+  }, [roleList.length]);
+
   return (
     <div className="user-create-page">
       <div className="page-title-container">
@@ -41,7 +76,7 @@ export default function CreateNewUser() {
           Quay lại
         </Link>
       </div>
-      <UserForm onSubmit={createNewUser} isSubmitting={isSubmitting} />
+      <UserForm onSubmit={createNewUser} isSubmitting={isSubmitting} userPermisions={userPermissons} />
     </div>
   );
 }

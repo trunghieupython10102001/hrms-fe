@@ -1,3 +1,5 @@
+import { history } from '@/routes/history';
+import { notification } from 'antd';
 import axios, { AxiosRequestConfig, Method } from 'axios';
 // import { history } from '@/routes/history';
 
@@ -10,6 +12,11 @@ const BASE_URL = 'http://localhost:3030/api/v1';
 axiosInstance.interceptors.request.use(
   config => {
     config.baseURL = BASE_URL;
+    const accessToken = localStorage.getItem('accessToken') || '';
+
+    if (accessToken && config.headers) {
+      config.headers['Authorization'] = `Bearer ${accessToken}`;
+    }
 
     return config;
   },
@@ -18,9 +25,19 @@ axiosInstance.interceptors.request.use(
   // },
 );
 
-// axiosInstance.interceptors.response.use(undefined, error => {
-//   return Promise.reject(error);
-// });
+axiosInstance.interceptors.response.use(undefined, error => {
+  if (error.response.status === 401 && error.response.data.message === 'Unauthorized') {
+    history.replace('/login');
+    notification.error({
+      message: 'Phiên đăng nhập hết hạn',
+      description: 'Bạn vui lòng đăng nhập lại để tiếp tục',
+    });
+
+    return Promise.reject(error.response);
+  }
+
+  return Promise.reject(error);
+});
 
 export type Response<T = any> = {
   status: boolean;

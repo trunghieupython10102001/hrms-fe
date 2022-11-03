@@ -41,6 +41,8 @@ export interface UserState {
 
     error?: any;
   };
+
+  roleList: IUserRole[];
 }
 
 export interface IUser {
@@ -55,4 +57,25 @@ export interface IUser {
   createdBy?: number;
   createdAt?: string;
   upDatedAt?: string;
+}
+
+export interface IUserRole {
+  id: number;
+  functionName: string;
+  isDisplay: boolean;
+  isActive: boolean;
+  parentID: number;
+  createdBy: number;
+  createdAt: string;
+  upDatedAt: string;
+  isGrant: boolean;
+  isInsert: boolean;
+  isUpdate: boolean;
+  isDelete: boolean;
+}
+export interface IRole {
+  userID: number;
+  functionID: number;
+  functions: IUserRole[];
+  user: IUser;
 }
