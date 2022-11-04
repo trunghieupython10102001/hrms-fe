@@ -28,3 +28,14 @@ export interface IEnterprise {
   updateTime: string;
   updateUser?: string;
 }
+
+export interface IContact {
+  logID: number;
+  businessID: number;
+  content: string;
+  note: string;
+  createTime?: string;
+  createUser?: string;
+  updateTime?: string;
+  updateUser?: string;
+}

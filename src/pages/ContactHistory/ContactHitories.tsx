@@ -1,18 +1,17 @@
 import { QUERY_KEYS } from '@/constants/keys';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
-import { enterpriseAsyncActions } from '@/stores/enterprise.store';
+import { contactAsyncActions } from '@/stores/contact.store';
 import { Input } from 'antd';
 import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import EnterpriseList from './shared/EnterpriseList';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
+import ContactHistoriesList from './shared/ContactHistoriesList';
 
-import './index.less';
-
-export default function ContactHistory() {
-  const enterpriseList = useAppSelector(state => state.enterprise.data.enterprises);
-  const dataStatus = useAppSelector(state => state.enterprise.status);
+export default function ContactHistoryListPage() {
+  const params = useParams();
+  const enterpriseID = params.enterpriseID;
   const dispatch = useAppDispatch();
-
+  const contactList = useAppSelector(state => state.contact.data.contactHistories);
+  const dataStatus = useAppSelector(state => state.contact.status);
   const [queryParams, setQueryParams] = useSearchParams();
 
   const onSearchUser = (searchValue: string) => {
@@ -25,13 +24,13 @@ export default function ContactHistory() {
   };
 
   useEffect(() => {
-    if (enterpriseList.length === 0) {
-      dispatch(enterpriseAsyncActions.getEnterpriseList());
+    if (contactList.length === 0) {
+      dispatch(contactAsyncActions.getContactList(Number(enterpriseID)));
     }
   }, []);
 
   return (
-    <main className="contact-history-list-page">
+    <main className="enterprise-list-page">
       <h1 className="page-title">Danh sách lịch sử tiếp cận doanh nghiệp</h1>
       <div className="page-action-main">
         <Input.Search
@@ -40,8 +39,11 @@ export default function ContactHistory() {
           onSearch={onSearchUser}
           enterButton
         />
+        <Link to="/lich-su-tiep-can/tao-moi" className="page-navigate-link">
+          Thêm mới
+        </Link>
       </div>
-      <EnterpriseList data={enterpriseList} pagination={false} loading={dataStatus === 'loading'} />
+      <ContactHistoriesList data={contactList} pagination={false} loading={dataStatus === 'loading'} />
     </main>
   );
 }

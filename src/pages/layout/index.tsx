@@ -52,6 +52,12 @@ const LayoutPage: FC = () => {
         path: '/doanh-nghiep',
         icon: <UsergroupAddOutlined />,
       },
+      {
+        code: 'lich-su-tiep-can',
+        label: 'Danh sách lịch sử tiếp cận doanh nghiệp',
+        path: '/lich-su-tiep-can',
+        icon: <UsergroupAddOutlined />,
+      },
     ]);
   }, []);
 
@@ -82,7 +88,7 @@ const LayoutPage: FC = () => {
             collapsedWidth={isMobile ? 0 : 80}
             collapsed={collapsed}
             breakpoint="md"
-            width={250}
+            width={350}
           >
             <MenuComponent
               menuList={menuList}
@@ -94,7 +100,7 @@ const LayoutPage: FC = () => {
           </Sider>
         ) : (
           <Drawer
-            width="200"
+            width="300"
             placement="left"
             bodyStyle={{ padding: 0, height: '100%' }}
             closable={false}
