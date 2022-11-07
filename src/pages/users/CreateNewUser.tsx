@@ -28,7 +28,7 @@ export default function CreateNewUser() {
   const dispatch = useAppDispatch();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [userPermissons, setUserPermissons] = useState<IUserRole[]>([]);
+  const [userPermissons, setUserPermissons] = useState<IUserRole[]>(roleList);
   const navigator = useNavigate();
 
   const createNewUser = async (form: IUser) => {
@@ -66,7 +66,7 @@ export default function CreateNewUser() {
     };
 
     getRolesList();
-  }, [roleList.length]);
+  }, [roleList]);
 
   return (
     <div className="user-create-page">

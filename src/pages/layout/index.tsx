@@ -53,9 +53,9 @@ const LayoutPage: FC = () => {
         icon: <UsergroupAddOutlined />,
       },
       {
-        code: 'lich-su-tiep-can',
-        label: 'Danh sách lịch sử tiếp cận doanh nghiệp',
-        path: '/lich-su-tiep-can',
+        code: 'linh-vuc-kinh-doanh',
+        label: 'Quản lý lĩnh vực kinh doanh',
+        path: '/linh-vuc-kinh-doanh',
         icon: <UsergroupAddOutlined />,
       },
     ]);

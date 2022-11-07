@@ -86,7 +86,7 @@ export default function UserForm({ user, isEditable = true, isSubmitting, onSubm
 
   useEffect(() => {
     if (user) {
-      form.setFieldsValue({ ...user, dateOfBirth: moment(user.dateOfBirth) });
+      form.setFieldsValue({ ...user, dateOfBirth: moment(user.dateOfBirth), password: '' });
       forceUpdate(i => i + 1);
     }
   }, [user]);

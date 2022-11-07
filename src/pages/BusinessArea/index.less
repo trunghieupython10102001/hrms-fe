@@ -1,4 +1,4 @@
-.enterprise-list-page {
+.business-area-list-page {
   .page {
     &-title {
       font-size: 2rem;
@@ -26,7 +26,25 @@
     }
   }
 
-  .menu-item {
-    padding: 0.5rem 2.5rem;
+  .action-btns {
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: all 0.25s;
+    &:hover {
+      background-color: rgba(185, 185, 185, 0.553);
+    }
+  }
+}
+
+.modal {
+  .title {
+    font-size: large;
+    font-weight: 700;
+  }
+
+  .submit-container {
+    display: flex;
+    justify-content: flex-end;
   }
 }
