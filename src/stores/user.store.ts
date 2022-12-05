@@ -21,7 +21,10 @@ const initialState: UserState = {
     totalUser: 0,
     status: 'init',
   },
-  roleList: [],
+  roleList: {
+    data: [],
+    status: 'init',
+  },
 };
 
 const login = createAsyncThunk('user/login', async (payload: LoginParams) => {
@@ -124,14 +127,23 @@ const userSlice = createSlice({
       state.userList.status = 'success';
     });
 
+    builder.addCase(getRolesList.pending, state => {
+      state.roleList.status = 'loading';
+      state.roleList.error = undefined;
+    });
+
     builder.addCase(getRolesList.fulfilled, (state, action) => {
       const [roles, error] = action.payload;
 
       if (error) {
+        state.roleList.status = 'error';
+        state.roleList.error = error;
+
         return;
       }
 
       state.roleList = roles;
+      state.roleList.status = 'success';
     });
   },
 });

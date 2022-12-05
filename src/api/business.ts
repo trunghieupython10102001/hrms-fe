@@ -1,13 +1,21 @@
 import { request } from './request';
-import { PageData } from '@/interface';
-import { BuniesssUser, IEnterprise } from '@/interface/business';
-import { sleep } from '@/utils/misc';
 
-export const getBusinessUserList = (params: any) => request<PageData<BuniesssUser>>('get', '/business/list', params);
+// export const getBusinessUserList = (params: any) => request<PageData<BuniesssUser>>('get', '/business', params);
 
-export const createEnterprise = async (form: IEnterprise) => {
-  await sleep(1500);
+export const getEnterprises = (params?: any) => request('get', '/business', params);
+export const getBusinessAreasList = (params?: any) => request('get', '/business-area', params);
+export const createOrUpdateBussinessArea = (data: any) => request('post', '/business-area', data);
 
-  return form;
-  //  request('get', '/');
+export const getDetailEnterprise = (id: string) =>
+  request('get', '/business/', {
+    businessId: id,
+  });
+export const getContactList = (params?: object) => request('get', '/contact-log', params);
+
+export const createEnterprise = async (form: object) => {
+  return request('post', '/business', form);
+};
+
+export const createContactHistory = async (form: object) => {
+  return request('post', '/contact-log', form);
 };

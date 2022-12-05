@@ -8,6 +8,7 @@ import { notification } from 'antd';
 import { useState } from 'react';
 import { useAppDispatch } from '@/hooks/store';
 import { enterpriseAsyncActions } from '@/stores/enterprise.store';
+import { mapEnterpriseInfoToAPIRequest } from '@/utils/mapEnterpriseAPIResponseToEnterprise';
 
 export default function CreateNewEnterprise() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -17,7 +18,9 @@ export default function CreateNewEnterprise() {
   const createNewEnterpriseHandler = async (form: IEnterprise) => {
     console.log('Data: ', form);
     setIsSubmitting(true);
-    const _result = await createEnterprise(form);
+    const result = await createEnterprise(mapEnterpriseInfoToAPIRequest(form));
+
+    console.log('Result: ', result);
 
     setIsSubmitting(false);
 

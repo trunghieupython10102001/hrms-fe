@@ -2,7 +2,7 @@ import { IContact, IEnterprise } from '@/interface/business';
 import { Button, Form, Input } from 'antd';
 
 interface IComponentProps {
-  enterprise: IEnterprise;
+  enterprise?: IEnterprise;
   data?: IContact;
   isEditable?: boolean;
   isSubmitting?: boolean;
@@ -43,7 +43,7 @@ export default function ContactForm({ enterprise, data, isEditable, isSubmitting
       )}
 
       <Form.Item label="Tên doanh nghiệp" valuePropName="data-value">
-        <p>{enterprise.name}</p>
+        <p>{enterprise?.name || '--'}</p>
       </Form.Item>
 
       <Form.Item

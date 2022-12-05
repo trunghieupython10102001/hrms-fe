@@ -16,6 +16,21 @@
 
     &-search-box {
       width: 75%;
+
+      .clear-btn {
+        opacity: 0;
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+
+      &:hover .clear-btn {
+        opacity: 1;
+      }
+
+      input:focus ~ .ant-input-suffix > .clear-btn {
+        opacity: 1;
+      }
     }
 
     &-navigate-link {
@@ -24,5 +39,9 @@
       background-color: rgb(19, 194, 194);
       display: block;
     }
+  }
+
+  .table-pagination .ant-pagination-options {
+    display: none;
   }
 }

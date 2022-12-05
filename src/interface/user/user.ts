@@ -42,7 +42,13 @@ export interface UserState {
     error?: any;
   };
 
-  roleList: IUserRole[];
+  roleList: {
+    data: IUserRole[];
+
+    status: 'init' | 'loading' | 'success' | 'error';
+
+    error?: any;
+  };
 }
 
 export interface IUser {

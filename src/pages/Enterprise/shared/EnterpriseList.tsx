@@ -3,26 +3,22 @@ import { UnorderedListOutlined } from '@ant-design/icons';
 import { Dropdown, Menu, Table, TableColumnsType, TablePaginationConfig } from 'antd';
 import type { MenuProps } from 'antd';
 import { useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAppDispatch } from '@/hooks/store';
-import { contactActions } from '@/stores/contact.store';
+import { Link } from 'react-router-dom';
 
 interface IComponentProps {
   data: IEnterprise[];
   pagination: TablePaginationConfig | false;
   loading: boolean;
+  onShowEnterpriseContactHistory: (enterprise: IEnterprise) => void;
 }
 
-export default function EnterpriseList({ data, pagination, loading }: IComponentProps) {
-  const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-
+export default function EnterpriseList({ data, pagination, loading, onShowEnterpriseContactHistory }: IComponentProps) {
   const onGoToContactHistory: MenuProps['onClick'] = event => {
     const { key } = event;
-    const enterpriseID = key.split('/').at(-1);
-    const enterprise = data.find(enterprise => {
-      console.log({ enterpriseID, id: enterprise.id });
 
+    const enterpriseID = key.split('/').at(-1);
+
+    const enterprise = data.find(enterprise => {
       return String(enterprise.id) === enterpriseID;
     });
 
@@ -30,8 +26,7 @@ export default function EnterpriseList({ data, pagination, loading }: IComponent
       return;
     }
 
-    dispatch(contactActions.setEnterprise(enterprise));
-    navigate(key);
+    onShowEnterpriseContactHistory(enterprise);
   };
 
   const tableColumns: TableColumnsType<IEnterprise> = useMemo<TableColumnsType<IEnterprise>>(() => {
@@ -62,8 +57,8 @@ export default function EnterpriseList({ data, pagination, loading }: IComponent
       },
       {
         title: 'Số điện thoại',
-        dataIndex: 'phoneNumber',
-        key: 'phoneNumber',
+        dataIndex: 'phone',
+        key: 'phone',
         render: phoneNumber => <span className="capitalized">{phoneNumber}</span>,
       },
       {
@@ -100,7 +95,7 @@ export default function EnterpriseList({ data, pagination, loading }: IComponent
         },
       },
     ];
-  }, []);
+  }, [data]);
 
   return <Table pagination={pagination} rowKey="id" columns={tableColumns} dataSource={data} loading={loading} />;
 }

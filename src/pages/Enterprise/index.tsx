@@ -1,8 +1,10 @@
+import ContactHistoryList from '@/components/ContactHistory/ContactHitories';
 import { QUERY_KEYS } from '@/constants/keys';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
+import { IEnterprise } from '@/interface/business';
 import { enterpriseAsyncActions } from '@/stores/enterprise.store';
-import { Input } from 'antd';
-import { useEffect } from 'react';
+import { Input, Modal } from 'antd';
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 
 import './index.less';
@@ -14,6 +16,15 @@ export default function EnterpriseListPage() {
   const dispatch = useAppDispatch();
 
   const [queryParams, setQueryParams] = useSearchParams();
+  const [activeEnterprise, setActiveEnterprise] = useState<IEnterprise | undefined>();
+
+  const showEnterpriseContactHistoryHandler = (enterprise: IEnterprise) => {
+    setActiveEnterprise(enterprise);
+  };
+
+  const hideEnterpriseContactHistoryHandler = () => {
+    setActiveEnterprise(undefined);
+  };
 
   const onSearchUser = (searchValue: string) => {
     if (searchValue.trim() === '') {
@@ -44,7 +55,24 @@ export default function EnterpriseListPage() {
           Thêm mới
         </Link>
       </div>
-      <EnterpriseList data={data} pagination={false} loading={dataStatus === 'loading'} />
+      <EnterpriseList
+        data={data}
+        pagination={{
+          pageSize: 10,
+          position: ['bottomCenter'],
+          className: 'table-pagination',
+        }}
+        loading={dataStatus === 'loading'}
+        onShowEnterpriseContactHistory={showEnterpriseContactHistoryHandler}
+      />
+      <Modal
+        visible={!!activeEnterprise}
+        onCancel={hideEnterpriseContactHistoryHandler}
+        footer={null}
+        width={window.innerWidth / 2}
+      >
+        <ContactHistoryList enterprise={activeEnterprise as IEnterprise} />
+      </Modal>
     </main>
   );
 }

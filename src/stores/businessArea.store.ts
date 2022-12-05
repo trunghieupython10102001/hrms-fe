@@ -1,5 +1,6 @@
+import { getBusinessAreasList } from '@/api/business';
 import { IBusinessArea } from '@/interface/businessArea';
-import { sleep } from '@/utils/misc';
+import { mapAPIResponseToBussinessArea } from '@/utils/mapBussinessAreaAPIInfo';
 import { CaseReducer, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 interface IBusinessAreaSlice {
@@ -20,25 +21,16 @@ const initialState: IBusinessAreaSlice = {
   error: undefined,
 };
 
-const getBusinessAreaList = createAsyncThunk('bussinessArea/getBusinessAreaList', async () => {
-  await sleep(1500);
+const getBusinessAreaList = createAsyncThunk('bussinessArea/getBusinessAreaList', async (queries?: object) => {
+  try {
+    const res = await getBusinessAreasList(queries);
 
-  const mockData: IBusinessArea[] = [
-    {
-      id: 1,
-      name: 'Công ty xuất khẩu',
-      createTime: '01/24/2001',
-      updateTime: '01/24/2001',
-    },
-    {
-      id: 2,
-      name: 'Công ty nhập khẩu',
-      createTime: '01/24/2001',
-      updateTime: '01/24/2001',
-    },
-  ];
-
-  return [mockData, undefined];
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return [res.data.map(mapAPIResponseToBussinessArea), undefined];
+  } catch (error) {
+    return [undefined, error];
+  }
 });
 
 const _reset: CaseReducer<IBusinessAreaSlice> = state => {

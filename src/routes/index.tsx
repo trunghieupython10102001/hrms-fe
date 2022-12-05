@@ -12,8 +12,8 @@ import UserDetail from '@/pages/users/UserDetail';
 import EnterpriseListPage from '@/pages/Enterprise';
 import DetailEnterprise from '@/pages/Enterprise/DetailEnterprise';
 import CreateNewEnterprise from '@/pages/Enterprise/CreateNewEnterprise';
-import ContactHistoryListPage from '@/pages/ContactHistory/ContactHitories';
-import AddNewContact from '@/pages/ContactHistory/AddNewContact';
+// import ContactHistoryListPage from '@/pages/ContactHistory/ContactHitories';
+// import AddNewContact from '@/pages/ContactHistory/AddNewContact';
 import BusinessAreas from '@/pages/BusinessArea';
 
 const NotFound = lazy(() => import(/* webpackChunkName: "404'"*/ '@/pages/404'));
@@ -74,14 +74,14 @@ const routeList: RouteObject[] = [
       //   path: 'lich-su-tiep-can',
       //   element: <WrapperRouteComponent auth element={<ContactHistory />} titleId="title.dashboard" />,
       // },
-      {
-        path: 'lich-su-tiep-can/tao-moi',
-        element: <WrapperRouteComponent auth element={<AddNewContact />} titleId="title.dashboard" />,
-      },
-      {
-        path: 'lich-su-tiep-can/:enterpriseID',
-        element: <WrapperRouteComponent auth element={<ContactHistoryListPage />} titleId="title.dashboard" />,
-      },
+      // {
+      //   path: 'lich-su-tiep-can/tao-moi',
+      //   element: <WrapperRouteComponent auth element={<AddNewContact />} titleId="title.dashboard" />,
+      // },
+      // {
+      //   path: 'lich-su-tiep-can/:enterpriseID',
+      //   element: <WrapperRouteComponent auth element={<ContactHistoryListPage />} titleId="title.dashboard" />,
+      // },
       {
         path: '*',
         element: <WrapperRouteComponent element={<NotFound />} titleId="title.notFount" />,

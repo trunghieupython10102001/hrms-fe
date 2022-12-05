@@ -7,6 +7,7 @@ import Logo from '@/assets/logo/Logo.jpg';
 import { userAsyncActions } from '@/stores/user.store';
 import { formatSearch } from '@/utils/formatSearch';
 import { useAppDispatch } from '@/hooks/store';
+import { bussinessAreaAsyncActions } from '@/stores/businessArea.store';
 
 const initialValues: LoginParams = {
   username: 'hoangzzzsss',
@@ -36,6 +37,7 @@ const LoginForm: FC = () => {
       const search = formatSearch(location.search);
       const from = search.from || { pathname: '/' };
 
+      dispatch(bussinessAreaAsyncActions.getBusinessAreaList()).unwrap();
       notification.success({
         message: 'Đăng nhập thành công',
       });

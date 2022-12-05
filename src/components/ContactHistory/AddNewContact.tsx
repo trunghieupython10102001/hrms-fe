@@ -1,16 +1,29 @@
+import { createContactHistory } from '@/api/business';
 import { useAppSelector } from '@/hooks/store';
 import { IEnterprise } from '@/interface/business';
-import { sleep } from '@/utils/misc';
 import { Button, notification } from 'antd';
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import './AddNewContact.less';
 import ContactForm from './shared/ContactForm';
 
 export default function AddNewContact() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+
   const enterprise = useAppSelector(state => state.contact.data.contactEnterprise);
+  const enterpriseList = useAppSelector(state => state.enterprise.data.enterprises);
+
+  const selectedEnterprise = useMemo(() => {
+    if (!enterprise) {
+      const enterpriseID = Number(params.get('enterprise'));
+
+      return enterpriseList.find(enterprise => enterprise.id === enterpriseID);
+    }
+
+    return enterprise;
+  }, []);
 
   const [isSubmittingData, setIsSubmittingData] = useState(false);
 
@@ -20,25 +33,31 @@ export default function AddNewContact() {
 
   const onCreateNewContactHistory = async (form: { content: string; note: string }) => {
     setIsSubmittingData(true);
-    await sleep(1500);
     const submitData = {
       ...form,
-      enterpriseId: enterprise?.id,
+      businessId: selectedEnterprise?.id,
+      logId: 0,
     };
 
-    console.log('Created history: ', submitData);
+    try {
+      const res = await createContactHistory(submitData);
 
-    setIsSubmittingData(false);
-
-    notification.success({
-      message: 'Thêm thành công',
-      description: 'Dữ liệu lần tiếp cận mới đã được thêm vào cơ sở dữ liệu',
-    });
-    navigate(-1);
+      console.log('Result: ', res);
+      notification.success({
+        message: 'Thêm thành công',
+        description: 'Dữ liệu lần tiếp cận mới đã được thêm vào cơ sở dữ liệu',
+      });
+      navigate(-1);
+    } catch (error) {
+    } finally {
+      setIsSubmittingData(false);
+    }
   };
 
   useEffect(() => {
-    if (!enterprise) {
+    console.log('Params', params.get('enterprise'));
+
+    if (!selectedEnterprise) {
       navigate('/lich-su-tiep-can');
     }
   }, []);
@@ -53,7 +72,7 @@ export default function AddNewContact() {
       </div>
       <ContactForm
         isEditable
-        enterprise={enterprise as IEnterprise}
+        enterprise={selectedEnterprise as IEnterprise}
         isSubmitting={isSubmittingData}
         onSubmit={onCreateNewContactHistory}
       />

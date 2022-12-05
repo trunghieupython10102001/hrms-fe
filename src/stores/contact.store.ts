@@ -1,5 +1,6 @@
+import { getContactList } from '@/api/business';
 import { IContact, IEnterprise } from '@/interface/business';
-import { sleep } from '@/utils/misc';
+import { mapAPIResponseToContactHistories } from '@/utils/mapContactHistoryAPI';
 import { CaseReducer, createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface IContactHistorySlice {
@@ -21,26 +22,22 @@ const initialState: IContactHistorySlice = {
   error: undefined,
 };
 
-const getContactList = createAsyncThunk('contacts/getContactList', async (_enterpriseID: number) => {
-  await sleep(1500);
+const getContactListInfo = createAsyncThunk(
+  'contacts/getContactListInfo',
+  async (params?: { enterpriseID?: number; logId?: number }) => {
+    try {
+      const response = await getContactList(params && { businessId: params.enterpriseID, logId: params?.logId });
 
-  const mockData: IContact[] = [
-    {
-      businessID: 17,
-      content: 'abdbadbadba',
-      logID: 1,
-      note: 'adbadab',
-    },
-    {
-      logID: 2,
-      businessID: 19,
-      content: 'abdbadbadba',
-      note: 'adbadab',
-    },
-  ];
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const data = response.data[0].map(mapAPIResponseToContactHistories);
 
-  return [mockData, undefined];
-});
+      return [data, undefined];
+    } catch (error) {
+      return [undefined, error];
+    }
+  },
+);
 
 const _reset: CaseReducer<IContactHistorySlice> = state => {
   state.data.contactHistories = [];
@@ -62,11 +59,11 @@ const contactHistorySlice = createSlice({
     setEnterprise: _setEnterprise,
   },
   extraReducers(builder) {
-    builder.addCase(getContactList.pending, state => {
+    builder.addCase(getContactListInfo.pending, state => {
       state.status = 'loading';
       state.error = undefined;
     });
-    builder.addCase(getContactList.fulfilled, (state, action) => {
+    builder.addCase(getContactListInfo.fulfilled, (state, action) => {
       const [data, error] = action.payload as [IContact[], any];
 
       if (error) {
@@ -83,5 +80,5 @@ const contactHistorySlice = createSlice({
 });
 
 export const contactActions = contactHistorySlice.actions;
-export const contactAsyncActions = { getContactList };
+export const contactAsyncActions = { getContactListInfo };
 export default contactHistorySlice.reducer;

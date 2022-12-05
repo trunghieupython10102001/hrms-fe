@@ -41,7 +41,15 @@ export default function ContactHistory() {
           enterButton
         />
       </div>
-      <EnterpriseList data={enterpriseList} pagination={false} loading={dataStatus === 'loading'} />
+      <EnterpriseList
+        data={enterpriseList}
+        pagination={{
+          pageSize: 10,
+          position: ['bottomCenter'],
+          className: 'table-pagination',
+        }}
+        loading={dataStatus === 'loading'}
+      />
     </main>
   );
 }

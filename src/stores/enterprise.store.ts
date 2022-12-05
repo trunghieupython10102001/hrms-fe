@@ -1,6 +1,7 @@
 import { IEnterprise } from '@/interface/business';
-import { sleep } from '@/utils/misc';
+import { getEnterprises } from '@/api/business';
 import { CaseReducer, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { mapEnterpriseAPIResponseToEnterprise } from '@/utils/mapEnterpriseAPIResponseToEnterprise';
 
 interface IEnterpriseSlice {
   data: {
@@ -21,48 +22,15 @@ const initialState: IEnterpriseSlice = {
 };
 
 const getEnterpriseList = createAsyncThunk('enterprise/getEnterpriseList', async () => {
-  await sleep(1500);
+  try {
+    const res = await getEnterprises();
 
-  const mockData: IEnterprise[] = [
-    {
-      id: 1,
-      email: 'a@a.a',
-      name: 'abc',
-      phone: '0123456789',
-      status: 0,
-      type: 1,
-      address: 'Sơn Tây, Hà Nội',
-      areaID: 1,
-      contactDetail: 'thị xẫ Sơn Tây, thành phố Hà Nội',
-      contactedTimes: 1,
-      country: 'Việt Nam',
-      createTime: '24/01/2001',
-      createUser: '',
-      note: '',
-      updateTime: '24/01/2001',
-      updateUser: '',
-    },
-    {
-      id: 2,
-      email: 'a@a.a',
-      name: 'Hoangzzzsss',
-      phone: '0123456739',
-      status: 1,
-      type: 2,
-      address: '',
-      areaID: 2,
-      contactDetail: '',
-      contactedTimes: 1,
-      country: '',
-      createTime: ' ',
-      createUser: '',
-      note: '',
-      updateTime: '',
-      updateUser: '',
-    },
-  ];
-
-  return [mockData, undefined];
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return [res.data.map(mapEnterpriseAPIResponseToEnterprise), undefined];
+  } catch (error) {
+    return [undefined, error];
+  }
 });
 
 const _reset: CaseReducer<IEnterpriseSlice> = state => {
@@ -90,6 +58,8 @@ const enterpriseSlice = createSlice({
       if (error) {
         state.error = error;
         state.status = 'error';
+        state.data.enterprises = [];
+        state.data.total = 0;
       } else {
         state.data.enterprises = data;
         state.data.total = data.length;

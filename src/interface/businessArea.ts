@@ -4,3 +4,10 @@ export interface IBusinessArea {
   createTime: string;
   updateTime: string;
 }
+
+export interface IBusinessAreaAPIResponse {
+  BusinessAreaID: number;
+  BusinessAreaName: string;
+  CreateTime: string;
+  UpdateTime: string;
+}

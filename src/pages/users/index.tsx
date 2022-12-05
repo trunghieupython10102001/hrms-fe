@@ -24,6 +24,8 @@ export default function UserListPage() {
       current: Number(queryParams.get(QUERY_KEYS.KEY_PAGE_NUMBER)) || DEFAULT_PAGE,
       pageSize: Number(queryParams.get(QUERY_KEYS.KEY_PAGE_SIZE)) || DEFAULT_PAGE_SIZE,
       total: total || 0,
+      position: ['bottomCenter'],
+      className: 'table-pagination',
     };
   }, [queryParams, total]);
 

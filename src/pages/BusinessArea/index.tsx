@@ -1,8 +1,10 @@
+import { createOrUpdateBussinessArea } from '@/api/business';
 import { QUERY_KEYS } from '@/constants/keys';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { IBusinessArea } from '@/interface/businessArea';
 import { bussinessAreaAsyncActions } from '@/stores/businessArea.store';
-import { sleep } from '@/utils/misc';
+import { mapBussinessAreaToAPIRequest } from '@/utils/mapBussinessAreaAPIInfo';
+import { CloseCircleOutlined } from '@ant-design/icons';
 import { Button, Input, Modal, notification } from 'antd';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -30,6 +32,11 @@ export default function BusinessAreas() {
     setQueryParams(queryParams);
   };
 
+  const onClearSearchHandler = () => {
+    queryParams.delete(QUERY_KEYS.SEARCH);
+    setQueryParams(queryParams);
+  };
+
   const onEditArea = (area: IBusinessArea) => {
     setBusinessArea(area);
   };
@@ -42,13 +49,22 @@ export default function BusinessAreas() {
     setBusinessArea(undefined);
   };
 
-  const onSubmitFormHandler = async (_form: IBusinessArea | { name: string }) => {
+  const onSubmitFormHandler = async (form: IBusinessArea | { name: string }) => {
     setIsSubmittingForm(true);
-    await sleep(1500);
-    notification.success({ message: 'Tạo thành công', description: 'Lĩnh vực mới đã được lưu vào cơ sở dữ liệu' });
 
-    setIsSubmittingForm(false);
-    setBusinessArea(undefined);
+    try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      await createOrUpdateBussinessArea(mapBussinessAreaToAPIRequest(form));
+
+      notification.success({ message: 'Tạo thành công', description: 'Lĩnh vực mới đã được lưu vào cơ sở dữ liệu' });
+      dispatch(bussinessAreaAsyncActions.getBusinessAreaList());
+    } catch (error) {
+      notification.error({ message: 'Tạo thất bại', description: 'Lĩnh vực mới chưa được lưu vào cơ sở dữ liệu' });
+    } finally {
+      setIsSubmittingForm(false);
+      setBusinessArea(undefined);
+    }
   };
 
   useEffect(() => {
@@ -56,6 +72,12 @@ export default function BusinessAreas() {
       dispatch(bussinessAreaAsyncActions.getBusinessAreaList());
     }
   }, []);
+
+  useEffect(() => {
+    const search = queryParams.get(QUERY_KEYS.SEARCH) || '';
+
+    dispatch(bussinessAreaAsyncActions.getBusinessAreaList({ businessName: search }));
+  }, [queryParams]);
 
   return (
     <main className="business-area-list-page">
@@ -65,6 +87,11 @@ export default function BusinessAreas() {
           className="page-search-box"
           placeholder="Tìm kiếm theo tên lĩnh vực kinh doanh"
           onSearch={onSearchUser}
+          suffix={
+            <button className="clear-btn" onClick={onClearSearchHandler}>
+              <CloseCircleOutlined />
+            </button>
+          }
           enterButton
         />
         <Button type="primary" onClick={onCreateNewBusinessArea}>
@@ -73,7 +100,7 @@ export default function BusinessAreas() {
       </div>
       <BusinessAreaList
         data={businessAreas}
-        pagination={false}
+        pagination={{ pageSize: 10, position: ['bottomCenter'], className: 'table-pagination' }}
         loading={dataStatus === 'loading'}
         onEditArea={onEditArea}
       />

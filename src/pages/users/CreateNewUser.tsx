@@ -24,7 +24,8 @@ function transformRoleToUserRoles(roles: IUserRole[]) {
 }
 
 export default function CreateNewUser() {
-  const roleList = useAppSelector(state => state.user.roleList);
+  const roleList = useAppSelector(state => state.user.roleList.data);
+  const getRolesStatus = useAppSelector(state => state.user.roleList.status);
   const dispatch = useAppDispatch();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,18 +56,16 @@ export default function CreateNewUser() {
 
   useEffect(() => {
     const getRolesList = async () => {
-      if (roleList.length === 0) {
+      if (roleList.length === 0 && (getRolesStatus === 'init' || getRolesStatus === 'error')) {
         const [data] = await dispatch(userAsyncActions.getRolesList()).unwrap();
         const transformedData = transformRoleToUserRoles(data);
-
-        console.log(transformedData);
 
         setUserPermissons(transformedData);
       }
     };
 
     getRolesList();
-  }, [roleList]);
+  }, []);
 
   return (
     <div className="user-create-page">
