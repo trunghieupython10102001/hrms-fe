@@ -5,6 +5,7 @@ import enterpriseReducer from './enterprise.store';
 import userReducer from './user.store';
 import contactReducer from './contact.store';
 import businessAreaReducer from './businessArea.store';
+import productReducer from './product.store';
 
 const rootReducer = combineReducers({
   enterprise: enterpriseReducer,
@@ -13,6 +14,7 @@ const rootReducer = combineReducers({
   global: globalReducer,
   contact: contactReducer,
   businessArea: businessAreaReducer,
+  product: productReducer,
 });
 
 export default rootReducer;

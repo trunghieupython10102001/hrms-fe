@@ -1,4 +1,5 @@
 import ContactHistoryList from '@/components/ContactHistory/ContactHitories';
+import EnterpriseProductsList from '@/components/EnterpriseProduct';
 import { QUERY_KEYS } from '@/constants/keys';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { IEnterprise } from '@/interface/business';
@@ -6,9 +7,9 @@ import { enterpriseAsyncActions } from '@/stores/enterprise.store';
 import { Input, Modal } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import EnterpriseList from './shared/EnterpriseList';
 
 import './index.less';
-import EnterpriseList from './shared/EnterpriseList';
 
 export default function EnterpriseListPage() {
   const data = useAppSelector(state => state.enterprise.data.enterprises);
@@ -16,14 +17,28 @@ export default function EnterpriseListPage() {
   const dispatch = useAppDispatch();
 
   const [queryParams, setQueryParams] = useSearchParams();
+  const [isShowContactHistoryModal, setIsShowContactHistoryModal] = useState(false);
+  const [isShowEnterpriseProductsModal, setIsShowEnterpriseProductsModal] = useState(false);
   const [activeEnterprise, setActiveEnterprise] = useState<IEnterprise | undefined>();
 
   const showEnterpriseContactHistoryHandler = (enterprise: IEnterprise) => {
     setActiveEnterprise(enterprise);
+    setIsShowContactHistoryModal(true);
+  };
+
+  const showEnterpriseProductsHandler = (enterprise: IEnterprise) => {
+    setActiveEnterprise(enterprise);
+    setIsShowEnterpriseProductsModal(true);
   };
 
   const hideEnterpriseContactHistoryHandler = () => {
     setActiveEnterprise(undefined);
+    setIsShowContactHistoryModal(false);
+  };
+
+  const hideEnterpriseProductListModal = () => {
+    setActiveEnterprise(undefined);
+    setIsShowEnterpriseProductsModal(false);
   };
 
   const onSearchUser = (searchValue: string) => {
@@ -64,14 +79,24 @@ export default function EnterpriseListPage() {
         }}
         loading={dataStatus === 'loading'}
         onShowEnterpriseContactHistory={showEnterpriseContactHistoryHandler}
+        onShowEnterPriseProducts={showEnterpriseProductsHandler}
       />
       <Modal
-        visible={!!activeEnterprise}
+        visible={isShowContactHistoryModal}
         onCancel={hideEnterpriseContactHistoryHandler}
         footer={null}
         width={window.innerWidth / 2}
       >
         <ContactHistoryList enterprise={activeEnterprise as IEnterprise} />
+      </Modal>
+
+      <Modal
+        visible={isShowEnterpriseProductsModal}
+        onCancel={hideEnterpriseProductListModal}
+        footer={null}
+        width={window.innerWidth / 2}
+      >
+        <EnterpriseProductsList enterprise={activeEnterprise as IEnterprise} />
       </Modal>
     </main>
   );

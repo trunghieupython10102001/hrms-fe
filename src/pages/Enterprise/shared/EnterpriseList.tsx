@@ -10,10 +10,17 @@ interface IComponentProps {
   pagination: TablePaginationConfig | false;
   loading: boolean;
   onShowEnterpriseContactHistory: (enterprise: IEnterprise) => void;
+  onShowEnterPriseProducts: (enterprise: IEnterprise) => void;
 }
 
-export default function EnterpriseList({ data, pagination, loading, onShowEnterpriseContactHistory }: IComponentProps) {
-  const onGoToContactHistory: MenuProps['onClick'] = event => {
+export default function EnterpriseList({
+  data,
+  pagination,
+  loading,
+  onShowEnterpriseContactHistory,
+  onShowEnterPriseProducts,
+}: IComponentProps) {
+  const menuItemClickHandler: MenuProps['onClick'] = event => {
     const { key } = event;
 
     const enterpriseID = key.split('/').at(-1);
@@ -26,7 +33,11 @@ export default function EnterpriseList({ data, pagination, loading, onShowEnterp
       return;
     }
 
-    onShowEnterpriseContactHistory(enterprise);
+    if (key.includes('lich-su-tiep-can')) {
+      return onShowEnterpriseContactHistory(enterprise);
+    }
+
+    onShowEnterPriseProducts(enterprise);
   };
 
   const tableColumns: TableColumnsType<IEnterprise> = useMemo<TableColumnsType<IEnterprise>>(() => {
@@ -80,9 +91,12 @@ export default function EnterpriseList({ data, pagination, loading, onShowEnterp
             <Dropdown
               trigger={['click']}
               overlay={
-                <Menu style={{ width: 200 }} onClick={onGoToContactHistory}>
+                <Menu style={{ width: 200 }} onClick={menuItemClickHandler}>
                   <Menu.Item key={`/lich-su-tiep-can/${record.id}`}>
                     <div className="menu-item">Lịch sử tiếp cận</div>
+                  </Menu.Item>
+                  <Menu.Item key={`/mat-hang-kinh-doanh/${record.id}`}>
+                    <div className="menu-item">Mặt hàng kinh doanh</div>
                   </Menu.Item>
                 </Menu>
               }

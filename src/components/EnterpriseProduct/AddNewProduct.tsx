@@ -3,15 +3,15 @@ import { IEnterprise } from '@/interface/business';
 import { notification } from 'antd';
 import { useState } from 'react';
 
-import ContactForm from './shared/ContactForm';
-import './AddNewContact.less';
+import ProductForm from './shared/ProductForm';
+import './AddNewProduct.less';
 
 interface IComponentProps {
   enterprise: IEnterprise;
   onClose: () => void;
 }
 
-export default function AddNewContact({ enterprise, onClose }: IComponentProps) {
+export default function AddNewProduct({ enterprise, onClose }: IComponentProps) {
   const [isSubmittingData, setIsSubmittingData] = useState(false);
 
   const onCreateNewContactHistory = async (form: { content: string; note: string }) => {
@@ -39,8 +39,8 @@ export default function AddNewContact({ enterprise, onClose }: IComponentProps) 
 
   return (
     <main className="add-new-contact-page">
-      <h1 className="page-title">Thêm lần tiếp cận mới</h1>
-      <ContactForm
+      <h2 className="page-title">Thêm sản phẩm mới</h2>
+      <ProductForm
         isEditable
         enterprise={enterprise as IEnterprise}
         isSubmitting={isSubmittingData}

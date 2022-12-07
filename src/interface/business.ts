@@ -9,11 +9,12 @@ export interface BuniesssUser {
 
 export const EEnterpriseType = ['N/A', 'Công ty xuất khẩu', 'Công ty nhập khẩu'];
 export const EEnterpriseStatus = ['unactive', 'active'];
+export type TEnterpriseType = 1 | 2;
 
 export interface IEnterpriseAPIResponse {
   BusinessID?: number;
   BusinessName?: string;
-  BusinessType?: 1 | 2;
+  BusinessType?: TEnterpriseType;
   BusinessAreaID?: number;
   BusinessAddress?: string;
   BusinessEmail?: string;
@@ -32,7 +33,7 @@ export interface IEnterpriseAPIResponse {
 export interface IEnterprise {
   id: number;
   name: string;
-  type: 1 | 2;
+  type: TEnterpriseType;
   areaID: number;
   address: string;
   email: string;
@@ -68,4 +69,30 @@ export interface IContactHistoryAPIResponse {
   CreateUser: string;
   UpdateTime: string;
   UpdateUser: string;
+}
+
+export interface IEnterpriseProductAPIResponse {
+  BusinessDetailID: number;
+  BusinessID: number;
+  BusinessName: string;
+  BusinessType: TEnterpriseType;
+  ImportProductDetail: string;
+  ExportProductDetail: string;
+  UnitPrice: string;
+  Status: -1 | 0 | 1;
+  CreateTime: string;
+  CreateUser: string;
+  UpdateTime: string;
+  UpdateUser: string;
+}
+
+export interface IEnterpriseProduct {
+  productID: number;
+  enterpriseID: number;
+  enterpriseName: string;
+  enterpriseType: string;
+  detailInfo: string;
+  price: string;
+  createAt: string;
+  createBy: string;
 }

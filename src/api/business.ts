@@ -11,6 +11,7 @@ export const getDetailEnterprise = (id: string) =>
     businessId: id,
   });
 export const getContactList = (params?: object) => request('get', '/contact-log', params);
+export const getProductsList = (params?: object) => request('get', '/business-detail', params);
 
 export const createEnterprise = async (form: object) => {
   return request('post', '/business', form);
