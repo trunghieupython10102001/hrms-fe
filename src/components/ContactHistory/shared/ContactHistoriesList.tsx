@@ -1,14 +1,27 @@
 import { IContact } from '@/interface/business';
-import { Table, TableColumnsType, TablePaginationConfig } from 'antd';
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { Space, Table, TableColumnsType, TablePaginationConfig } from 'antd';
 import { useMemo } from 'react';
 
 interface IComponentProps {
   data: IContact[];
   pagination: TablePaginationConfig | false;
   loading: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
+  onEditContact: (contact: IContact) => void;
+  onDeleteContact: (contact: IContact) => void;
 }
 
-export default function ContactHistoriesList({ data, loading, pagination }: IComponentProps) {
+export default function ContactHistoriesList({
+  data,
+  loading,
+  pagination,
+  canDelete,
+  canEdit,
+  onDeleteContact,
+  onEditContact,
+}: IComponentProps) {
   const tableColumns: TableColumnsType<IContact> = useMemo<TableColumnsType<IContact>>(() => {
     return [
       {
@@ -34,6 +47,15 @@ export default function ContactHistoriesList({ data, loading, pagination }: ICom
         dataIndex: 'note',
         key: 'note',
         render: note => <span className="capitalized">{note}</span>,
+      },
+      {
+        key: 'actions',
+        render: (_, contact) => (
+          <Space>
+            {canEdit && <EditOutlined className="cursor-pointer" onClick={() => onEditContact(contact)} />}
+            {canDelete && <DeleteOutlined className="cursor-pointer" onClick={() => onDeleteContact(contact)} />}
+          </Space>
+        ),
       },
     ];
   }, []);

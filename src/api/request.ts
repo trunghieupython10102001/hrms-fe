@@ -1,13 +1,15 @@
+import { CUSTOM_EVENTS } from '@/constants/keys';
 import { history } from '@/routes/history';
-import { notification } from 'antd';
+import dispatchCustomEvent from '@/utils/dispatchCustomEvent';
 import axios, { AxiosRequestConfig, Method } from 'axios';
-// import { history } from '@/routes/history';
 
 const axiosInstance = axios.create({
   timeout: 6000,
 });
 
 const BASE_URL = 'http://localhost:3030/api/v1';
+let interactionTimeStamp = 0;
+const TIME_THRESHOR = 1_800_000;
 
 axiosInstance.interceptors.request.use(
   config => {
@@ -18,6 +20,18 @@ axiosInstance.interceptors.request.use(
       config.headers['Authorization'] = `Bearer ${accessToken}`;
     }
 
+    const currentTimestamp = Date.now();
+
+    if (!interactionTimeStamp || currentTimestamp - interactionTimeStamp <= TIME_THRESHOR) {
+      interactionTimeStamp = currentTimestamp;
+    } else {
+      history.replace('/login');
+      interactionTimeStamp = 0;
+      dispatchCustomEvent(CUSTOM_EVENTS.SESSION_EXPIRE);
+
+      return Promise.reject(new Error('Session expire'));
+    }
+
     return config;
   },
   // error => {
@@ -25,13 +39,29 @@ axiosInstance.interceptors.request.use(
   // },
 );
 
-axiosInstance.interceptors.response.use(undefined, error => {
+axiosInstance.interceptors.response.use(undefined, async error => {
   if (error.response.status === 401 && error.response.data.message === 'Unauthorized') {
-    history.replace('/login');
-    notification.error({
-      message: 'Phiên đăng nhập hết hạn',
-      description: 'Bạn vui lòng đăng nhập lại để tiếp tục',
-    });
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    try {
+      const result = await axiosInstance.post(`${BASE_URL}/auth/refreshToken`, {
+        refreshToken,
+      });
+
+      const loginTokens = result.data;
+
+      localStorage.setItem('accessToken', loginTokens.accessToken);
+      localStorage.setItem('refreshToken', loginTokens.refreshToken);
+
+      error.config.headers['Authorization'] = `Bearer ${loginTokens.token}`;
+      const newRequest = await axiosInstance.request(error.config);
+
+      return newRequest;
+    } catch (error) {
+      history.replace('/login');
+      interactionTimeStamp = 0;
+      dispatchCustomEvent(CUSTOM_EVENTS.SESSION_EXPIRE);
+    }
 
     return Promise.reject(error.response);
   }
@@ -42,7 +72,7 @@ axiosInstance.interceptors.response.use(undefined, error => {
 export type Response<T = any> = {
   status: boolean;
   message: string;
-  result: T;
+  data: T;
 };
 
 export type MyResponse<T = any> = Promise<Response<T>>;

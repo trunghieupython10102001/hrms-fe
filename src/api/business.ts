@@ -20,3 +20,7 @@ export const createEnterprise = async (form: object) => {
 export const createContactHistory = async (form: object) => {
   return request('post', '/contact-log', form);
 };
+
+export const createProduct = async (form: object) => {
+  return request<{ code: number; message: string }>('post', '/business-detail', form);
+};

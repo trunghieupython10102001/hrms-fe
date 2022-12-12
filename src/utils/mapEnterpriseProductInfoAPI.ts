@@ -30,6 +30,7 @@ export function mapProductInfoToAPIRequest(
     businessId: data.enterpriseID,
     exportProductDetail: data.enterpriseType === EEnterpriseType[1] ? data.detailInfo : '',
     importProductDetail: data.enterpriseType === EEnterpriseType[2] ? data.detailInfo : '',
+    unitPrice: data.price,
     status: isDelete ? 0 : 1,
   };
 }

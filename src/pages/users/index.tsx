@@ -1,12 +1,15 @@
 import { QUERY_KEYS } from '@/constants/keys';
+import { ROLES_ID } from '@/constants/roles';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { userAsyncActions } from '@/stores/user.store';
-import { Input } from 'antd';
+import { userHasRole } from '@/utils/hasRole';
+import { Input, notification } from 'antd';
 import { useEffect, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import UserList from './UserList';
 
 import './index.less';
-import UserList from './UserList';
+import { deleteUser } from '@/api/user.api';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 10;
@@ -16,6 +19,8 @@ export default function UserListPage() {
   const data = useAppSelector(state => state.user.userList.data);
   const loadingStatus = useAppSelector(state => state.user.userList.status);
   const total = useAppSelector(state => state.user.userList.totalUser);
+  const userRoles = useAppSelector(state => state.user.role.data);
+  const userRole = userHasRole(ROLES_ID.USER_MANAGEMENT, userRoles);
 
   const dispatch = useAppDispatch();
 
@@ -38,6 +43,24 @@ export default function UserListPage() {
     setQueryParams(queryParams);
   };
 
+  const deleteUserHandler = async (uid: number) => {
+    const [_result, error] = await deleteUser(uid);
+
+    if (error) {
+      notification.error({
+        message: 'Xóa người dùng không thành công',
+      });
+
+      return;
+    }
+
+    notification.success({
+      message: 'Xóa người dùng thành công',
+    });
+
+    dispatch(userAsyncActions.getUserList());
+  };
+
   useEffect(() => {
     dispatch(userAsyncActions.getUserList());
   }, [dispatch]);
@@ -52,11 +75,19 @@ export default function UserListPage() {
           onSearch={onSearchUser}
           enterButton
         />
-        <Link to="/nguoi-dung/tao-moi" className="page-navigate-link">
-          Thêm mới
-        </Link>
+        {userRole?.isInsert && (
+          <Link to="/nguoi-dung/tao-moi" className="page-navigate-link">
+            Thêm mới
+          </Link>
+        )}
       </div>
-      <UserList data={data} pagination={pagination} loading={loadingStatus === 'loading'} />
+      <UserList
+        data={data}
+        pagination={pagination}
+        canDeleteUser={!!userRole?.isDelete}
+        loading={loadingStatus === 'loading'}
+        onDeleteUser={deleteUserHandler}
+      />
     </div>
   );
 }

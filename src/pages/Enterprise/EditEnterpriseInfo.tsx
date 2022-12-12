@@ -5,18 +5,25 @@ import './DetailEnterprise.less';
 import { useEffect, useState } from 'react';
 import { IEnterprise } from '@/interface/business';
 import { getDetailEnterprise } from '@/api/business';
-import { mapEnterpriseAPIResponseToEnterprise } from '@/utils/mapEnterpriseAPIResponseToEnterprise';
-import { useAppSelector } from '@/hooks/store';
-import { userHasRole } from '@/utils/hasRole';
-import { ROLES_ID } from '@/constants/roles';
-export default function DetailEnterprise() {
+import {
+  mapEnterpriseAPIResponseToEnterprise,
+  mapEnterpriseInfoToAPIRequest,
+} from '@/utils/mapEnterpriseAPIResponseToEnterprise';
+import { createEnterprise } from '@/api/business';
+
+export default function EditEnterpriseInfo() {
   const params = useParams();
   const id = params.id;
   const [detailEnterprise, setDetailEnterprise] = useState<IEnterprise | undefined>();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isLoading, setIsLoading] = useState(false);
-  const userRoles = useAppSelector(state => state.user.role.data);
-  const userRole = userHasRole(ROLES_ID.ENTERPRISE_MANAGEMENT, userRoles);
+
+  const onUpdateEnterprise = async (form: IEnterprise) => {
+    const data = mapEnterpriseInfoToAPIRequest(form);
+    const result = await createEnterprise(mapEnterpriseInfoToAPIRequest(form));
+
+    console.log('Form: ', form, data, result);
+  };
 
   useEffect(() => {
     const getDetailEnterpriseInfo = async (id: string) => {
@@ -38,19 +45,14 @@ export default function DetailEnterprise() {
   return (
     <main className="enterprise-detail-page">
       <div className="page-title-container">
-        <h1 className="page-title">Thông tin doanh nghiệp</h1>
+        <h1 className="page-title">Chỉnh sửa thông tin doanh nghiệp</h1>
         <div className="page-navigators">
-          {userRole?.isUpdate && (
-            <Link to={`/doanh-nghiep/${params.id}/chinh-sua`} className="page-navigate-link edit-link">
-              Chỉnh sửa
-            </Link>
-          )}
           <Link to="/doanh-nghiep" className="page-navigate-link">
             Quay lại
           </Link>
         </div>
       </div>
-      <EnterpriseForm data={detailEnterprise} isEditable={false} />
+      <EnterpriseForm data={detailEnterprise} isEditable onSubmit={onUpdateEnterprise} />
     </main>
   );
 }

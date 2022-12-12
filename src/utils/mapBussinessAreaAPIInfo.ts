@@ -9,6 +9,6 @@ export function mapAPIResponseToBussinessArea(data: IBusinessAreaAPIResponse): I
   };
 }
 
-export function mapBussinessAreaToAPIRequest(data: IBusinessArea) {
-  return { businessAreaId: data.id || 0, businessAreaName: data.name, status: 1 };
+export function mapBussinessAreaToAPIRequest(data: IBusinessArea, isDelete = false) {
+  return { businessAreaId: data.id || 0, businessAreaName: data.name, status: isDelete ? 0 : 1 };
 }

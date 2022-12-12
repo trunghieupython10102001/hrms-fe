@@ -1,12 +1,14 @@
+import { ROLES_ID } from '@/constants/roles';
 import { useAppSelector } from '@/hooks/store';
 import { IUser, IUserRole } from '@/interface/user/user';
+import { userHasRole } from '@/utils/hasRole';
 import { readFileAsync } from '@/utils/promisifiedFileReader';
 import { CloseOutlined } from '@ant-design/icons';
 import { Button, DatePicker, Form, Input, Upload, UploadProps } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import PermisstionList from './PermisstionList';
-
+import _cloneDeep from 'lodash/cloneDeep';
 import './UserForm.less';
 
 interface IComponentProps {
@@ -14,7 +16,7 @@ interface IComponentProps {
   isEditable?: boolean;
   isSubmitting?: boolean;
   userPermisions?: IUserRole[];
-  onSubmit?: (form: IUser) => Promise<void>;
+  onSubmit?: (form: { user: IUser; role: IUserRole[] }) => Promise<void>;
 }
 
 interface IUploadOptions {
@@ -47,6 +49,10 @@ export default function UserForm({ user, isEditable = true, isSubmitting, onSubm
   const avatar = form.getFieldValue('avatarUrl');
   const [, forceUpdate] = useState(0);
   const userId = useAppSelector(state => state.user.id);
+  const userRoles = useAppSelector(state => state.user.role.data);
+  const userRole = userHasRole(ROLES_ID.USER_MANAGEMENT, userRoles);
+  const roleList = useAppSelector(state => state.user.roleList.data);
+  const [localRoles, setLocalRoles] = useState<IUserRole[]>([]);
 
   const resetImageURLHandler = () => {
     form.setFields([{ name: 'avatarUrl', value: '' }]);
@@ -80,8 +86,41 @@ export default function UserForm({ user, isEditable = true, isSubmitting, onSubm
 
     if (onSubmit) {
       formData.createdBy = userId;
-      onSubmit(formData);
+      onSubmit({ user: formData, role: localRoles });
     }
+  };
+
+  const onUpdateRole = (index: number, key: string) => {
+    setLocalRoles(permissions => {
+      const newPers = _cloneDeep(permissions);
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      newPers[index][key] = !newPers[index][key];
+
+      return newPers;
+    });
+  };
+
+  const onSelectAllRole = (index: number) => {
+    setLocalRoles(permissions => {
+      const newPers = _cloneDeep(permissions);
+      const permission = newPers[index];
+
+      if (permission.isGrant && permission.isUpdate && permission.isInsert && permission.isDelete) {
+        permission.isGrant = false;
+        permission.isUpdate = false;
+        permission.isInsert = false;
+        permission.isDelete = false;
+      } else {
+        permission.isGrant = true;
+        permission.isUpdate = true;
+        permission.isInsert = true;
+        permission.isDelete = true;
+      }
+
+      return newPers;
+    });
   };
 
   useEffect(() => {
@@ -90,6 +129,32 @@ export default function UserForm({ user, isEditable = true, isSubmitting, onSubm
       forceUpdate(i => i + 1);
     }
   }, [user]);
+
+  useEffect(() => {
+    const updatedRoles = _cloneDeep(roleList);
+
+    if (userPermisions) {
+      updatedRoles.forEach(role => {
+        const userRole = userPermisions.find(rol => rol.functionID === role.id);
+
+        if (!userRole) {
+          role.isGrant = false;
+          role.isDelete = false;
+          role.isInsert = false;
+          role.isUpdate = false;
+
+          return;
+        }
+
+        role.isGrant = userRole.isGrant;
+        role.isDelete = userRole.isDelete;
+        role.isInsert = userRole.isInsert;
+        role.isUpdate = userRole.isUpdate;
+      });
+    }
+
+    setLocalRoles(updatedRoles);
+  }, [userPermisions]);
 
   return (
     <Form
@@ -181,8 +246,17 @@ export default function UserForm({ user, isEditable = true, isSubmitting, onSubm
         </div>
       </div>
 
-      <h2 className="page-title">Quyền hạn của người dùng</h2>
-      <PermisstionList isEditable={isEditable} roles={userPermisions} />
+      {userRole?.isGrant && (
+        <>
+          <h2 className="page-title">Quyền hạn của người dùng</h2>
+          <PermisstionList
+            isEditable={isEditable}
+            roles={localRoles}
+            onSelectAllRole={onSelectAllRole}
+            onUpdateRole={onUpdateRole}
+          />
+        </>
+      )}
 
       {isEditable && (
         <div className="submit-container">

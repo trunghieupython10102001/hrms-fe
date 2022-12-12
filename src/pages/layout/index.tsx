@@ -11,6 +11,9 @@ import { setUserItem } from '@/stores/user.store';
 import { useDispatch, useSelector } from 'react-redux';
 import { getFirstPathCode } from '@/utils/getFirstPathCode';
 import { UsergroupAddOutlined } from '@ant-design/icons';
+import { useAppSelector } from '@/hooks/store';
+import { userHasRole } from '@/utils/hasRole';
+import { ROLES_ID } from '@/constants/roles';
 
 const { Sider, Content } = Layout;
 const WIDTH = 992;
@@ -22,6 +25,12 @@ const LayoutPage: FC = () => {
   const [menuList, setMenuList] = useState<MenuList>([]);
   const { device, collapsed } = useSelector(state => state.user);
   const isMobile = device === 'MOBILE';
+
+  const userRoles = useAppSelector(state => state.user.role.data);
+  const userEnterpriseRoles = userHasRole(ROLES_ID.ENTERPRISE_MANAGEMENT, userRoles);
+  const userManagementRoles = userHasRole(ROLES_ID.USER_MANAGEMENT, userRoles);
+  const userCategoriesRoles = userHasRole(ROLES_ID.CATEGORIES_MANAGEMENT, userRoles);
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -39,27 +48,35 @@ const LayoutPage: FC = () => {
   };
 
   useEffect(() => {
-    setMenuList([
-      {
+    const menuList = [];
+
+    if (userManagementRoles?.isGrant) {
+      menuList.push({
         code: 'nguoi-dung',
         label: 'Danh sách người dùng',
         path: '/nguoi-dung',
         icon: <UsergroupAddOutlined />,
-      },
-      {
+      });
+    }
+    if (userEnterpriseRoles?.isGrant) {
+      menuList.push({
         code: 'doanh-nghiep',
         label: 'Danh sách doanh nghiệp',
         path: '/doanh-nghiep',
         icon: <UsergroupAddOutlined />,
-      },
-      {
+      });
+    }
+    if (userCategoriesRoles?.isGrant) {
+      menuList.push({
         code: 'linh-vuc-kinh-doanh',
         label: 'Quản lý lĩnh vực kinh doanh',
         path: '/linh-vuc-kinh-doanh',
         icon: <UsergroupAddOutlined />,
-      },
-    ]);
-  }, []);
+      });
+    }
+
+    setMenuList(menuList);
+  }, [userRoles]);
 
   useEffect(() => {
     window.onresize = () => {

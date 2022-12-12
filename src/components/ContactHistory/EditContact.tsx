@@ -1,5 +1,5 @@
 import { createContactHistory } from '@/api/business';
-import { IEnterprise } from '@/interface/business';
+import { IContact, IEnterprise } from '@/interface/business';
 import { notification } from 'antd';
 import { useState } from 'react';
 
@@ -8,18 +8,23 @@ import './AddNewContact.less';
 
 interface IComponentProps {
   enterprise: IEnterprise;
+  contact?: IContact;
   onClose: () => void;
 }
 
-export default function AddNewContact({ enterprise, onClose }: IComponentProps) {
+export default function EditContact({ enterprise, contact, onClose }: IComponentProps) {
   const [isSubmittingData, setIsSubmittingData] = useState(false);
 
-  const onCreateNewContactHistory = async (form: { content: string; note: string }) => {
+  const onEditContact = async (form: IContact) => {
+    console.log('Data: ', form);
+
     setIsSubmittingData(true);
     const submitData = {
-      ...form,
+      logId: form.logID,
       businessId: enterprise?.id,
-      logId: 0,
+      content: form.content,
+      note: form.note,
+      status: 1,
     };
 
     try {
@@ -27,8 +32,7 @@ export default function AddNewContact({ enterprise, onClose }: IComponentProps) 
 
       console.log('Result: ', res);
       notification.success({
-        message: 'Thêm thành công',
-        description: 'Dữ liệu lần tiếp cận mới đã được thêm vào cơ sở dữ liệu',
+        message: 'Cập nhật thành công',
       });
       onClose();
     } catch (error) {
@@ -39,13 +43,14 @@ export default function AddNewContact({ enterprise, onClose }: IComponentProps) 
 
   return (
     <main className="add-new-contact-page">
-      <h1 className="page-title">Thêm lần tiếp cận mới</h1>
+      <h1 className="page-title">Cập nhật thông tin tiếp cận</h1>
       <p>Doanh nghiệp: {enterprise.name}</p>
       <ContactForm
+        data={contact}
         isEditable
         enterprise={enterprise as IEnterprise}
         isSubmitting={isSubmittingData}
-        onSubmit={onCreateNewContactHistory}
+        onSubmit={onEditContact}
       />
     </main>
   );

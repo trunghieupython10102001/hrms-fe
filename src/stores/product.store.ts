@@ -12,19 +12,22 @@ interface IEnterpriseProductSlice {
   error?: any;
 }
 
-const getListProducts = createAsyncThunk('contacts/getProductsList', async (params?: { businessId?: number }) => {
-  try {
-    const response = await getProductsList(params);
+const getListProducts = createAsyncThunk(
+  'contacts/getProductsList',
+  async (params?: { businessId?: number; search?: string }) => {
+    try {
+      const response = await getProductsList({ ...params, status: 1 });
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const data = response.data[0].map(mapAPIProductResponseToProductInfo);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const data = response.data[0].map(mapAPIProductResponseToProductInfo);
 
-    return [data, undefined];
-  } catch (error) {
-    return [undefined, error];
-  }
-});
+      return [data, undefined];
+    } catch (error) {
+      return [undefined, error];
+    }
+  },
+);
 
 const initialState: IEnterpriseProductSlice = {
   data: {

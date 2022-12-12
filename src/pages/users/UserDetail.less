@@ -11,6 +11,24 @@
       font-weight: 700;
     }
 
+    &-navigators {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+
+      .edit-link {
+        background-color: rgb(19, 194, 194);
+        color: white;
+        border: 1px solid rgb(19, 194, 194);
+
+        &:hover {
+          background-color: transparent;
+          color: black;
+          border-color: black;
+        }
+      }
+    }
+
     &-navigate-link {
       padding: 0.25rem 2.5rem;
       color: black;

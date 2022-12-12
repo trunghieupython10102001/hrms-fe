@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { IEnterprise, EEnterpriseStatus, EEnterpriseType } from '@/interface/business';
 import { bussinessAreaAsyncActions } from '@/stores/businessArea.store';
-import { phoneNumberRegex, removeAllNonDigits } from '@/utils/phonenumberRegex';
+import { phoneNumberRegex } from '@/utils/phonenumberRegex';
 import { Button, Form, Input, Select } from 'antd';
 import { useEffect } from 'react';
 import './EnterpriseForm.less';
@@ -169,14 +169,14 @@ export default function EnterpriseForm({ data, isEditable = true, isSubmitting, 
         <Form.Item name="country" label="Quốc gia" rules={[{ required: true, message: 'Trường không được bỏ trống' }]}>
           <Input disabled={!isEditable} size="large" />
         </Form.Item>
-        <Form.Item
+        {/* <Form.Item
           name="contactedTimes"
           label="Số lần tiếp cận"
           rules={[{ required: true, message: 'Trường không được bỏ trống' }]}
           normalize={removeAllNonDigits}
         >
           <Input disabled={!isEditable} size="large" />
-        </Form.Item>
+        </Form.Item> */}
       </div>
 
       <Form.Item

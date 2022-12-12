@@ -1,50 +1,17 @@
 import { IUserRole } from '@/interface/user/user';
 import { Checkbox, Table, TableColumnsType } from 'antd';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import _cloneDeep from 'lodash/cloneDeep';
 import _some from 'lodash/some';
 
 interface IComponentProps {
   isEditable: boolean;
   roles?: IUserRole[];
+  onUpdateRole: (index: number, key: string) => void;
+  onSelectAllRole: (index: number) => void;
 }
 
-export default function PermisstionList({ isEditable, roles }: IComponentProps) {
-  const [userPermisions, setUserPermisions] = useState<IUserRole[]>([]);
-
-  const onUpdateRole = useCallback((index: number, key: string) => {
-    setUserPermisions(permissions => {
-      const newPers = _cloneDeep(permissions);
-
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      newPers[index][key] = !newPers[index][key];
-
-      return newPers;
-    });
-  }, []);
-
-  const onSelectAllRole = useCallback((index: number) => {
-    setUserPermisions(permissions => {
-      const newPers = _cloneDeep(permissions);
-      const permission = newPers[index];
-
-      if (permission.isGrant && permission.isUpdate && permission.isInsert && permission.isDelete) {
-        permission.isGrant = false;
-        permission.isUpdate = false;
-        permission.isInsert = false;
-        permission.isDelete = false;
-      } else {
-        permission.isGrant = true;
-        permission.isUpdate = true;
-        permission.isInsert = true;
-        permission.isDelete = true;
-      }
-
-      return newPers;
-    });
-  }, []);
-
+export default function PermisstionList({ isEditable, roles, onSelectAllRole, onUpdateRole }: IComponentProps) {
   const tableColumns: TableColumnsType<IUserRole> = useMemo<TableColumnsType<IUserRole>>(() => {
     return [
       {
@@ -97,13 +64,7 @@ export default function PermisstionList({ isEditable, roles }: IComponentProps) 
         ),
       },
     ];
-  }, []);
-
-  useEffect(() => {
-    if (roles) {
-      setUserPermisions(roles);
-    }
   }, [roles]);
 
-  return <Table rowKey="id" columns={tableColumns} dataSource={userPermisions} pagination={false}></Table>;
+  return <Table rowKey="id" columns={tableColumns} dataSource={roles} pagination={false}></Table>;
 }

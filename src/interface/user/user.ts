@@ -1,7 +1,6 @@
 import { Device } from '@/interface/layout/index.interface';
 import { MenuChild } from '@/interface/layout/menu.interface';
 import { Moment } from 'moment';
-import { Role } from './login';
 
 export type Locale = 'zh_CN' | 'en_US';
 
@@ -15,7 +14,13 @@ export interface UserState {
   /** login status */
   logged: boolean;
 
-  role: Role;
+  role: {
+    data: IUserRole[];
+
+    status: 'init' | 'loading' | 'success' | 'error';
+
+    error?: any;
+  };
 
   /** user's device */
   device: Device;
@@ -68,6 +73,7 @@ export interface IUser {
 export interface IUserRole {
   id: number;
   functionName: string;
+  functionID?: number;
   isDisplay: boolean;
   isActive: boolean;
   parentID: number;

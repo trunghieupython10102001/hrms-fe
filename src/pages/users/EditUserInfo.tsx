@@ -1,13 +1,11 @@
-import { getUserDetail } from '@/api/user.api';
-import { ROLES_ID } from '@/constants/roles';
+import { editUser, getUserDetail } from '@/api/user.api';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import type { IUser, IUserRole } from '@/interface/user/user';
 import { setGlobalState } from '@/stores/global.store';
 import { userAsyncActions } from '@/stores/user.store';
-import { isNotHasAnyRole, userHasRole } from '@/utils/hasRole';
+import { notification } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import NotFoundPage from '../404';
 import UserForm from './shared/UserForm';
 
 import './UserDetail.less';
@@ -17,16 +15,31 @@ interface IDetailUserInfo {
   roles: IUserRole[];
 }
 
-export default function UserDetail() {
+export default function EditUserInfoPage() {
   const params = useParams();
   const [detailInfo, setDetailInfo] = useState<IDetailUserInfo | undefined>();
   const roleListStatus = useAppSelector(state => state.user.roleList.status);
-  const userRoles = useAppSelector(state => state.user.role.data);
-  const userId = useAppSelector(state => state.user.id);
-  const userRole = userHasRole(ROLES_ID.USER_MANAGEMENT, userRoles);
   const dispatch = useAppDispatch();
 
-  const isNotHasRole = isNotHasAnyRole(userRoles);
+  const editUserHandler = async (data: { user: IUser; role: IUserRole[] }) => {
+    console.log('User: ', data);
+
+    const [result, error] = await editUser(Number(params.id) || NaN, data.user);
+
+    console.log('Result: ', result);
+
+    if (error) {
+      notification.error({
+        message: 'Cập nhật người dùng không thành công',
+      });
+
+      return;
+    }
+
+    notification.success({
+      message: 'Cập nhật thành công',
+    });
+  };
 
   useEffect(() => {
     const getUserDetailInfo = async () => {
@@ -58,28 +71,22 @@ export default function UserDetail() {
     getUserDetailInfo();
   }, [params.id]);
 
-  if (isNotHasRole && Number(params.id) !== userId) {
-    return <NotFoundPage />;
-  }
-
   return (
     <div className="user-detail-page">
       <div className="page-title-container">
-        <h1 className="page-title">Thông tin chi tiết người dùng</h1>
+        <h1 className="page-title">Chỉnh sửa thông tin người dùng</h1>
         <div className="page-navigators">
-          {userRole?.isUpdate && (
-            <Link to={`/nguoi-dung/${params.id}/chinh-sua`} className="page-navigate-link edit-link">
-              Chỉnh sửa
-            </Link>
-          )}
-          {!isNotHasRole && (
-            <Link to="/nguoi-dung" className="page-navigate-link">
-              Quay lại
-            </Link>
-          )}
+          <Link to="/nguoi-dung" className="page-navigate-link">
+            Quay lại
+          </Link>
         </div>
       </div>
-      <UserForm user={detailInfo?.user} isEditable={false} userPermisions={detailInfo?.roles || ([] as IUserRole[])} />
+      <UserForm
+        user={detailInfo?.user}
+        isEditable
+        userPermisions={detailInfo?.roles || ([] as IUserRole[])}
+        onSubmit={editUserHandler}
+      />
     </div>
   );
 }

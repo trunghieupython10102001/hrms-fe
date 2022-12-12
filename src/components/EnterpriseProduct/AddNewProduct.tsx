@@ -1,36 +1,43 @@
-import { createContactHistory } from '@/api/business';
-import { IEnterprise } from '@/interface/business';
+import { createProduct } from '@/api/business';
+import { IEnterprise, IEnterpriseProduct } from '@/interface/business';
 import { notification } from 'antd';
 import { useState } from 'react';
 
 import ProductForm from './shared/ProductForm';
 import './AddNewProduct.less';
+import { mapProductInfoToAPIRequest } from '@/utils/mapEnterpriseProductInfoAPI';
 
 interface IComponentProps {
   enterprise: IEnterprise;
+  product?: IEnterpriseProduct;
   onClose: () => void;
 }
 
-export default function AddNewProduct({ enterprise, onClose }: IComponentProps) {
+export default function AddNewProduct({ enterprise, product, onClose }: IComponentProps) {
   const [isSubmittingData, setIsSubmittingData] = useState(false);
 
-  const onCreateNewContactHistory = async (form: { content: string; note: string }) => {
+  const onCreateNewProduct = async (form: IEnterpriseProduct) => {
     setIsSubmittingData(true);
-    const submitData = {
-      ...form,
-      businessId: enterprise?.id,
-      logId: 0,
-    };
+
+    console.log('Form data: ', form);
 
     try {
-      const res = await createContactHistory(submitData);
+      const res = await createProduct(mapProductInfoToAPIRequest(form));
 
-      console.log('Result: ', res);
-      notification.success({
-        message: 'Thêm thành công',
-        description: 'Dữ liệu lần tiếp cận mới đã được thêm vào cơ sở dữ liệu',
-      });
-      onClose();
+      console.log(res);
+
+      if (res.data.code > 0) {
+        notification.success({
+          message: product ? 'Cập nhật dữ liệu thành công' : 'Thêm thành công',
+          description: 'Dữ liệu sản phẩm đã được đưa vào cơ sở dữ liệu',
+        });
+        onClose();
+      } else {
+        notification.error({
+          message: product ? 'Sửa sản phẩm không thành công' : 'Thêm sản phẩm không thành công',
+          description: 'Lỗi hệ thống',
+        });
+      }
     } catch (error) {
     } finally {
       setIsSubmittingData(false);
@@ -38,13 +45,14 @@ export default function AddNewProduct({ enterprise, onClose }: IComponentProps) 
   };
 
   return (
-    <main className="add-new-contact-page">
-      <h2 className="page-title">Thêm sản phẩm mới</h2>
+    <main className="add-new-product-page">
+      <h2 className="page-title">{enterprise.type === 1 ? 'Sản phẩm xuất khẩu' : 'Sản phẩm nhập khẩu'}</h2>
       <ProductForm
         isEditable
         enterprise={enterprise as IEnterprise}
+        data={product}
         isSubmitting={isSubmittingData}
-        onSubmit={onCreateNewContactHistory}
+        onSubmit={onCreateNewProduct}
       />
     </main>
   );

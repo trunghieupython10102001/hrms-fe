@@ -1,5 +1,5 @@
 import { IBusinessArea } from '@/interface/businessArea';
-import { EditOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { Table, TableColumnsType, TablePaginationConfig } from 'antd';
 import moment from 'moment';
 import { useMemo } from 'react';
@@ -8,10 +8,21 @@ interface IComponentProps {
   data: IBusinessArea[];
   pagination: TablePaginationConfig | false;
   loading: boolean;
+  canEdit: boolean;
+  canDeleteCategory: boolean;
   onEditArea: (area: IBusinessArea) => void;
+  onDeleteArea: (area: IBusinessArea) => void;
 }
 
-export default function BusinessAreaList({ data, pagination, loading, onEditArea }: IComponentProps) {
+export default function BusinessAreaList({
+  data,
+  pagination,
+  loading,
+  canEdit,
+  canDeleteCategory,
+  onEditArea,
+  onDeleteArea,
+}: IComponentProps) {
   const tableColumns: TableColumnsType<IBusinessArea> = useMemo<TableColumnsType<IBusinessArea>>(() => {
     return [
       {
@@ -36,9 +47,12 @@ export default function BusinessAreaList({ data, pagination, loading, onEditArea
         key: 'actions',
         render: (_, area) => (
           <div>
-            <button className="action-btns" onClick={() => onEditArea(area)}>
-              <EditOutlined />
-            </button>
+            {canEdit && (
+              <button className="action-btns" onClick={() => onEditArea(area)}>
+                <EditOutlined />
+              </button>
+            )}
+            {canDeleteCategory && <DeleteOutlined className="btn btn--delete" onClick={() => onDeleteArea(area)} />}
           </div>
         ),
       },

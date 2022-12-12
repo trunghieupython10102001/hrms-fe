@@ -33,6 +33,7 @@ export default function ContactHistory() {
   return (
     <main className="contact-history-list-page">
       <h1 className="page-title">Danh sách lịch sử tiếp cận doanh nghiệp</h1>
+    
       <div className="page-action-main">
         <Input.Search
           className="page-search-box"

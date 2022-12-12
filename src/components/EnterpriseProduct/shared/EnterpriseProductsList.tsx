@@ -1,14 +1,25 @@
-import { IEnterpriseProduct } from '@/interface/business';
-import { Table, type TableColumnsType, type TablePaginationConfig } from 'antd';
+import { IEnterprise, IEnterpriseProduct } from '@/interface/business';
+import { DeleteFilled, EditOutlined } from '@ant-design/icons';
+import { Space, Table, type TableColumnsType, type TablePaginationConfig } from 'antd';
 import { useMemo } from 'react';
 
 interface IComponentProps {
   data: IEnterpriseProduct[];
   pagination: TablePaginationConfig | false;
   loading: boolean;
+  enterprise: IEnterprise;
+  onEditData: (product: IEnterpriseProduct) => void;
+  onDeleteProduct: (product: IEnterpriseProduct) => void;
 }
 
-export default function EnterpriseProductsList({ data, loading, pagination }: IComponentProps) {
+export default function EnterpriseProductsList({
+  data,
+  loading,
+  pagination,
+  enterprise,
+  onDeleteProduct,
+  onEditData,
+}: IComponentProps) {
   const tableColumns: TableColumnsType<IEnterpriseProduct> = useMemo<TableColumnsType<IEnterpriseProduct>>(() => {
     return [
       {
@@ -18,7 +29,7 @@ export default function EnterpriseProductsList({ data, loading, pagination }: IC
         render: productID => <span>{productID}</span>,
       },
       {
-        title: 'Thông tin sản phẩm',
+        title: enterprise.type === 1 ? 'Sản phẩm xuất khẩu' : 'Sản phẩm nhập khẩu',
         dataIndex: 'detailInfo',
         key: 'detailInfo',
         render: detailInfo => <span className="capitalized">{detailInfo}</span>,
@@ -40,6 +51,16 @@ export default function EnterpriseProductsList({ data, loading, pagination }: IC
         dataIndex: 'createAt',
         key: 'createAt',
         render: createAt => <span className="capitalized">{createAt}</span>,
+      },
+      {
+        render(_, record) {
+          return (
+            <Space>
+              <EditOutlined className="cursor-pointer" onClick={() => onEditData(record)} />
+              <DeleteFilled className="cursor-pointer" onClick={() => onDeleteProduct(record)} />
+            </Space>
+          );
+        },
       },
     ];
   }, []);

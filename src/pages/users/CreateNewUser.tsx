@@ -32,11 +32,11 @@ export default function CreateNewUser() {
   const [userPermissons, setUserPermissons] = useState<IUserRole[]>(roleList);
   const navigator = useNavigate();
 
-  const createNewUser = async (form: IUser) => {
+  const createNewUser = async (form: { user: IUser; role: IUserRole[] }) => {
     setIsSubmitting(true);
 
     try {
-      const result = await createNewUserAPI(form);
+      const result = await createNewUserAPI(form.user);
 
       console.log('Signup result', result);
       notification.success({

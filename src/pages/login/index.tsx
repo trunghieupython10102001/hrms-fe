@@ -38,6 +38,10 @@ const LoginForm: FC = () => {
       const from = search.from || { pathname: '/' };
 
       dispatch(bussinessAreaAsyncActions.getBusinessAreaList()).unwrap();
+      dispatch(userAsyncActions.getRolesList()).unwrap();
+      const [userRoles, roleErrors] = await dispatch(userAsyncActions.getUserRole()).unwrap();
+
+      console.log('Role data: ', userRoles, roleErrors);
       notification.success({
         message: 'Đăng nhập thành công',
       });

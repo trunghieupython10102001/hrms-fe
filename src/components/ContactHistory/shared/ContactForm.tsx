@@ -1,12 +1,13 @@
 import { IContact, IEnterprise } from '@/interface/business';
 import { Button, Form, Input } from 'antd';
+import { useEffect } from 'react';
 
 interface IComponentProps {
   enterprise?: IEnterprise;
   data?: IContact;
   isEditable?: boolean;
   isSubmitting?: boolean;
-  onSubmit?: (form: { content: string; note: string }) => Promise<void>;
+  onSubmit?: (form: IContact) => Promise<void>;
 }
 
 const defaultForm = {
@@ -15,7 +16,7 @@ const defaultForm = {
 };
 
 export default function ContactForm({ enterprise, data, isEditable, isSubmitting, onSubmit }: IComponentProps) {
-  const [form] = Form.useForm();
+  const [form] = Form.useForm<IContact>();
 
   const submitFormHandler = async () => {
     try {
@@ -27,6 +28,12 @@ export default function ContactForm({ enterprise, data, isEditable, isSubmitting
       console.log('Validate error: ', error);
     }
   };
+
+  useEffect(() => {
+    if (data) {
+      form.setFieldsValue(data);
+    }
+  }, [data]);
 
   return (
     <Form

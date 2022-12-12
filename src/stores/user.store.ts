@@ -1,10 +1,11 @@
 import { createSlice, PayloadAction, createAsyncThunk, CaseReducer } from '@reduxjs/toolkit';
-import { apiLogin, getAllRoles, getAllUser } from '@/api/user.api';
+import { apiLogin, getAllRoles, getAllUser, getUserRole as getMyRole } from '@/api/user.api';
 import { LoginParams, Role } from '@/interface/user/login';
 import { IUser, Locale, UserState } from '@/interface/user/user';
 import { getGlobalState } from '@/utils/getGloabal';
 
 const KEY_ACCESS_TOKEN = 'accessToken';
+const KEY_REFRESH_TOKEN = 'refreshToken';
 
 const initialState: UserState = {
   ...getGlobalState(),
@@ -15,7 +16,10 @@ const initialState: UserState = {
   logged: localStorage.getItem(KEY_ACCESS_TOKEN) ? true : false,
   menuList: [],
   username: localStorage.getItem('username') || '',
-  role: (localStorage.getItem('username') || '') as Role,
+  role: {
+    data: [],
+    status: 'init',
+  },
   userList: {
     data: [],
     totalUser: 0,
@@ -36,6 +40,7 @@ const login = createAsyncThunk('user/login', async (payload: LoginParams) => {
 
   if (payload.remember) {
     localStorage.setItem(KEY_ACCESS_TOKEN, response.data.accessToken);
+    localStorage.setItem(KEY_REFRESH_TOKEN, response.data.refreshToken);
   }
 
   if (response.data) {
@@ -66,6 +71,18 @@ const getUserList = createAsyncThunk('user/getUserList', async () => {
 
 const getRolesList = createAsyncThunk('user/getRolesList', async () => {
   const [data, error] = (await getAllRoles()) as any;
+
+  if (error) {
+    return [undefined, error];
+  }
+
+  return [data, undefined];
+});
+
+const getUserRole = createAsyncThunk('user/my-role', async () => {
+  const [data, error] = (await getMyRole()) as any;
+
+  console.log(data);
 
   if (error) {
     return [undefined, error];
@@ -138,17 +155,38 @@ const userSlice = createSlice({
       if (error) {
         state.roleList.status = 'error';
         state.roleList.error = error;
+        state.roleList.data = [];
 
         return;
       }
 
-      state.roleList = roles;
+      state.roleList.data = roles;
       state.roleList.status = 'success';
+    });
+
+    builder.addCase(getUserRole.pending, state => {
+      state.role.status = 'loading';
+      state.role.error = undefined;
+    });
+
+    builder.addCase(getUserRole.fulfilled, (state, action) => {
+      const [roles, error] = action.payload;
+
+      if (error) {
+        state.role.status = 'error';
+        state.role.error = error;
+        state.role.data = [];
+
+        return;
+      }
+
+      state.role.data = roles.roles;
+      state.role.status = 'success';
     });
   },
 });
 
 export const { setUserItem, logout } = userSlice.actions;
-export const userAsyncActions = { login, getUserList, getRolesList };
+export const userAsyncActions = { login, getUserList, getRolesList, getUserRole };
 
 export default userSlice.reducer;

@@ -1,0 +1,2 @@
+Trong detail user
+    Hiển thị bảng phân quyền nếu user có role Quản Lý Người Dùng

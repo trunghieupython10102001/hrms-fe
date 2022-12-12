@@ -8,6 +8,8 @@ import { Input, Modal } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import EnterpriseList from './shared/EnterpriseList';
+import { userHasRole } from '@/utils/hasRole';
+import { ROLES_ID } from '@/constants/roles';
 
 import './index.less';
 
@@ -15,6 +17,11 @@ export default function EnterpriseListPage() {
   const data = useAppSelector(state => state.enterprise.data.enterprises);
   const dataStatus = useAppSelector(state => state.enterprise.status);
   const dispatch = useAppDispatch();
+
+  const userRoles = useAppSelector(state => state.user.role.data);
+  const userRole = userHasRole(ROLES_ID.ENTERPRISE_MANAGEMENT, userRoles);
+
+  console.log('Role ', userRole);
 
   const [queryParams, setQueryParams] = useSearchParams();
   const [isShowContactHistoryModal, setIsShowContactHistoryModal] = useState(false);
@@ -66,9 +73,11 @@ export default function EnterpriseListPage() {
           onSearch={onSearchUser}
           enterButton
         />
-        <Link to="/doanh-nghiep/tao-moi" className="page-navigate-link">
-          Thêm mới
-        </Link>
+        {userRole?.isInsert && (
+          <Link to="/doanh-nghiep/tao-moi" className="page-navigate-link">
+            Thêm mới
+          </Link>
+        )}
       </div>
       <EnterpriseList
         data={data}
@@ -94,7 +103,10 @@ export default function EnterpriseListPage() {
         visible={isShowEnterpriseProductsModal}
         onCancel={hideEnterpriseProductListModal}
         footer={null}
-        width={window.innerWidth / 2}
+        width={window.innerWidth / 1.5}
+        bodyStyle={{
+          padding: '1rem 3rem',
+        }}
       >
         <EnterpriseProductsList enterprise={activeEnterprise as IEnterprise} />
       </Modal>

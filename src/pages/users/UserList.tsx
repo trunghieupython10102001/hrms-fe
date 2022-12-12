@@ -3,14 +3,17 @@ import { Table, TableColumnsType } from 'antd';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
+import { DeleteOutlined } from '@ant-design/icons';
 
 interface IComponentProps {
   data: IUser[];
   pagination: any;
   loading: boolean;
+  canDeleteUser: boolean;
+  onDeleteUser: (id: number) => Promise<void>;
 }
 
-export default function UserList({ data, pagination, loading }: IComponentProps) {
+export default function UserList({ data, pagination, loading, canDeleteUser, onDeleteUser }: IComponentProps) {
   const tableColumns: TableColumnsType<IUser> = useMemo<TableColumnsType<IUser>>(() => {
     return [
       {
@@ -48,6 +51,17 @@ export default function UserList({ data, pagination, loading }: IComponentProps)
         dataIndex: 'dateOfBirth',
         key: 'dateOfBirth',
         render: dateOfBirth => <span className="capitalized">{moment(dateOfBirth).format('DD/MM/YYYY')}</span>,
+      },
+      {
+        render(_, record) {
+          return (
+            <div className="actions-container">
+              {canDeleteUser && (
+                <DeleteOutlined className="btn btn--delete" onClick={() => onDeleteUser(record.id || NaN)} />
+              )}
+            </div>
+          );
+        },
       },
     ];
   }, []);

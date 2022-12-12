@@ -1,8 +1,10 @@
 import { createOrUpdateBussinessArea } from '@/api/business';
 import { QUERY_KEYS } from '@/constants/keys';
+import { ROLES_ID } from '@/constants/roles';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { IBusinessArea } from '@/interface/businessArea';
 import { bussinessAreaAsyncActions } from '@/stores/businessArea.store';
+import { userHasRole } from '@/utils/hasRole';
 import { mapBussinessAreaToAPIRequest } from '@/utils/mapBussinessAreaAPIInfo';
 import { CloseCircleOutlined } from '@ant-design/icons';
 import { Button, Input, Modal, notification } from 'antd';
@@ -19,7 +21,12 @@ export default function BusinessAreas() {
   const dispatch = useAppDispatch();
 
   const [businessArea, setBusinessArea] = useState<IBusinessArea | true | undefined>();
+  const [isShowEditModal, setIsShowEditModal] = useState(false);
+  const [isShowDeleteModal, setIsShowDeleteModal] = useState(false);
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
+
+  const userRoles = useAppSelector(state => state.user.role.data);
+  const userCategoriesRoles = userHasRole(ROLES_ID.CATEGORIES_MANAGEMENT, userRoles);
 
   const [queryParams, setQueryParams] = useSearchParams();
 
@@ -39,23 +46,30 @@ export default function BusinessAreas() {
 
   const onEditArea = (area: IBusinessArea) => {
     setBusinessArea(area);
+    setIsShowEditModal(true);
   };
 
   const onCreateNewBusinessArea = () => {
+    setIsShowEditModal(true);
     setBusinessArea(true);
+  };
+
+  const onDeleteArea = (area: IBusinessArea) => {
+    setBusinessArea(area);
+    setIsShowDeleteModal(true);
   };
 
   const onCloseModal = () => {
     setBusinessArea(undefined);
+    setIsShowEditModal(false);
+    setIsShowDeleteModal(false);
   };
 
   const onSubmitFormHandler = async (form: IBusinessArea | { name: string }) => {
     setIsSubmittingForm(true);
 
     try {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      await createOrUpdateBussinessArea(mapBussinessAreaToAPIRequest(form));
+      await createOrUpdateBussinessArea(mapBussinessAreaToAPIRequest(form as IBusinessArea));
 
       notification.success({ message: 'Tạo thành công', description: 'Lĩnh vực mới đã được lưu vào cơ sở dữ liệu' });
       dispatch(bussinessAreaAsyncActions.getBusinessAreaList());
@@ -63,7 +77,25 @@ export default function BusinessAreas() {
       notification.error({ message: 'Tạo thất bại', description: 'Lĩnh vực mới chưa được lưu vào cơ sở dữ liệu' });
     } finally {
       setIsSubmittingForm(false);
-      setBusinessArea(undefined);
+      onCloseModal();
+    }
+  };
+
+  const deleteBusinessAreaHandler = async () => {
+    setIsSubmittingForm(true);
+
+    try {
+      const res = await createOrUpdateBussinessArea(mapBussinessAreaToAPIRequest(businessArea as IBusinessArea, true));
+
+      console.log('Result: ', res);
+
+      notification.success({ message: 'Xóa thành công' });
+      dispatch(bussinessAreaAsyncActions.getBusinessAreaList());
+    } catch (error) {
+      notification.error({ message: 'Xóa không thành công' });
+    } finally {
+      setIsSubmittingForm(false);
+      onCloseModal();
     }
   };
 
@@ -94,17 +126,22 @@ export default function BusinessAreas() {
           }
           enterButton
         />
-        <Button type="primary" onClick={onCreateNewBusinessArea}>
-          Thêm lĩnh vực
-        </Button>
+        {userCategoriesRoles?.isInsert && (
+          <Button type="primary" onClick={onCreateNewBusinessArea}>
+            Thêm lĩnh vực
+          </Button>
+        )}
       </div>
       <BusinessAreaList
+        canEdit={!!userCategoriesRoles?.isUpdate}
+        canDeleteCategory={!!userCategoriesRoles?.isDelete}
         data={businessAreas}
         pagination={{ pageSize: 10, position: ['bottomCenter'], className: 'table-pagination' }}
         loading={dataStatus === 'loading'}
         onEditArea={onEditArea}
+        onDeleteArea={onDeleteArea}
       />
-      <Modal visible={!!businessArea} onCancel={onCloseModal} footer={false} destroyOnClose wrapClassName="modal">
+      <Modal visible={isShowEditModal} onCancel={onCloseModal} footer={false} destroyOnClose wrapClassName="modal">
         <h3 className="title">
           {businessArea === true ? 'Tạo mới lĩnh vực kinh doanh' : 'Chỉnh sửa lĩnh vực kinh doanh'}
         </h3>
@@ -114,6 +151,23 @@ export default function BusinessAreas() {
           isEditable
           isSubmitting={isSubmittingForm}
         />
+      </Modal>
+      <Modal
+        className="delete-product-modal"
+        visible={isShowDeleteModal}
+        onCancel={onCloseModal}
+        footer={null}
+        destroyOnClose
+      >
+        <h3>Bạn có chắc chắn muốn xóa lĩnh vực {(businessArea as IBusinessArea)?.name}?</h3>
+        <div className="btn-container">
+          <Button className="btn btn--cancel" onClick={onCloseModal} type="primary">
+            Hủy
+          </Button>
+          <Button className="btn btn--confirm" onClick={deleteBusinessAreaHandler} type="primary" danger>
+            Đồng ý
+          </Button>
+        </div>
       </Modal>
     </main>
   );
