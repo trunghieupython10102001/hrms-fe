@@ -1,8 +1,8 @@
-import { QUERY_KEYS } from '@/constants/keys';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { contactAsyncActions } from '@/stores/contact.store';
-import { CloseCircleOutlined } from '@ant-design/icons';
-import { Button, Input, Modal, notification } from 'antd';
+import { Button, DatePicker, Modal, notification } from 'antd';
+import type { RangePickerProps } from 'antd/es/date-picker';
+
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ContactHistoriesList from './shared/ContactHistoriesList';
@@ -14,6 +14,10 @@ import { userHasRole } from '@/utils/hasRole';
 import { ROLES_ID } from '@/constants/roles';
 import { createContactHistory } from '@/api/business';
 import EditContact from './EditContact';
+import _debounce from 'lodash/debounce';
+import { QUERY_KEYS } from '@/constants/keys';
+
+const DATE_FORMAT = 'DD/MM/YYYY';
 
 interface IComponentProps {
   enterprise: IEnterprise;
@@ -27,13 +31,29 @@ export default function ContactHistoryList({ enterprise }: IComponentProps) {
   const dataStatus = useAppSelector(state => state.contact.status);
   const contactList = useAppSelector(state => state.contact.data.contactHistories);
 
+  const userEnterpriseRole = userHasRole(ROLES_ID.ENTERPRISE_MANAGEMENT, userRoles);
+
   const [queryParams, setQueryParams] = useSearchParams();
+
   const [isShowEditForm, setIsShowEditForm] = useState(false);
   const [isShowCreateForm, setIsShowCreateForm] = useState(false);
   const [isShowDeleteForm, setIsShowDeleteForm] = useState(false);
   const [selectingContact, setSelectingContact] = useState<IContact | undefined>();
+  const [filterRange, setFilterRange] = useState<RangePickerProps['value']>(undefined);
 
-  const userEnterpriseRole = userHasRole(ROLES_ID.ENTERPRISE_MANAGEMENT, userRoles);
+  const choseDateRangeHandler = (dates: RangePickerProps['value'], _dateStrings: [string, string]) => {
+    const queries: { enterpriseID?: number; fromDate?: string; toDate?: string } = {
+      enterpriseID: Number(enterpriseID),
+    };
+
+    if (dates) {
+      queries.fromDate = dates[0]?.toISOString();
+      queries.toDate = dates[1]?.toISOString();
+    }
+
+    dispatch(contactAsyncActions.getContactListInfo(queries));
+    setFilterRange(dates);
+  };
 
   const hideFormHandler = () => {
     setIsShowCreateForm(false);
@@ -58,20 +78,6 @@ export default function ContactHistoryList({ enterprise }: IComponentProps) {
   const deleteContactLogHandler = (contact: IContact) => {
     setSelectingContact(contact);
     setIsShowDeleteForm(true);
-  };
-
-  const onSearchUser = (searchValue: string) => {
-    if (searchValue.trim() === '') {
-      return;
-    }
-
-    queryParams.set(QUERY_KEYS.SEARCH, searchValue.trim());
-    setQueryParams(queryParams);
-  };
-
-  const onClearSearchHandler = () => {
-    queryParams.delete(QUERY_KEYS.SEARCH);
-    setQueryParams(queryParams);
   };
 
   const confirmDeleteContactHandler = async () => {
@@ -101,37 +107,43 @@ export default function ContactHistoryList({ enterprise }: IComponentProps) {
   };
 
   useEffect(() => {
-    dispatch(contactAsyncActions.getContactListInfo({ enterpriseID: Number(enterpriseID) }));
+    dispatch(
+      contactAsyncActions.getContactListInfo({
+        enterpriseID: Number(enterpriseID),
+        fromDate: queryParams.get(QUERY_KEYS.FROM) || undefined,
+        toDate: queryParams.get(QUERY_KEYS.TO) || undefined,
+      }),
+    );
+
+    return () => {
+      setQueryParams(new URLSearchParams());
+    };
   }, [enterpriseID]);
 
   useEffect(() => {
-    const search = queryParams.get(QUERY_KEYS.SEARCH) || '';
-
-    dispatch(contactAsyncActions.getContactListInfo({ enterpriseID: Number(enterpriseID), logId: Number(search) }));
-  }, [enterpriseID, queryParams]);
+    if (!filterRange) {
+      queryParams.delete(QUERY_KEYS.FROM);
+      queryParams.delete(QUERY_KEYS.TO);
+    } else {
+      queryParams.set(QUERY_KEYS.FROM, filterRange[0]?.format(DATE_FORMAT) || '');
+      queryParams.set(QUERY_KEYS.TO, filterRange[1]?.format(DATE_FORMAT) || '');
+    }
+    setQueryParams(queryParams);
+  }, [filterRange]);
 
   return (
     <main className="enterprise-contact-list-page">
       <h1 className="page-title">Danh sách lịch sử tiếp cận doanh nghiệp</h1>
-      {/* <div>
-        <p>Mã doanh nghiệp</p>
-        <p>{enterprise?.id || '--'}</p>
-      </div> */}
       <div>
-        {/* <p>Tên doanh nghiệp</p> */}
         <h2>{enterprise?.name || '--'}</h2>
       </div>
       <div className="page-action-main">
-        <Input.Search
-          className="page-search-box"
-          placeholder="Tìm kiếm doanh nghiệp theo mã"
-          onSearch={onSearchUser}
-          enterButton
-          suffix={
-            <button className="clear-btn" onClick={onClearSearchHandler}>
-              <CloseCircleOutlined />
-            </button>
-          }
+        <p>Khoảng ngày</p>
+        <DatePicker.RangePicker
+          value={filterRange}
+          placeholder={['Từ ngày', 'Đến ngày']}
+          format={DATE_FORMAT}
+          onChange={choseDateRangeHandler}
         />
 
         <Button className="page-navigate-link" onClick={showCreateFormHandler}>

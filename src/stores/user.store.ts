@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction, createAsyncThunk, CaseReducer } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk, CaseReducer, Action } from '@reduxjs/toolkit';
 import { apiLogin, getAllRoles, getAllUser, getUserRole as getMyRole } from '@/api/user.api';
-import { LoginParams, Role } from '@/interface/user/login';
+import { LoginParams } from '@/interface/user/login';
 import { IUser, Locale, UserState } from '@/interface/user/user';
 import { getGlobalState } from '@/utils/getGloabal';
 
@@ -59,8 +59,8 @@ const login = createAsyncThunk('user/login', async (payload: LoginParams) => {
   return [undefined, error];
 });
 
-const getUserList = createAsyncThunk('user/getUserList', async () => {
-  const [response, error] = (await getAllUser()) as any;
+const getUserList = createAsyncThunk('user/getUserList', async (params?: object) => {
+  const [response, error] = (await getAllUser(params)) as any;
 
   if (error) {
     return [undefined, error];
@@ -82,8 +82,6 @@ const getRolesList = createAsyncThunk('user/getRolesList', async () => {
 const getUserRole = createAsyncThunk('user/my-role', async () => {
   const [data, error] = (await getMyRole()) as any;
 
-  console.log(data);
-
   if (error) {
     return [undefined, error];
   }
@@ -96,6 +94,13 @@ const _logout: CaseReducer<UserState> = state => {
   state.id = undefined;
   state.logged = false;
   localStorage.clear();
+};
+
+const _setUserFetchingStatus: CaseReducer<UserState, PayloadAction<'init' | 'loading' | 'success' | 'error'>> = (
+  state,
+  action,
+) => {
+  state.userList.status = action.payload;
 };
 
 const userSlice = createSlice({
@@ -112,6 +117,7 @@ const userSlice = createSlice({
       Object.assign(state, action.payload);
     },
     logout: _logout,
+    setUserFetchingStatus: _setUserFetchingStatus,
   },
   extraReducers(builder) {
     builder.addCase(login.fulfilled, (state, action) => {
@@ -186,7 +192,7 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUserItem, logout } = userSlice.actions;
+export const { setUserItem, logout, setUserFetchingStatus } = userSlice.actions;
 export const userAsyncActions = { login, getUserList, getRolesList, getUserRole };
 
 export default userSlice.reducer;

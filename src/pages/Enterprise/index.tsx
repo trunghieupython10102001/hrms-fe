@@ -3,13 +3,14 @@ import EnterpriseProductsList from '@/components/EnterpriseProduct';
 import { QUERY_KEYS } from '@/constants/keys';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { IEnterprise } from '@/interface/business';
-import { enterpriseAsyncActions } from '@/stores/enterprise.store';
+import { enterpriseActions, enterpriseAsyncActions } from '@/stores/enterprise.store';
 import { Input, Modal } from 'antd';
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import EnterpriseList from './shared/EnterpriseList';
 import { userHasRole } from '@/utils/hasRole';
 import { ROLES_ID } from '@/constants/roles';
+import _debounce from 'lodash/debounce';
 
 import './index.less';
 
@@ -21,12 +22,12 @@ export default function EnterpriseListPage() {
   const userRoles = useAppSelector(state => state.user.role.data);
   const userRole = userHasRole(ROLES_ID.ENTERPRISE_MANAGEMENT, userRoles);
 
-  console.log('Role ', userRole);
-
   const [queryParams, setQueryParams] = useSearchParams();
+
   const [isShowContactHistoryModal, setIsShowContactHistoryModal] = useState(false);
   const [isShowEnterpriseProductsModal, setIsShowEnterpriseProductsModal] = useState(false);
   const [activeEnterprise, setActiveEnterprise] = useState<IEnterprise | undefined>();
+  const [keyword, setKeyword] = useState('');
 
   const showEnterpriseContactHistoryHandler = (enterprise: IEnterprise) => {
     setActiveEnterprise(enterprise);
@@ -48,20 +49,43 @@ export default function EnterpriseListPage() {
     setIsShowEnterpriseProductsModal(false);
   };
 
-  const onSearchUser = (searchValue: string) => {
-    if (searchValue.trim() === '') {
-      return;
-    }
+  const deferedSearch = useMemo(() => {
+    return _debounce((searchValue: string) => {
+      dispatch(enterpriseAsyncActions.getEnterpriseList({ businessName: searchValue || undefined }));
+    }, 500);
+  }, [dispatch]);
 
-    queryParams.set(QUERY_KEYS.SEARCH, searchValue.trim());
-    setQueryParams(queryParams);
+  const searchEnterpriseHandler = (event: ChangeEvent<HTMLInputElement>) => {
+    const searchValue = event.target.value.trim();
+
+    setKeyword(searchValue);
+
+    dispatch(enterpriseActions.setFetchingStatus('loading'));
+
+    deferedSearch(searchValue);
   };
 
   useEffect(() => {
-    if (data.length === 0) {
-      dispatch(enterpriseAsyncActions.getEnterpriseList());
+    if (data.length === 0 && (dataStatus === 'init' || dataStatus === 'error')) {
+      dispatch(enterpriseAsyncActions.getEnterpriseList({ businessName: keyword || undefined }));
     }
   }, []);
+
+  useEffect(() => {
+    const searchKeywork = queryParams.get(QUERY_KEYS.SEARCH) || '';
+
+    setKeyword(searchKeywork);
+  }, []);
+
+  useEffect(() => {
+    if (keyword === '') {
+      queryParams.delete(QUERY_KEYS.SEARCH);
+    } else {
+      queryParams.set(QUERY_KEYS.SEARCH, keyword);
+    }
+
+    setQueryParams(queryParams);
+  }, [keyword]);
 
   return (
     <main className="enterprise-list-page">
@@ -70,7 +94,8 @@ export default function EnterpriseListPage() {
         <Input.Search
           className="page-search-box"
           placeholder="Tìm kiếm doanh nghiệp theo tên"
-          onSearch={onSearchUser}
+          onChange={searchEnterpriseHandler}
+          value={keyword}
           enterButton
         />
         {userRole?.isInsert && (
@@ -95,6 +120,7 @@ export default function EnterpriseListPage() {
         onCancel={hideEnterpriseContactHistoryHandler}
         footer={null}
         width={window.innerWidth / 2}
+        destroyOnClose
       >
         <ContactHistoryList enterprise={activeEnterprise as IEnterprise} />
       </Modal>
@@ -107,6 +133,7 @@ export default function EnterpriseListPage() {
         bodyStyle={{
           padding: '1rem 3rem',
         }}
+        destroyOnClose
       >
         <EnterpriseProductsList enterprise={activeEnterprise as IEnterprise} />
       </Modal>

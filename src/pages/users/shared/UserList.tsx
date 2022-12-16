@@ -1,7 +1,7 @@
 import { IUser } from '@/interface/user/user';
 import { Table, TableColumnsType } from 'antd';
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import moment from 'moment';
 import { DeleteOutlined } from '@ant-design/icons';
 
@@ -14,13 +14,21 @@ interface IComponentProps {
 }
 
 export default function UserList({ data, pagination, loading, canDeleteUser, onDeleteUser }: IComponentProps) {
+  const goToUser = (uid: string) => {
+    window.location.href = `/nguoi-dung/${uid}`;
+  };
+
   const tableColumns: TableColumnsType<IUser> = useMemo<TableColumnsType<IUser>>(() => {
     return [
       {
         title: 'Mã người dùng',
         dataIndex: 'id',
         key: 'id',
-        render: id => <Link to={`/nguoi-dung/${id}`}>{id}</Link>,
+        render: id => (
+          <span onClick={() => goToUser(id)} className="cursor-pointer">
+            {id}
+          </span>
+        ), // <Link to={`/nguoi-dung/${id}`}>{id}</Link>,
       },
       {
         title: 'Tài khoản',

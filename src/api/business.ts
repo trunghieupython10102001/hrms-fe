@@ -2,7 +2,7 @@ import { request } from './request';
 
 // export const getBusinessUserList = (params: any) => request<PageData<BuniesssUser>>('get', '/business', params);
 
-export const getEnterprises = (params?: any) => request('get', '/business', params);
+export const getEnterprises = (params?: object) => request('get', '/business', params);
 export const getBusinessAreasList = (params?: any) => request('get', '/business-area', params);
 export const createOrUpdateBussinessArea = (data: any) => request('post', '/business-area', data);
 

@@ -1,6 +1,6 @@
 import { IEnterprise } from '@/interface/business';
 import { getEnterprises } from '@/api/business';
-import { CaseReducer, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { CaseReducer, createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { mapEnterpriseAPIResponseToEnterprise } from '@/utils/mapEnterpriseAPIResponseToEnterprise';
 
 interface IEnterpriseSlice {
@@ -21,9 +21,9 @@ const initialState: IEnterpriseSlice = {
   error: undefined,
 };
 
-const getEnterpriseList = createAsyncThunk('enterprise/getEnterpriseList', async () => {
+const getEnterpriseList = createAsyncThunk('enterprise/getEnterpriseList', async (params?: object) => {
   try {
-    const res = await getEnterprises();
+    const res = await getEnterprises(params);
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -40,11 +40,19 @@ const _reset: CaseReducer<IEnterpriseSlice> = state => {
   state.status = 'init';
 };
 
+const _setFetchingStatus: CaseReducer<IEnterpriseSlice, PayloadAction<'init' | 'loading' | 'success' | 'error'>> = (
+  state,
+  action,
+) => {
+  state.status = action.payload;
+};
+
 const enterpriseSlice = createSlice({
   name: 'enterprise',
   initialState,
   reducers: {
     reset: _reset,
+    setFetchingStatus: _setFetchingStatus,
   },
   extraReducers(builder) {
     builder.addCase(getEnterpriseList.pending, state => {

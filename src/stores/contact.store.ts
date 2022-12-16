@@ -24,9 +24,11 @@ const initialState: IContactHistorySlice = {
 
 const getContactListInfo = createAsyncThunk(
   'contacts/getContactListInfo',
-  async (params?: { enterpriseID?: number; logId?: number }) => {
+  async (params?: { enterpriseID?: number; fromDate?: string; toDate?: string }) => {
     try {
-      const response = await getContactList(params && { businessId: params.enterpriseID, logId: params?.logId });
+      const response = await getContactList(
+        params && { businessId: params.enterpriseID, fromDate: params.fromDate, toDate: params.toDate },
+      );
 
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -51,12 +53,20 @@ const _setEnterprise: CaseReducer<IContactHistorySlice, PayloadAction<IEnterpris
   state.data.contactEnterprise = action.payload;
 };
 
+const _setFetchingStatus: CaseReducer<IContactHistorySlice, PayloadAction<'init' | 'loading' | 'success' | 'error'>> = (
+  state,
+  action,
+) => {
+  state.status = action.payload;
+};
+
 const contactHistorySlice = createSlice({
   name: 'contacts',
   initialState,
   reducers: {
     reset: _reset,
     setEnterprise: _setEnterprise,
+    setFetchingStatus: _setFetchingStatus,
   },
   extraReducers(builder) {
     builder.addCase(getContactListInfo.pending, state => {

@@ -3,17 +3,17 @@ import { QUERY_KEYS } from '@/constants/keys';
 import { ROLES_ID } from '@/constants/roles';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { IBusinessArea } from '@/interface/businessArea';
-import { bussinessAreaAsyncActions } from '@/stores/businessArea.store';
+import { bussinessAreaActions, bussinessAreaAsyncActions } from '@/stores/businessArea.store';
 import { userHasRole } from '@/utils/hasRole';
 import { mapBussinessAreaToAPIRequest } from '@/utils/mapBussinessAreaAPIInfo';
-import { CloseCircleOutlined } from '@ant-design/icons';
 import { Button, Input, Modal, notification } from 'antd';
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import './index.less';
 import BusinessAreaForm from './shared/BusinessAreaForm';
 import BusinessAreaList from './shared/BusinessAreaList';
+import _debounce from 'lodash/debounce';
 
 export default function BusinessAreas() {
   const businessAreas = useAppSelector(state => state.businessArea.data.bussinessAreas);
@@ -24,11 +24,28 @@ export default function BusinessAreas() {
   const [isShowEditModal, setIsShowEditModal] = useState(false);
   const [isShowDeleteModal, setIsShowDeleteModal] = useState(false);
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
+  const [keyword, setKeyword] = useState('');
 
   const userRoles = useAppSelector(state => state.user.role.data);
   const userCategoriesRoles = userHasRole(ROLES_ID.CATEGORIES_MANAGEMENT, userRoles);
 
   const [queryParams, setQueryParams] = useSearchParams();
+
+  const deferedSearch = useMemo(() => {
+    return _debounce((searchValue: string) => {
+      dispatch(bussinessAreaAsyncActions.getBusinessAreaList({ businessAreaName: searchValue || undefined }));
+    }, 500);
+  }, [dispatch]);
+
+  const searchEnterpriseHandler = (event: ChangeEvent<HTMLInputElement>) => {
+    const searchValue = event.target.value.trim();
+
+    setKeyword(searchValue);
+
+    dispatch(bussinessAreaActions.setFetchingStatus('loading'));
+
+    deferedSearch(searchValue);
+  };
 
   const onSearchUser = (searchValue: string) => {
     if (searchValue.trim() === '') {
@@ -36,11 +53,6 @@ export default function BusinessAreas() {
     }
 
     queryParams.set(QUERY_KEYS.SEARCH, searchValue.trim());
-    setQueryParams(queryParams);
-  };
-
-  const onClearSearchHandler = () => {
-    queryParams.delete(QUERY_KEYS.SEARCH);
     setQueryParams(queryParams);
   };
 
@@ -100,16 +112,26 @@ export default function BusinessAreas() {
   };
 
   useEffect(() => {
-    if (businessAreas.length === 0) {
-      dispatch(bussinessAreaAsyncActions.getBusinessAreaList());
+    if (businessAreas.length === 0 && (dataStatus === 'init' || dataStatus === 'error')) {
+      dispatch(bussinessAreaAsyncActions.getBusinessAreaList({ businessAreaName: keyword || undefined }));
     }
   }, []);
 
   useEffect(() => {
-    const search = queryParams.get(QUERY_KEYS.SEARCH) || '';
+    const searchKeywork = queryParams.get(QUERY_KEYS.SEARCH) || '';
 
-    dispatch(bussinessAreaAsyncActions.getBusinessAreaList({ businessName: search }));
-  }, [queryParams]);
+    setKeyword(searchKeywork);
+  }, []);
+
+  useEffect(() => {
+    if (keyword === '') {
+      queryParams.delete(QUERY_KEYS.SEARCH);
+    } else {
+      queryParams.set(QUERY_KEYS.SEARCH, keyword);
+    }
+
+    setQueryParams(queryParams);
+  }, [keyword]);
 
   return (
     <main className="business-area-list-page">
@@ -118,13 +140,10 @@ export default function BusinessAreas() {
         <Input.Search
           className="page-search-box"
           placeholder="Tìm kiếm theo tên lĩnh vực kinh doanh"
-          onSearch={onSearchUser}
-          suffix={
-            <button className="clear-btn" onClick={onClearSearchHandler}>
-              <CloseCircleOutlined />
-            </button>
-          }
           enterButton
+          value={keyword}
+          onSearch={onSearchUser}
+          onChange={searchEnterpriseHandler}
         />
         {userCategoriesRoles?.isInsert && (
           <Button type="primary" onClick={onCreateNewBusinessArea}>

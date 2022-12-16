@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { CaseReducer, createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getProductsList } from '@/api/business';
 import { mapAPIProductResponseToProductInfo } from '@/utils/mapEnterpriseProductInfoAPI';
 import { IEnterpriseProduct } from '@/interface/business';
@@ -14,7 +14,7 @@ interface IEnterpriseProductSlice {
 
 const getListProducts = createAsyncThunk(
   'contacts/getProductsList',
-  async (params?: { businessId?: number; search?: string }) => {
+  async (params?: { businessId?: number; importProductDetail?: string; exportProductDetail?: string }) => {
     try {
       const response = await getProductsList({ ...params, status: 1 });
 
@@ -37,11 +37,17 @@ const initialState: IEnterpriseProductSlice = {
   status: 'init',
   error: undefined,
 };
+const _setFetchingStatus: CaseReducer<
+  IEnterpriseProductSlice,
+  PayloadAction<'init' | 'loading' | 'success' | 'error'>
+> = (state, action) => {
+  state.status = action.payload;
+};
 
 const enterpriseProductSlice = createSlice({
   name: 'products',
   initialState,
-  reducers: {},
+  reducers: { setFetchingStatus: _setFetchingStatus },
   extraReducers(builder) {
     builder.addCase(getListProducts.pending, state => {
       state.status = 'loading';

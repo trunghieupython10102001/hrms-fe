@@ -4,12 +4,13 @@ import { IUser, IUserRole } from '@/interface/user/user';
 import { userHasRole } from '@/utils/hasRole';
 import { readFileAsync } from '@/utils/promisifiedFileReader';
 import { CloseOutlined } from '@ant-design/icons';
-import { Button, DatePicker, Form, Input, Upload, UploadProps } from 'antd';
+import { Button, DatePicker, Form, Input, notification, Upload, UploadProps } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import PermisstionList from './PermisstionList';
 import _cloneDeep from 'lodash/cloneDeep';
 import './UserForm.less';
+import { editUserRole } from '@/api/user.api';
 
 interface IComponentProps {
   user?: IUser;
@@ -46,13 +47,18 @@ const defaultForm: IUser = {
 
 export default function UserForm({ user, isEditable = true, isSubmitting, onSubmit, userPermisions }: IComponentProps) {
   const [form] = Form.useForm<IUser>();
+
   const avatar = form.getFieldValue('avatarUrl');
-  const [, forceUpdate] = useState(0);
+
   const userId = useAppSelector(state => state.user.id);
   const userRoles = useAppSelector(state => state.user.role.data);
-  const userRole = userHasRole(ROLES_ID.USER_MANAGEMENT, userRoles);
   const roleList = useAppSelector(state => state.user.roleList.data);
+
+  const userRole = userHasRole(ROLES_ID.USER_MANAGEMENT, userRoles);
+
+  const [, forceUpdate] = useState(0);
   const [localRoles, setLocalRoles] = useState<IUserRole[]>([]);
+  const [isSubmittingRoleChange, setIsSubmittingRoleChange] = useState(false);
 
   const resetImageURLHandler = () => {
     form.setFields([{ name: 'avatarUrl', value: '' }]);
@@ -90,37 +96,91 @@ export default function UserForm({ user, isEditable = true, isSubmitting, onSubm
     }
   };
 
-  const onUpdateRole = (index: number, key: string) => {
-    setLocalRoles(permissions => {
-      const newPers = _cloneDeep(permissions);
+  const onUpdateRole = async (index: number, key: string) => {
+    console.log('Permission: ', localRoles[index]);
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      newPers[index][key] = !newPers[index][key];
+    const updatePermission = { ...localRoles[index] };
 
-      return newPers;
+    updatePermission[key] = !updatePermission[key];
+
+    setIsSubmittingRoleChange(true);
+
+    const [result, error] = await editUserRole({
+      functionId: updatePermission.id,
+      userId: user?.id as number,
+      isDelete: updatePermission.isDelete,
+      isGrant: updatePermission.isGrant,
+      isInsert: updatePermission.isInsert,
+      isUpdate: updatePermission.isUpdate,
     });
+
+    console.log('Result: ', result);
+
+    if (!error) {
+      const updatedPermissionList = _cloneDeep(localRoles);
+
+      updatedPermissionList[index] = updatePermission;
+
+      setLocalRoles(updatedPermissionList);
+      notification.success({
+        message: 'Cập nhật dữ liệu thành công',
+      });
+    } else {
+      notification.error({
+        message: 'Lỗi hệ thống, không thể cập nhật dữ liệu',
+      });
+    }
+
+    setIsSubmittingRoleChange(false);
   };
 
-  const onSelectAllRole = (index: number) => {
-    setLocalRoles(permissions => {
-      const newPers = _cloneDeep(permissions);
-      const permission = newPers[index];
+  const onSelectAllRole = async (index: number) => {
+    setIsSubmittingRoleChange(true);
 
-      if (permission.isGrant && permission.isUpdate && permission.isInsert && permission.isDelete) {
-        permission.isGrant = false;
-        permission.isUpdate = false;
-        permission.isInsert = false;
-        permission.isDelete = false;
-      } else {
-        permission.isGrant = true;
-        permission.isUpdate = true;
-        permission.isInsert = true;
-        permission.isDelete = true;
-      }
+    const updatePermission = { ...localRoles[index] };
 
-      return newPers;
+    if (
+      updatePermission.isGrant &&
+      updatePermission.isUpdate &&
+      updatePermission.isInsert &&
+      updatePermission.isDelete
+    ) {
+      updatePermission.isGrant = false;
+      updatePermission.isUpdate = false;
+      updatePermission.isInsert = false;
+      updatePermission.isDelete = false;
+    } else {
+      updatePermission.isGrant = true;
+      updatePermission.isUpdate = true;
+      updatePermission.isInsert = true;
+      updatePermission.isDelete = true;
+    }
+
+    const [_result, error] = await editUserRole({
+      functionId: updatePermission.id,
+      userId: user?.id as number,
+      isDelete: updatePermission.isDelete,
+      isGrant: updatePermission.isGrant,
+      isInsert: updatePermission.isInsert,
+      isUpdate: updatePermission.isUpdate,
     });
+
+    if (!error) {
+      const updatedPermissionList = _cloneDeep(localRoles);
+
+      updatedPermissionList[index] = updatePermission;
+
+      setLocalRoles(updatedPermissionList);
+      notification.success({
+        message: 'Cập nhật dữ liệu thành công',
+      });
+    } else {
+      notification.error({
+        message: 'Lỗi hệ thống, không thể cập nhật dữ liệu',
+      });
+    }
+
+    setIsSubmittingRoleChange(false);
   };
 
   useEffect(() => {
@@ -250,7 +310,7 @@ export default function UserForm({ user, isEditable = true, isSubmitting, onSubm
         <>
           <h2 className="page-title">Quyền hạn của người dùng</h2>
           <PermisstionList
-            isEditable={isEditable}
+            isEditable={isEditable && !isSubmittingRoleChange}
             roles={localRoles}
             onSelectAllRole={onSelectAllRole}
             onUpdateRole={onUpdateRole}

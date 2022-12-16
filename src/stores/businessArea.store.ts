@@ -1,7 +1,7 @@
 import { getBusinessAreasList } from '@/api/business';
 import { IBusinessArea } from '@/interface/businessArea';
 import { mapAPIResponseToBussinessArea } from '@/utils/mapBussinessAreaAPIInfo';
-import { CaseReducer, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { CaseReducer, createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface IBusinessAreaSlice {
   data: {
@@ -40,11 +40,19 @@ const _reset: CaseReducer<IBusinessAreaSlice> = state => {
   state.status = 'init';
 };
 
+const _setFetchingStatus: CaseReducer<IBusinessAreaSlice, PayloadAction<'init' | 'loading' | 'success' | 'error'>> = (
+  state,
+  action,
+) => {
+  state.status = action.payload;
+};
+
 const bussinessAreaSlice = createSlice({
   name: 'bussinessArea',
   initialState,
   reducers: {
     reset: _reset,
+    setFetchingStatus: _setFetchingStatus,
   },
   extraReducers(builder) {
     builder.addCase(getBusinessAreaList.pending, state => {

@@ -34,9 +34,9 @@ export const getUserDetail = async (id: string | number) => {
   }
 };
 
-export const getAllUser = async () => {
+export const getAllUser = async (params?: object) => {
   try {
-    const response: any = await request('get', '/auth/getAll');
+    const response: any = await request('get', '/auth/getAll', params);
 
     return [response.data, undefined];
   } catch (error) {
@@ -67,6 +67,23 @@ export const getUserRole = async () => {
 export const deleteUser = async (uid: number) => {
   try {
     const response = await request('get', `/user/${uid}`);
+
+    return [response.data, undefined];
+  } catch (error) {
+    return [undefined, error];
+  }
+};
+
+export const editUserRole = async (role: {
+  functionId: number;
+  userId: number;
+  isDelete: boolean;
+  isGrant: boolean;
+  isInsert: boolean;
+  isUpdate: boolean;
+}) => {
+  try {
+    const response = await request('post', '/user-function/', role);
 
     return [response.data, undefined];
   } catch (error) {

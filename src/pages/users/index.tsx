@@ -4,23 +4,27 @@ import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { userAsyncActions } from '@/stores/user.store';
 import { userHasRole } from '@/utils/hasRole';
 import { Input, notification } from 'antd';
-import { useEffect, useMemo } from 'react';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import UserList from './UserList';
+import UserList from './shared/UserList';
+import { deleteUser } from '@/api/user.api';
 
 import './index.less';
-import { deleteUser } from '@/api/user.api';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 10;
 
 export default function UserListPage() {
-  const [queryParams, setQueryParams] = useSearchParams();
-  const data = useAppSelector(state => state.user.userList.data);
   const loadingStatus = useAppSelector(state => state.user.userList.status);
   const total = useAppSelector(state => state.user.userList.totalUser);
   const userRoles = useAppSelector(state => state.user.role.data);
+  const data = useAppSelector(state => state.user.userList.data);
+
   const userRole = userHasRole(ROLES_ID.USER_MANAGEMENT, userRoles);
+
+  const [queryParams, setQueryParams] = useSearchParams();
+
+  const [keyword, setKeyword] = useState('');
 
   const dispatch = useAppDispatch();
 
@@ -34,13 +38,19 @@ export default function UserListPage() {
     };
   }, [queryParams, total]);
 
-  const onSearchUser = (searchValue: string) => {
-    if (searchValue.trim() === '') {
-      return;
-    }
+  const updateSearchQueries = (event: ChangeEvent<HTMLInputElement>) => {
+    const searchValue = event.target.value;
 
-    queryParams.set(QUERY_KEYS.SEARCH, searchValue.trim());
-    setQueryParams(queryParams);
+    setKeyword(searchValue);
+  };
+
+  const searchProductHandler = () => {
+    setKeyword(keyword.trim());
+    dispatch(userAsyncActions.getUserList({ [QUERY_KEYS.SEARCH]: keyword || undefined }));
+  };
+
+  const trimSearchKeywordHandler = () => {
+    setKeyword(keyword.trim());
   };
 
   const deleteUserHandler = async (uid: number) => {
@@ -62,8 +72,28 @@ export default function UserListPage() {
   };
 
   useEffect(() => {
-    dispatch(userAsyncActions.getUserList());
+    dispatch(userAsyncActions.getUserList({ [QUERY_KEYS.SEARCH]: keyword || undefined }));
   }, [dispatch]);
+
+  useEffect(() => {
+    const searchKeywork = queryParams.get(QUERY_KEYS.SEARCH) || '';
+
+    setKeyword(searchKeywork);
+
+    return () => {
+      setQueryParams(new URLSearchParams());
+    };
+  }, []);
+
+  useEffect(() => {
+    if (keyword === '') {
+      queryParams.delete(QUERY_KEYS.SEARCH);
+    } else {
+      queryParams.set(QUERY_KEYS.SEARCH, keyword);
+    }
+
+    setQueryParams(queryParams);
+  }, [keyword]);
 
   return (
     <div className="user-list-page">
@@ -72,8 +102,11 @@ export default function UserListPage() {
         <Input.Search
           className="page-search-box"
           placeholder="Tìm kiếm theo tên người dùng"
-          onSearch={onSearchUser}
+          value={keyword}
           enterButton
+          onChange={updateSearchQueries}
+          onSearch={searchProductHandler}
+          onBlur={trimSearchKeywordHandler}
         />
         {userRole?.isInsert && (
           <Link to="/nguoi-dung/tao-moi" className="page-navigate-link">

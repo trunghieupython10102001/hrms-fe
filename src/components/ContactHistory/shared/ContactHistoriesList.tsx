@@ -1,6 +1,7 @@
 import { IContact } from '@/interface/business';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { Space, Table, TableColumnsType, TablePaginationConfig } from 'antd';
+import moment from 'moment';
 import { useMemo } from 'react';
 
 interface IComponentProps {
@@ -49,6 +50,18 @@ export default function ContactHistoriesList({
         render: note => <span className="capitalized">{note}</span>,
       },
       {
+        title: 'Ngày thêm',
+        dataIndex: 'createTime',
+        key: 'createTime',
+        render: createTime => <span className="capitalized">{moment(createTime).format('DD/MM/YYYY')}</span>,
+      },
+      {
+        title: 'Ngày cập nhật',
+        dataIndex: 'updateTime',
+        key: 'updateTime',
+        render: updateTime => <span className="capitalized">{moment(updateTime).format('DD/MM/YYYY')}</span>,
+      },
+      {
         key: 'actions',
         render: (_, contact) => (
           <Space>
@@ -60,5 +73,5 @@ export default function ContactHistoriesList({
     ];
   }, []);
 
-  return <Table pagination={pagination} rowKey="id" columns={tableColumns} dataSource={data} loading={loading} />;
+  return <Table pagination={pagination} rowKey="logID" columns={tableColumns} dataSource={data} loading={loading} />;
 }

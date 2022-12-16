@@ -10,6 +10,7 @@ import {
   mapEnterpriseInfoToAPIRequest,
 } from '@/utils/mapEnterpriseAPIResponseToEnterprise';
 import { createEnterprise } from '@/api/business';
+import { notification } from 'antd';
 
 export default function EditEnterpriseInfo() {
   const params = useParams();
@@ -20,9 +21,23 @@ export default function EditEnterpriseInfo() {
 
   const onUpdateEnterprise = async (form: IEnterprise) => {
     const data = mapEnterpriseInfoToAPIRequest(form);
-    const result = await createEnterprise(mapEnterpriseInfoToAPIRequest(form));
 
-    console.log('Form: ', form, data, result);
+    try {
+      const result = await createEnterprise(mapEnterpriseInfoToAPIRequest(form));
+
+      console.log('Form: ', form, data, result);
+      notification.success({
+        message: 'Cập nhật thành công',
+      });
+    } catch (error) {
+      if (error) {
+        notification.error({
+          message: 'Cập nhật người dùng không thành công',
+        });
+
+        return;
+      }
+    }
   };
 
   useEffect(() => {
