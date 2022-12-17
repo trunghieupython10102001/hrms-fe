@@ -10,8 +10,8 @@ import { useAppDispatch } from '@/hooks/store';
 import { bussinessAreaAsyncActions } from '@/stores/businessArea.store';
 
 const initialValues: LoginParams = {
-  username: 'hoangzzzsss',
-  password: '123',
+  username: '',
+  password: '',
   remember: true,
 };
 
