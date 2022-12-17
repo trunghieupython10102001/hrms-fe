@@ -80,9 +80,9 @@ export default function UserListPage() {
 
     setKeyword(searchKeywork);
 
-    return () => {
-      setQueryParams(new URLSearchParams());
-    };
+    // return () => {
+    //   setQueryParams(new URLSearchParams());
+    // };
   }, []);
 
   useEffect(() => {

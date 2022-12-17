@@ -23,9 +23,8 @@ export default function AddNewContact({ enterprise, onClose }: IComponentProps) 
     };
 
     try {
-      const res = await createContactHistory(submitData);
+      const _res = await createContactHistory(submitData);
 
-      console.log('Result: ', res);
       notification.success({
         message: 'Thêm thành công',
         description: 'Dữ liệu lần tiếp cận mới đã được thêm vào cơ sở dữ liệu',

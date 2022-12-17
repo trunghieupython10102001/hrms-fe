@@ -97,15 +97,25 @@ export default function UserForm({ user, isEditable = true, isSubmitting, onSubm
   };
 
   const onUpdateRole = async (index: number, key: string) => {
-    console.log('Permission: ', localRoles[index]);
-
     const updatePermission = { ...localRoles[index] };
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     updatePermission[key] = !updatePermission[key];
+
+    if (!user) {
+      const updatedPermissionList = _cloneDeep(localRoles);
+
+      updatedPermissionList[index] = updatePermission;
+
+      setLocalRoles(updatedPermissionList);
+
+      return;
+    }
 
     setIsSubmittingRoleChange(true);
 
-    const [result, error] = await editUserRole({
+    const [_result, error] = await editUserRole({
       functionId: updatePermission.id,
       userId: user?.id as number,
       isDelete: updatePermission.isDelete,
@@ -113,8 +123,6 @@ export default function UserForm({ user, isEditable = true, isSubmitting, onSubm
       isInsert: updatePermission.isInsert,
       isUpdate: updatePermission.isUpdate,
     });
-
-    console.log('Result: ', result);
 
     if (!error) {
       const updatedPermissionList = _cloneDeep(localRoles);
@@ -135,8 +143,6 @@ export default function UserForm({ user, isEditable = true, isSubmitting, onSubm
   };
 
   const onSelectAllRole = async (index: number) => {
-    setIsSubmittingRoleChange(true);
-
     const updatePermission = { ...localRoles[index] };
 
     if (
@@ -155,6 +161,18 @@ export default function UserForm({ user, isEditable = true, isSubmitting, onSubm
       updatePermission.isInsert = true;
       updatePermission.isDelete = true;
     }
+
+    if (!user) {
+      const updatedPermissionList = _cloneDeep(localRoles);
+
+      updatedPermissionList[index] = updatePermission;
+
+      setLocalRoles(updatedPermissionList);
+
+      return;
+    }
+
+    setIsSubmittingRoleChange(true);
 
     const [_result, error] = await editUserRole({
       functionId: updatePermission.id,

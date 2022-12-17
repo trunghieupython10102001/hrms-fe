@@ -9,6 +9,7 @@ import { notification } from 'antd';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { userAsyncActions } from '@/stores/user.store';
 import _cloneDeep from 'lodash/cloneDeep';
+import { editUserRole } from '@/api/user.api';
 
 function transformRoleToUserRoles(roles: IUserRole[]) {
   const transformedRoles = _cloneDeep(roles);
@@ -39,11 +40,53 @@ export default function CreateNewUser() {
       const result = await createNewUserAPI(form.user);
 
       console.log('Signup result', result);
-      notification.success({
-        message: 'Tạo người dùng thành công',
-        description: 'Thông tin người dùng đã được thêm vào cơ sở dữ liệu',
-      });
-      navigator('/nguoi-dung');
+      console.log(form);
+      const newUserData: IUser = result.data;
+
+      const roles: any = [];
+
+      if (form.role.length > 0) {
+        form.role.forEach(role => {
+          roles.push(
+            editUserRole({
+              functionId: role.id,
+              userId: newUserData.id as number,
+              isDelete: role.isDelete,
+              isGrant: role.isGrant,
+              isInsert: role.isInsert,
+              isUpdate: role.isUpdate,
+            }),
+          );
+        });
+      }
+
+      if (roles.length > 0) {
+        const result = await (await Promise.all(roles)).flat(10);
+
+        console.log(result);
+        let isValid = true;
+
+        for (let i = 1; i < result.length; i += 2) {
+          if (isValid) {
+            isValid = !result[i];
+          } else {
+            break;
+          }
+        }
+
+        if (isValid) {
+          notification.success({
+            message: 'Tạo người dùng thành công',
+            description: 'Thông tin người dùng đã được thêm vào cơ sở dữ liệu',
+          });
+          navigator('/nguoi-dung');
+        } else {
+          notification.error({
+            message: 'Lỗi hệ thống',
+            description: 'Người dùng đã được tạo, nhưng dữ liệu về quyền chưa được lưu lại',
+          });
+        }
+      }
     } catch (error) {
       notification.error({
         message: 'Có lỗi xảy ra',

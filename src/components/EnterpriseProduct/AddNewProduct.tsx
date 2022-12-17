@@ -19,12 +19,8 @@ export default function AddNewProduct({ enterprise, product, onClose }: ICompone
   const onCreateNewProduct = async (form: IEnterpriseProduct) => {
     setIsSubmittingData(true);
 
-    console.log('Form data: ', form);
-
     try {
       const res = await createProduct(mapProductInfoToAPIRequest(form));
-
-      console.log(res);
 
       if (res.data.code > 0) {
         notification.success({

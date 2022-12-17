@@ -16,8 +16,6 @@ export default function EditContact({ enterprise, contact, onClose }: IComponent
   const [isSubmittingData, setIsSubmittingData] = useState(false);
 
   const onEditContact = async (form: IContact) => {
-    console.log('Data: ', form);
-
     setIsSubmittingData(true);
     const submitData = {
       logId: form.logID,
@@ -28,9 +26,8 @@ export default function EditContact({ enterprise, contact, onClose }: IComponent
     };
 
     try {
-      const res = await createContactHistory(submitData);
+      const _res = await createContactHistory(submitData);
 
-      console.log('Result: ', res);
       notification.success({
         message: 'Cập nhật thành công',
       });

@@ -90,15 +90,15 @@ export default function ContactHistoryList({ enterprise }: IComponentProps) {
     };
 
     try {
-      const res = await createContactHistory(submitData);
+      const _res = await createContactHistory(submitData);
 
-      console.log('Result: ', res);
+      // console.log('Result: ', res);
       notification.success({
         message: 'Xóa thành công',
       });
       afterSaveDataHandler();
     } catch (error) {
-      console.log('Error: ', error);
+      // console.log('Error: ', error);
 
       notification.success({
         message: 'Xóa không thành công',

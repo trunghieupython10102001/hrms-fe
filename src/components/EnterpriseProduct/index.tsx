@@ -91,8 +91,6 @@ export default function EnterpriseProductsList({ enterprise }: IComponentProps) 
     try {
       const res = await createProduct(mapProductInfoToAPIRequest(product, true));
 
-      console.log(res);
-
       if (res.data.code > 0) {
         notification.success({
           message: 'Xóa thành công',
