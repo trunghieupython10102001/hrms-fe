@@ -1,4 +1,5 @@
 import { CUSTOM_EVENTS } from '@/constants/keys';
+import { TIME_THRESHOR } from '@/constants/time';
 import { history } from '@/routes/history';
 import dispatchCustomEvent from '@/utils/dispatchCustomEvent';
 import axios, { AxiosRequestConfig, Method } from 'axios';
@@ -9,12 +10,13 @@ const axiosInstance = axios.create({
 
 const BASE_URL = 'http://localhost:3030/api/v1';
 let interactionTimeStamp = 0;
-const TIME_THRESHOR = 1_800_000;
 
 axiosInstance.interceptors.request.use(
   config => {
     config.baseURL = BASE_URL;
     const accessToken = localStorage.getItem('accessToken') || '';
+
+    console.log('Axios config: ', config);
 
     if (accessToken && config.headers) {
       config.headers['Authorization'] = `Bearer ${accessToken}`;
@@ -24,7 +26,8 @@ axiosInstance.interceptors.request.use(
 
     if (!interactionTimeStamp || currentTimestamp - interactionTimeStamp <= TIME_THRESHOR) {
       interactionTimeStamp = currentTimestamp;
-    } else {
+      dispatchCustomEvent(CUSTOM_EVENTS.UPDATE_INTERACTION_TIME);
+    } else if (config.url !== '/auth/signin') {
       history.replace('/login');
       interactionTimeStamp = 0;
       dispatchCustomEvent(CUSTOM_EVENTS.SESSION_EXPIRE);

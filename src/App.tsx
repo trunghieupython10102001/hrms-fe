@@ -15,6 +15,7 @@ import vi_VN from 'antd/lib/locale/vi_VN';
 import { useAppSelector } from './hooks/store';
 import { logout, userAsyncActions } from './stores/user.store';
 import { CUSTOM_EVENTS } from './constants/keys';
+import { TIME_THRESHOR } from './constants/time';
 
 const isDev = import.meta.env.MODE === 'development';
 
@@ -69,16 +70,35 @@ const App: React.FC = () => {
     const sessionExpireHandler = () => {
       dispatch(logout());
 
+      if (!expireTimer) {
+        clearTimeout(expireTimer);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        expireTimer = 0;
+      }
+
       notification.error({
         message: 'Phiên đăng nhập hết hạn',
         description: 'Bạn vui lòng đăng nhập lại để tiếp tục',
       });
     };
 
+    let expireTimer: NodeJS.Timeout;
+
+    const updateExpireTimer = () => {
+      if (!expireTimer) {
+        clearTimeout(expireTimer);
+      }
+
+      expireTimer = setTimeout(sessionExpireHandler, TIME_THRESHOR);
+    };
+
     window.addEventListener(CUSTOM_EVENTS.SESSION_EXPIRE, sessionExpireHandler);
+    window.addEventListener(CUSTOM_EVENTS.UPDATE_INTERACTION_TIME, updateExpireTimer);
 
     return () => {
       window.removeEventListener(CUSTOM_EVENTS.SESSION_EXPIRE, sessionExpireHandler);
+      window.removeEventListener(CUSTOM_EVENTS.UPDATE_INTERACTION_TIME, updateExpireTimer);
     };
   }, []);
 
