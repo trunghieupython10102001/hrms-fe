@@ -13,6 +13,7 @@ import { ROLES_ID } from '@/constants/roles';
 import _debounce from 'lodash/debounce';
 
 import './index.less';
+import { UploadFileButton } from '@/components/UploadFile';
 
 export default function EnterpriseListPage() {
   const data = useAppSelector(state => state.enterprise.data.enterprises);
@@ -20,7 +21,9 @@ export default function EnterpriseListPage() {
   const dispatch = useAppDispatch();
 
   const userRoles = useAppSelector(state => state.user.role.data);
-  const userRole = userHasRole(ROLES_ID.ENTERPRISE_MANAGEMENT, userRoles);
+  const userEnterpriseRole = userHasRole(ROLES_ID.ENTERPRISE_MANAGEMENT, userRoles);
+  const userContactLogRole = userHasRole(ROLES_ID.CONTACT_LOG_MANAGEMENT, userRoles);
+  const userEnterpriseProductRole = userHasRole(ROLES_ID.ENTERPRISE_PRODUCT_MANAGEMENT, userRoles);
 
   const [queryParams, setQueryParams] = useSearchParams();
 
@@ -65,6 +68,10 @@ export default function EnterpriseListPage() {
     deferedSearch(searchValue);
   };
 
+  const choosedFileHandler = (file: File) => {
+    console.log('File:', file);
+  };
+
   useEffect(() => {
     if (data.length === 0 && (dataStatus === 'init' || dataStatus === 'error')) {
       dispatch(enterpriseAsyncActions.getEnterpriseList({ businessName: keyword || undefined }));
@@ -98,10 +105,15 @@ export default function EnterpriseListPage() {
           value={keyword}
           enterButton
         />
-        {userRole?.isInsert && (
+        {userEnterpriseRole?.isInsert && (
           <Link to="/doanh-nghiep/tao-moi" className="page-navigate-link">
             Thêm mới
           </Link>
+        )}
+        {userEnterpriseRole?.isInsert && (
+          <UploadFileButton onChooseFile={choosedFileHandler} className="import-excel-file-btn">
+            Nhập file excel
+          </UploadFileButton>
         )}
       </div>
       <EnterpriseList
@@ -111,6 +123,8 @@ export default function EnterpriseListPage() {
           position: ['bottomCenter'],
           className: 'table-pagination',
         }}
+        contactLogRole={userContactLogRole}
+        enterpriseProductRole={userEnterpriseProductRole}
         loading={dataStatus === 'loading'}
         onShowEnterpriseContactHistory={showEnterpriseContactHistoryHandler}
         onShowEnterPriseProducts={showEnterpriseProductsHandler}

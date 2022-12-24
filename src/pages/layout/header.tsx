@@ -1,11 +1,11 @@
 import { FC } from 'react';
-import { LogoutOutlined, UserOutlined, MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
+import { LogoutOutlined, UserOutlined, MenuUnfoldOutlined, MenuFoldOutlined, LockOutlined } from '@ant-design/icons';
 import { Layout, Dropdown, Menu } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import Avator from '@/assets/header/avator.jpeg';
 import Logo from '@/assets/logo/Logo.jpg';
 import { LocaleFormatter } from '@/locales';
-import { logout } from '@/stores/user.store';
+import { logout, setPasswordModalVisibility } from '@/stores/user.store';
 import { useDispatch, useSelector } from 'react-redux';
 
 const { Header } = Layout;
@@ -15,7 +15,7 @@ interface HeaderProps {
   toggle: () => void;
 }
 
-type Action = 'userInfo' | 'userSetting' | 'logout';
+type Action = 'userInfo' | 'userSetting' | 'logout' | 'userChangePassword';
 
 const HeaderComponent: FC<HeaderProps> = ({ collapsed, toggle }) => {
   const { logged, device, id: uid } = useSelector(state => state.user);
@@ -26,7 +26,9 @@ const HeaderComponent: FC<HeaderProps> = ({ collapsed, toggle }) => {
     switch (action) {
       case 'userInfo':
         return;
-      case 'userSetting':
+      case 'userChangePassword':
+        dispatch(setPasswordModalVisibility(true));
+
         return;
       case 'logout':
         dispatch(logout());
@@ -45,9 +47,14 @@ const HeaderComponent: FC<HeaderProps> = ({ collapsed, toggle }) => {
       <Menu.Item key="1">
         <span className="layout-page-user-options">
           <UserOutlined />
-          <span onClick={() => navigate(`/nguoi-dung/${uid}`)}>
-            <LocaleFormatter id="header.avator.account" />
-          </span>
+          <span onClick={() => navigate(`/nguoi-dung/${uid}`)}>Tài khoản của tôi</span>
+        </span>
+      </Menu.Item>
+      <Menu.Divider />
+      <Menu.Item key="1">
+        <span className="layout-page-user-options">
+          <LockOutlined />
+          <span onClick={() => onActionClick('userChangePassword')}>Đổi mật khẩu</span>
         </span>
       </Menu.Item>
       <Menu.Divider />
@@ -55,7 +62,8 @@ const HeaderComponent: FC<HeaderProps> = ({ collapsed, toggle }) => {
         <span className="layout-page-user-options">
           <LogoutOutlined />
           <span onClick={() => onActionClick('logout')}>
-            <LocaleFormatter id="header.avator.logout" />
+            {/* <LocaleFormatter id="header.avator.logout" /> */}
+            Đăng xuất
           </span>
         </span>
       </Menu.Item>
@@ -70,9 +78,6 @@ const HeaderComponent: FC<HeaderProps> = ({ collapsed, toggle }) => {
         </div>
       )}
       <div className="layout-page-header-main">
-        <div onClick={toggle}>
-          <span id="sidebar-trigger">{collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}</span>
-        </div>
         <div className="actions">
           {logged ? (
             <Dropdown overlay={menu}>

@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction, createAsyncThunk, CaseReducer, Action } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk, CaseReducer } from '@reduxjs/toolkit';
 import { apiLogin, getAllRoles, getAllUser, getUserRole as getMyRole } from '@/api/user.api';
 import { LoginParams } from '@/interface/user/login';
 import { IUser, Locale, UserState } from '@/interface/user/user';
@@ -29,13 +29,14 @@ const initialState: UserState = {
     data: [],
     status: 'init',
   },
+  isChangingPassword: false,
 };
 
 const login = createAsyncThunk('user/login', async (payload: LoginParams) => {
   const [response, error] = (await apiLogin({ username: payload.username, password: payload.password })) as any;
 
-  if (error) {
-    return [undefined, error];
+  if (error || response?.data.status > 399) {
+    return [undefined, error || response.data];
   }
 
   if (payload.remember) {
@@ -96,6 +97,10 @@ const _logout: CaseReducer<UserState> = state => {
   localStorage.clear();
 };
 
+const _setPasswordModalVisibility: CaseReducer<UserState, PayloadAction<boolean>> = (state, actions) => {
+  state.isChangingPassword = actions.payload;
+};
+
 const _setUserFetchingStatus: CaseReducer<UserState, PayloadAction<'init' | 'loading' | 'success' | 'error'>> = (
   state,
   action,
@@ -118,6 +123,7 @@ const userSlice = createSlice({
     },
     logout: _logout,
     setUserFetchingStatus: _setUserFetchingStatus,
+    setPasswordModalVisibility: _setPasswordModalVisibility,
   },
   extraReducers(builder) {
     builder.addCase(login.fulfilled, (state, action) => {
@@ -192,7 +198,7 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUserItem, logout, setUserFetchingStatus } = userSlice.actions;
+export const { setUserItem, logout, setUserFetchingStatus, setPasswordModalVisibility } = userSlice.actions;
 export const userAsyncActions = { login, getUserList, getRolesList, getUserRole };
 
 export default userSlice.reducer;

@@ -1,4 +1,5 @@
 import { CUSTOM_EVENTS } from '@/constants/keys';
+import { BASE_URL } from '@/constants/request';
 import { TIME_THRESHOR } from '@/constants/time';
 import { history } from '@/routes/history';
 import dispatchCustomEvent from '@/utils/dispatchCustomEvent';
@@ -7,8 +8,6 @@ import axios, { AxiosRequestConfig, Method } from 'axios';
 const axiosInstance = axios.create({
   timeout: 6000,
 });
-
-const BASE_URL = 'http://localhost:3030/api/v1';
 let interactionTimeStamp = 0;
 
 axiosInstance.interceptors.request.use(
@@ -98,6 +97,12 @@ export const request = <T = any>(
   url = prefix + url;
   if (method === 'post') {
     return axiosInstance.post(url, data, config);
+  } else if (method === 'patch') {
+    return axiosInstance.patch(url, data, config);
+  } else if (method === 'put') {
+    return axiosInstance.put(url, data, config);
+  } else if (method === 'delete') {
+    return axiosInstance.delete(url, { ...config, params: data });
   } else {
     return axiosInstance.get(url, {
       params: data,

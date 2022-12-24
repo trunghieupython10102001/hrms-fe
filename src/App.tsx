@@ -32,7 +32,6 @@ const App: React.FC = () => {
   const roleStatus = useAppSelector(state => state.user.roleList.status);
   const isLoggedIn = useAppSelector(state => state.user.logged);
   const dispatch = useDispatch();
-
   const setTheme = (dark = true) => {
     dispatch(
       setGlobalState({

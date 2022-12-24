@@ -7,13 +7,14 @@ import { getGlobalState } from '@/utils/getGloabal';
 import TagsView from './tagView';
 import { MenuList } from '@/interface/layout/menu.interface';
 import { Outlet, useLocation } from 'react-router';
-import { setUserItem } from '@/stores/user.store';
+import { setPasswordModalVisibility, setUserItem } from '@/stores/user.store';
 import { useDispatch, useSelector } from 'react-redux';
 import { getFirstPathCode } from '@/utils/getFirstPathCode';
 import { UsergroupAddOutlined } from '@ant-design/icons';
 import { useAppSelector } from '@/hooks/store';
 import { userHasRole } from '@/utils/hasRole';
 import { ROLES_ID } from '@/constants/roles';
+import ChangePasswordModal from '@/components/ChangePasswordModal';
 
 const { Sider, Content } = Layout;
 const WIDTH = 992;
@@ -23,7 +24,8 @@ const LayoutPage: FC = () => {
   const [openKey, setOpenkey] = useState<string>();
   const [selectedKey, setSelectedKey] = useState<string>(location.pathname);
   const [menuList, setMenuList] = useState<MenuList>([]);
-  const { device, collapsed } = useSelector(state => state.user);
+  const { device, collapsed, isChangingPassword } = useSelector(state => state.user);
+
   const isMobile = device === 'MOBILE';
 
   const userRoles = useAppSelector(state => state.user.role.data);
@@ -32,6 +34,10 @@ const LayoutPage: FC = () => {
   const userCategoriesRoles = userHasRole(ROLES_ID.CATEGORIES_MANAGEMENT, userRoles);
 
   const dispatch = useDispatch();
+
+  const closePasswordChangeModal = () => {
+    dispatch(setPasswordModalVisibility(false));
+  };
 
   useEffect(() => {
     const code = getFirstPathCode(location.pathname);
@@ -139,6 +145,8 @@ const LayoutPage: FC = () => {
             <Outlet />
           </Suspense>
         </Content>
+
+        <ChangePasswordModal isShow={isChangingPassword} onClose={closePasswordChangeModal} />
       </Layout>
     </Layout>
   );

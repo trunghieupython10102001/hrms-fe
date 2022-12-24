@@ -25,27 +25,39 @@ const LoginForm: FC = () => {
   const onFinished = async (form: LoginParams) => {
     setIsSubmitting(true);
 
-    const [, error] = await dispatch(userAsyncActions.login(form)).unwrap();
+    try {
+      const [response, error] = await dispatch(userAsyncActions.login(form)).unwrap();
 
-    if (error) {
-      notification.error({
-        message: 'Có lỗi xảy ra',
-        description: 'Đăng nhập không thành công',
-      });
+      console.log('auth:L ', response, error);
+
+      if (error) {
+        if (error?.message === 'Username or password is incorrect') {
+          notification.error({
+            message: 'Sai tài khoản hoặc mật khẩu',
+          });
+        } else {
+          notification.error({
+            message: 'Có lỗi xảy ra, đăng nhập không thành công',
+          });
+        }
+      } else {
+        const search = formatSearch(location.search);
+        const from = search.from || { pathname: '/' };
+
+        dispatch(bussinessAreaAsyncActions.getBusinessAreaList()).unwrap();
+        dispatch(userAsyncActions.getRolesList()).unwrap();
+        const [userRoles, roleErrors] = await dispatch(userAsyncActions.getUserRole()).unwrap();
+
+        console.log('Role data: ', userRoles, roleErrors);
+        notification.success({
+          message: 'Đăng nhập thành công',
+        });
+        navigate(from);
+      }
+    } catch (error) {
+      console.log('Error: ', error);
+    } finally {
       setIsSubmitting(false);
-    } else {
-      const search = formatSearch(location.search);
-      const from = search.from || { pathname: '/' };
-
-      dispatch(bussinessAreaAsyncActions.getBusinessAreaList()).unwrap();
-      dispatch(userAsyncActions.getRolesList()).unwrap();
-      const [userRoles, roleErrors] = await dispatch(userAsyncActions.getUserRole()).unwrap();
-
-      console.log('Role data: ', userRoles, roleErrors);
-      notification.success({
-        message: 'Đăng nhập thành công',
-      });
-      navigate(from);
     }
   };
 

@@ -19,12 +19,20 @@ export default function EditUserInfoPage() {
   const params = useParams();
   const [detailInfo, setDetailInfo] = useState<IDetailUserInfo | undefined>();
   const roleListStatus = useAppSelector(state => state.user.roleList.status);
+  const userId = String(useAppSelector(state => state.user.id));
   const dispatch = useAppDispatch();
 
   const editUserHandler = async (data: { user: IUser; role: IUserRole[] }) => {
     console.log('User: ', data);
-
-    const [result, error] = await editUser(Number(params.id) || NaN, data.user);
+    const updateForm = {
+      avatarUrl: data.user.avatarUrl,
+      dateOfBirth: data.user.dateOfBirth,
+      email: data.user.email,
+      fullname: data.user.fullname,
+      phoneNumber: data.user.phoneNumber,
+      password: data.user.password,
+    };
+    const [result, error] = await editUser(Number(params.id) || NaN, updateForm);
 
     console.log('Result: ', result);
 
@@ -86,6 +94,7 @@ export default function EditUserInfoPage() {
         isEditable
         userPermisions={detailInfo?.roles || ([] as IUserRole[])}
         onSubmit={editUserHandler}
+        refreshUserRole={params.id === userId ? () => dispatch(userAsyncActions.getUserRole()) : undefined}
       />
     </div>
   );

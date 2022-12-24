@@ -54,6 +54,8 @@ export interface UserState {
 
     error?: any;
   };
+
+  isChangingPassword: boolean;
 }
 
 export interface IUser {

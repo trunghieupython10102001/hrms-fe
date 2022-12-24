@@ -17,6 +17,7 @@ interface IComponentProps {
   isEditable?: boolean;
   isSubmitting?: boolean;
   userPermisions?: IUserRole[];
+  refreshUserRole?: () => void;
   onSubmit?: (form: { user: IUser; role: IUserRole[] }) => Promise<void>;
 }
 
@@ -24,6 +25,7 @@ interface IUploadOptions {
   onProgress?: (event: { percent: number }) => void;
   onError?: (event: Error, body?: object) => void;
   onSuccess?: (body: object) => void;
+
   data?: object;
   filename?: string;
   file: any | File;
@@ -45,7 +47,14 @@ const defaultForm: IUser = {
   avatarUrl: '',
 };
 
-export default function UserForm({ user, isEditable = true, isSubmitting, onSubmit, userPermisions }: IComponentProps) {
+export default function UserForm({
+  user,
+  isEditable = true,
+  isSubmitting,
+  userPermisions,
+  onSubmit,
+  refreshUserRole,
+}: IComponentProps) {
   const [form] = Form.useForm<IUser>();
 
   const avatar = form.getFieldValue('avatarUrl');
@@ -133,6 +142,8 @@ export default function UserForm({ user, isEditable = true, isSubmitting, onSubm
       notification.success({
         message: 'Cập nhật dữ liệu thành công',
       });
+
+      refreshUserRole?.();
     } else {
       notification.error({
         message: 'Lỗi hệ thống, không thể cập nhật dữ liệu',
@@ -249,7 +260,7 @@ export default function UserForm({ user, isEditable = true, isSubmitting, onSubm
             label="Tài khoản"
             rules={[{ required: true, message: 'Tài khoản không được để trống!' }]}
           >
-            <Input placeholder="Tài khoản" disabled={!isEditable} size="large" />
+            <Input placeholder="Tài khoản" disabled={!isEditable || !!user} size="large" />
           </Form.Item>
           <Form.Item
             label="Mật khẩu"

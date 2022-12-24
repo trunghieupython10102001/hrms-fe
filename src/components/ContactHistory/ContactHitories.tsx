@@ -31,7 +31,7 @@ export default function ContactHistoryList({ enterprise }: IComponentProps) {
   const dataStatus = useAppSelector(state => state.contact.status);
   const contactList = useAppSelector(state => state.contact.data.contactHistories);
 
-  const userEnterpriseRole = userHasRole(ROLES_ID.ENTERPRISE_MANAGEMENT, userRoles);
+  const userContactLogRole = userHasRole(ROLES_ID.CONTACT_LOG_MANAGEMENT, userRoles);
 
   const [queryParams, setQueryParams] = useSearchParams();
 
@@ -146,13 +146,15 @@ export default function ContactHistoryList({ enterprise }: IComponentProps) {
           onChange={choseDateRangeHandler}
         />
 
-        <Button className="page-navigate-link" onClick={showCreateFormHandler}>
-          Thêm mới
-        </Button>
+        {!!userContactLogRole?.isInsert && (
+          <Button className="page-navigate-link" onClick={showCreateFormHandler}>
+            Thêm mới
+          </Button>
+        )}
       </div>
       <ContactHistoriesList
-        canDelete={!!userEnterpriseRole?.isDelete}
-        canEdit={!!userEnterpriseRole?.isUpdate}
+        canDelete={!!userContactLogRole?.isDelete}
+        canEdit={!!userContactLogRole?.isUpdate}
         data={contactList}
         pagination={{
           pageSize: 10,

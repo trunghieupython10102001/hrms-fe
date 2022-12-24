@@ -10,7 +10,7 @@ interface IComponentProps {
   pagination: any;
   loading: boolean;
   canDeleteUser: boolean;
-  onDeleteUser: (id: number) => Promise<void>;
+  onDeleteUser: (user: IUser) => void;
 }
 
 export default function UserList({ data, pagination, loading, canDeleteUser, onDeleteUser }: IComponentProps) {
@@ -56,9 +56,7 @@ export default function UserList({ data, pagination, loading, canDeleteUser, onD
         render(_, record) {
           return (
             <div className="actions-container">
-              {canDeleteUser && (
-                <DeleteOutlined className="btn btn--delete" onClick={() => onDeleteUser(record.id || NaN)} />
-              )}
+              {canDeleteUser && <DeleteOutlined className="btn btn--delete" onClick={() => onDeleteUser(record)} />}
             </div>
           );
         },

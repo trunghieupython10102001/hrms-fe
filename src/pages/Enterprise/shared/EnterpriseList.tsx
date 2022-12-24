@@ -4,11 +4,14 @@ import { Dropdown, Menu, Table, TableColumnsType, TablePaginationConfig } from '
 import type { MenuProps } from 'antd';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { IUserRole } from '@/interface/user/user';
 
 interface IComponentProps {
   data: IEnterprise[];
   pagination: TablePaginationConfig | false;
   loading: boolean;
+  contactLogRole?: IUserRole;
+  enterpriseProductRole?: IUserRole;
   onShowEnterpriseContactHistory: (enterprise: IEnterprise) => void;
   onShowEnterPriseProducts: (enterprise: IEnterprise) => void;
 }
@@ -17,6 +20,8 @@ export default function EnterpriseList({
   data,
   pagination,
   loading,
+  contactLogRole,
+  enterpriseProductRole,
   onShowEnterpriseContactHistory,
   onShowEnterPriseProducts,
 }: IComponentProps) {
@@ -90,14 +95,19 @@ export default function EnterpriseList({
           return (
             <Dropdown
               trigger={['click']}
+              disabled={!contactLogRole?.isGrant && !enterpriseProductRole?.isGrant}
               overlay={
                 <Menu style={{ width: 200 }} onClick={menuItemClickHandler}>
-                  <Menu.Item key={`/lich-su-tiep-can/${record.id}`}>
-                    <div className="menu-item">Lịch sử tiếp cận</div>
-                  </Menu.Item>
-                  <Menu.Item key={`/mat-hang-kinh-doanh/${record.id}`}>
-                    <div className="menu-item">Mặt hàng kinh doanh</div>
-                  </Menu.Item>
+                  {contactLogRole?.isGrant && (
+                    <Menu.Item key={`/lich-su-tiep-can/${record.id}`}>
+                      <div className="menu-item">Lịch sử tiếp cận</div>
+                    </Menu.Item>
+                  )}
+                  {enterpriseProductRole?.isGrant && (
+                    <Menu.Item key={`/mat-hang-kinh-doanh/${record.id}`}>
+                      <div className="menu-item">Mặt hàng kinh doanh</div>
+                    </Menu.Item>
+                  )}
                 </Menu>
               }
             >

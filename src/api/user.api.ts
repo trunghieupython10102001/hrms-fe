@@ -14,9 +14,11 @@ export const apiLogin = async (data: LoginParams) => {
 
 export const createNewUser = (form: IUser) => request('post', '/auth/signup', form);
 
-export const editUser = async (uid: number, form: IUser) => {
+export const changeUserPassword = (form: any) => request('patch', '/auth/updatePassword', form);
+
+export const editUser = async (uid: number, form: any) => {
   try {
-    const response: any = await request('patch', `/user/${uid}`, form);
+    const response: any = await request('put', `/auth/${uid}`, form);
 
     return [response.data, undefined];
   } catch (error) {
@@ -66,7 +68,7 @@ export const getUserRole = async () => {
 
 export const deleteUser = async (uid: number) => {
   try {
-    const response = await request('get', `/user/${uid}`);
+    const response = await request('delete', `/auth/${uid}`);
 
     return [response.data, undefined];
   } catch (error) {

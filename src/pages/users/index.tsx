@@ -10,6 +10,8 @@ import UserList from './shared/UserList';
 import { deleteUser } from '@/api/user.api';
 
 import './index.less';
+import { IUser } from '@/interface/user/user';
+import DeleteUserModal from './shared/DeleteUserModal';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 10;
@@ -25,6 +27,7 @@ export default function UserListPage() {
   const [queryParams, setQueryParams] = useSearchParams();
 
   const [keyword, setKeyword] = useState('');
+  const [deletingUser, setDeletingUser] = useState<IUser | undefined>();
 
   const dispatch = useAppDispatch();
 
@@ -53,8 +56,16 @@ export default function UserListPage() {
     setKeyword(keyword.trim());
   };
 
-  const deleteUserHandler = async (uid: number) => {
-    const [_result, error] = await deleteUser(uid);
+  const tryDeleteUser = (user: IUser) => {
+    setDeletingUser(user);
+  };
+
+  const cancelDeleteUser = () => {
+    setDeletingUser(undefined);
+  };
+
+  const deleteUserHandler = async () => {
+    const [_result, error] = await deleteUser(deletingUser?.id || NaN);
 
     if (error) {
       notification.error({
@@ -67,7 +78,7 @@ export default function UserListPage() {
     notification.success({
       message: 'Xóa người dùng thành công',
     });
-
+    setDeletingUser(undefined);
     dispatch(userAsyncActions.getUserList());
   };
 
@@ -119,8 +130,14 @@ export default function UserListPage() {
         pagination={pagination}
         canDeleteUser={!!userRole?.isDelete}
         loading={loadingStatus === 'loading'}
-        onDeleteUser={deleteUserHandler}
+        onDeleteUser={tryDeleteUser}
       />
+      <DeleteUserModal
+        isOpen={!!deletingUser}
+        user={deletingUser}
+        onCancel={cancelDeleteUser}
+        onConfirm={deleteUserHandler}
+      ></DeleteUserModal>
     </div>
   );
 }

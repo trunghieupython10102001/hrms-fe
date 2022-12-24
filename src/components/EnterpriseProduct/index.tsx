@@ -1,8 +1,8 @@
 import { QUERY_KEYS } from '@/constants/keys';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
-import { productActions, productAsyncActions } from '@/stores/product.store';
+import { productAsyncActions } from '@/stores/product.store';
 import { Button, Input, Modal, notification } from 'antd';
-import { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import EnterpriseProductsTable from './shared/EnterpriseProductsList';
 import _debounce from 'lodash/debounce';
@@ -12,6 +12,8 @@ import { EEnterpriseType, IEnterprise, IEnterpriseProduct } from '@/interface/bu
 import AddNewProduct from './AddNewProduct';
 import { mapProductInfoToAPIRequest } from '@/utils/mapEnterpriseProductInfoAPI';
 import { createProduct } from '@/api/business';
+import { userHasRole } from '@/utils/hasRole';
+import { ROLES_ID } from '@/constants/roles';
 
 interface IComponentProps {
   enterprise: IEnterprise;
@@ -33,6 +35,9 @@ export default function EnterpriseProductsList({ enterprise }: IComponentProps) 
   const [activeProduct, setActiveProduct] = useState<IEnterpriseProduct | undefined>();
   const [isShowDeleteModal, setIsShowDeleteModal] = useState(false);
   const [keyword, setKeyword] = useState('');
+
+  const userRoles = useAppSelector(state => state.user.role.data);
+  const userEnterpriseProductRole = userHasRole(ROLES_ID.ENTERPRISE_PRODUCT_MANAGEMENT, userRoles);
 
   const updateSearchQueries = (event: ChangeEvent<HTMLInputElement>) => {
     const searchValue = event.target.value;
@@ -167,9 +172,11 @@ export default function EnterpriseProductsList({ enterprise }: IComponentProps) 
           onBlur={trimSearchKeywordHandler}
         />
 
-        <Button className="page-navigate-link" onClick={showCreateFormHandler}>
-          Thêm mới
-        </Button>
+        {userEnterpriseProductRole?.isInsert && (
+          <Button className="page-navigate-link" onClick={showCreateFormHandler}>
+            Thêm mới
+          </Button>
+        )}
       </div>
       <EnterpriseProductsTable
         data={productList}
@@ -180,6 +187,7 @@ export default function EnterpriseProductsList({ enterprise }: IComponentProps) 
           className: 'table-pagination',
           hideOnSinglePage: true,
         }}
+        enterpriseProductRole={userEnterpriseProductRole}
         loading={dataStatus === 'loading'}
         onDeleteProduct={tryDeleteProductHandler}
         onEditData={showEditFormHandler}

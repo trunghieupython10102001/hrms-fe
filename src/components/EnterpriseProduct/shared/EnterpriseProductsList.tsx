@@ -1,4 +1,5 @@
 import { IEnterprise, IEnterpriseProduct } from '@/interface/business';
+import { IUserRole } from '@/interface/user/user';
 import { DeleteFilled, EditOutlined } from '@ant-design/icons';
 import { Space, Table, type TableColumnsType, type TablePaginationConfig } from 'antd';
 import { useMemo } from 'react';
@@ -8,6 +9,7 @@ interface IComponentProps {
   pagination: TablePaginationConfig | false;
   loading: boolean;
   enterprise: IEnterprise;
+  enterpriseProductRole?: IUserRole;
   onEditData: (product: IEnterpriseProduct) => void;
   onDeleteProduct: (product: IEnterpriseProduct) => void;
 }
@@ -17,6 +19,7 @@ export default function EnterpriseProductsList({
   loading,
   pagination,
   enterprise,
+  enterpriseProductRole,
   onDeleteProduct,
   onEditData,
 }: IComponentProps) {
@@ -56,8 +59,12 @@ export default function EnterpriseProductsList({
         render(_, record) {
           return (
             <Space>
-              <EditOutlined className="cursor-pointer" onClick={() => onEditData(record)} />
-              <DeleteFilled className="cursor-pointer" onClick={() => onDeleteProduct(record)} />
+              {enterpriseProductRole?.isUpdate && (
+                <EditOutlined className="cursor-pointer" onClick={() => onEditData(record)} />
+              )}
+              {enterpriseProductRole?.isDelete && (
+                <DeleteFilled className="cursor-pointer" onClick={() => onDeleteProduct(record)} />
+              )}
             </Space>
           );
         },
