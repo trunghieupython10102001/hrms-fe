@@ -1,17 +1,18 @@
-import { ENTERPRISE_EXCEL_TEMPLATE_URL, ENTERPRISE_LIST_EXCEL_URL } from '@/constants/file';
+import { getBussinessTemplateFile } from '@/api/business';
 import { CUSTOM_EVENTS } from '@/constants/keys';
+import { ROOT_URL } from '@/constants/request';
 import dispatchCustomEvent from '@/utils/dispatchCustomEvent';
-import { Dropdown, Menu, notification, type MenuProps } from 'antd';
-import { ChangeEvent, ReactNode, useRef } from 'react';
+import { DownOutlined } from '@ant-design/icons';
+import { Button, Dropdown, Menu, notification, type MenuProps } from 'antd';
+import { ChangeEvent, useRef } from 'react';
 
 interface IComponentProps {
-  children: ReactNode;
   className?: string;
   onChooseFile: (file: File) => void;
   onExportToExcelFile: () => Promise<{ link: string; errorMgs: string }>;
 }
 
-export function UploadFileButton({ className = '', children, onChooseFile, onExportToExcelFile }: IComponentProps) {
+export function UploadFileButton({ className = '', onChooseFile, onExportToExcelFile }: IComponentProps) {
   const rfInput = useRef<HTMLInputElement>(null);
 
   const chooseFileHandler = () => {
@@ -25,11 +26,42 @@ export function UploadFileButton({ className = '', children, onChooseFile, onExp
     }
   };
 
-  const downloadTemplateExcel = () => {
+  const downloadTemplateExcel = async () => {
+    try {
+      const templateFile = await getBussinessTemplateFile();
+      const fileName = templateFile.data;
+
+      const aEl = document.createElement('a');
+
+      aEl.href = `${ROOT_URL}/${fileName}`;
+      aEl.download = fileName;
+      aEl.style.display = 'none';
+      aEl.target = '_blank';
+      document.body.appendChild(aEl);
+      aEl.click();
+      aEl.remove();
+    } catch (error) {
+      notification.error({
+        message: 'Có lỗi xảy ra, không thế lấy file mẫu',
+      });
+    }
+  };
+
+  const exportDataToExcelFile = async () => {
+    const result = await onExportToExcelFile();
+
+    if (result.errorMgs) {
+      notification.error({ message: result.errorMgs });
+
+      return;
+    }
+
+    const fileName = result.link;
+
     const aEl = document.createElement('a');
 
-    aEl.href = ENTERPRISE_EXCEL_TEMPLATE_URL;
-    aEl.download = 'template.xls';
+    aEl.href = `${ROOT_URL}/${fileName}`;
+    aEl.download = fileName;
     aEl.style.display = 'none';
     aEl.target = '_blank';
     document.body.appendChild(aEl);
@@ -37,61 +69,25 @@ export function UploadFileButton({ className = '', children, onChooseFile, onExp
     aEl.remove();
   };
 
-  const exportDataToExcelFile = async () => {
-    const result = await onExportToExcelFile();
+  const selectEnterpriseImportTypeHandler: MenuProps['onClick'] = event => {
+    const { key: enterpriseType } = event;
 
-    if (!result.errorMgs) {
-      console.log('link: ', result);
-
-      const aEl = document.createElement('a');
-
-      aEl.href = ENTERPRISE_LIST_EXCEL_URL;
-      aEl.download = 'data.xls';
-      aEl.style.display = 'none';
-      aEl.target = '_blank';
-      document.body.appendChild(aEl);
-      aEl.click();
-      aEl.remove();
-    } else {
-      notification.error({ message: result.errorMgs });
-    }
-  };
-
-  const dropdownItemClickHandler: MenuProps['onClick'] = event => {
-    const { key: selectedOption } = event;
-
-    switch (selectedOption) {
-      case 'export-excel':
-        exportDataToExcelFile();
+    switch (enterpriseType) {
+      case 'import':
+        chooseFileHandler();
 
         break;
-      case 'download-template':
-        downloadTemplateExcel();
+      case 'export':
+        chooseFileHandler();
 
         break;
-
       default:
         break;
     }
   };
 
   return (
-    <Dropdown.Button
-      onClick={chooseFileHandler}
-      className={className}
-      trigger={['click']}
-      overlay={
-        <Menu onClick={dropdownItemClickHandler}>
-          <Menu.Item key={'export-excel'}>
-            <div className="menu-item">Xuất file excel</div>
-          </Menu.Item>
-          <Menu.Item key={'download-template'}>
-            <div className="menu-item">Tải file excel mẫu</div>
-          </Menu.Item>
-        </Menu>
-      }
-    >
-      {children}
+    <div className={className}>
       <input
         type="file"
         hidden
@@ -99,6 +95,23 @@ export function UploadFileButton({ className = '', children, onChooseFile, onExp
         onChange={importFileChangeHandler}
         accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
       />
-    </Dropdown.Button>
+      <Dropdown
+        overlay={
+          <Menu onClick={selectEnterpriseImportTypeHandler}>
+            <Menu.Item key="import">Nhập công ty nhập khẩu</Menu.Item>
+            <Menu.Item key="export">Nhập công ty xuất khẩu</Menu.Item>
+          </Menu>
+        }
+      >
+        <Button>
+          <span>Nhập file excel</span>
+          <DownOutlined />
+        </Button>
+      </Dropdown>
+      {/* <Button onClick={chooseFileHandler}>Nhập công ty xuất khẩu từ file excel</Button>
+      <Button onClick={chooseFileHandler}>Nhập công ty nhập khẩu từ file excel</Button> */}
+      <Button onClick={downloadTemplateExcel}>Tải file excel mẫu</Button>
+      <Button onClick={exportDataToExcelFile}>Xuất file excel</Button>
+    </div>
   );
 }

@@ -1,5 +1,5 @@
 import { FC, useState } from 'react';
-import { Button, Checkbox, Form, Input, notification } from 'antd';
+import { Button, Form, Input, notification } from 'antd';
 import './index.less';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { LoginParams } from '@/interface/user/login';
@@ -87,9 +87,9 @@ const LoginForm: FC = () => {
         >
           <Input type="password" placeholder="mật khẩu" />
         </Form.Item>
-        <Form.Item name="remember" valuePropName="checked">
+        {/* <Form.Item name="remember" valuePropName="checked">
           <Checkbox>Nhớ mật khẩu</Checkbox>
-        </Form.Item>
+        </Form.Item> */}
         <Form.Item>
           <Button htmlType="submit" type="primary" className="login-page-form_button" loading={isSubmitting}>
             Đăng nhập

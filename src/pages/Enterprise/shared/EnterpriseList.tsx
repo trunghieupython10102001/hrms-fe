@@ -103,7 +103,7 @@ export default function EnterpriseList({
         render: phoneNumber => <span className="capitalized">{phoneNumber}</span>,
       },
       {
-        title: 'Số lần tiệp cận',
+        title: 'Số lần tiếp cận',
         dataIndex: 'contactedTimes',
         key: 'contactedTimes',
         render: contactedTimes => <span className="capitalized">{contactedTimes}</span>,

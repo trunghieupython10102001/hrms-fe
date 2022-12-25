@@ -97,7 +97,7 @@ export default function UserForm({
     const formData = form.getFieldsValue();
 
     if ((formData.dateOfBirth as any) instanceof moment) {
-      formData.dateOfBirth = (formData.dateOfBirth as any).toString('DD/MM/YYYY');
+      formData.dateOfBirth = new Date(formData.dateOfBirth as any).toUTCString();
     }
 
     if (onSubmit) {
@@ -105,6 +105,7 @@ export default function UserForm({
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       delete formData.avatarUrl;
+
       onSubmit({ user: formData, role: localRoles, file: uploadAvatar });
     }
 
@@ -273,7 +274,7 @@ export default function UserForm({
             name="password"
             rules={[{ required: !user, message: 'Mật khẩu không được để trống' }]}
           >
-            <Input.Password disabled={!isEditable} size="large" />
+            <Input.Password autoComplete={false} disabled={!isEditable} size="large" />
           </Form.Item>
         </div>
         <div className="w-1/2">

@@ -24,3 +24,11 @@ export const createContactHistory = async (form: object) => {
 export const createProduct = async (form: object) => {
   return request<{ code: number; message: string }>('post', '/business-detail', form);
 };
+
+export const getBussinessTemplateFile = async () => {
+  return request<string>('get', '/business/template');
+};
+
+export const exportEnterpriseDataToExcel = async (ids: string) => {
+  return request<string>('get', '/business/excel', { ids });
+};

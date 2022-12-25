@@ -80,7 +80,7 @@ const HeaderComponent: FC<HeaderProps> = ({ collapsed, toggle }) => {
       <div className="layout-page-header-main">
         <div className="actions">
           {logged ? (
-            <Dropdown overlay={menu}>
+            <Dropdown overlay={menu} trigger={['click']}>
               <span className="user-action">
                 <img src={Avator} className="user-avator" alt="avator" />
               </span>

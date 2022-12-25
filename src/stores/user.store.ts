@@ -32,21 +32,41 @@ const initialState: UserState = {
   isChangingPassword: false,
 };
 
-const login = createAsyncThunk('user/login', async (payload: LoginParams) => {
+const getUserRole = createAsyncThunk('user/my-role', async () => {
+  const [data, error] = (await getMyRole()) as any;
+
+  if (error) {
+    return [undefined, error];
+  }
+
+  return [data, undefined];
+});
+
+const getRolesList = createAsyncThunk('user/getRolesList', async () => {
+  const [data, error] = (await getAllRoles()) as any;
+
+  if (error) {
+    return [undefined, error];
+  }
+
+  return [data, undefined];
+});
+
+const login = createAsyncThunk('user/login', async (payload: LoginParams, { dispatch }) => {
   const [response, error] = (await apiLogin({ username: payload.username, password: payload.password })) as any;
 
   if (error || response?.data.status > 399) {
     return [undefined, error || response.data];
   }
 
-  if (payload.remember) {
-    localStorage.setItem(KEY_ACCESS_TOKEN, response.data.accessToken);
-    localStorage.setItem(KEY_REFRESH_TOKEN, response.data.refreshToken);
-  }
+  localStorage.setItem(KEY_ACCESS_TOKEN, response.data.accessToken);
+  localStorage.setItem(KEY_REFRESH_TOKEN, response.data.refreshToken);
 
   if (response.data) {
     localStorage.setItem('uid', response.data.user.userId);
     localStorage.setItem('username', response.data.user.username);
+    dispatch(getRolesList());
+    dispatch(getUserRole());
 
     return [
       {
@@ -70,30 +90,23 @@ const getUserList = createAsyncThunk('user/getUserList', async (params?: object)
   return [response, undefined];
 });
 
-const getRolesList = createAsyncThunk('user/getRolesList', async () => {
-  const [data, error] = (await getAllRoles()) as any;
-
-  if (error) {
-    return [undefined, error];
-  }
-
-  return [data, undefined];
-});
-
-const getUserRole = createAsyncThunk('user/my-role', async () => {
-  const [data, error] = (await getMyRole()) as any;
-
-  if (error) {
-    return [undefined, error];
-  }
-
-  return [data, undefined];
-});
-
 const _logout: CaseReducer<UserState> = state => {
   state.username = '';
   state.id = undefined;
   state.logged = false;
+  state.role = {
+    data: [],
+    status: 'init',
+  };
+  state.userList = {
+    data: [],
+    totalUser: 0,
+    status: 'init',
+  };
+  state.roleList = {
+    data: [],
+    status: 'init',
+  };
   localStorage.clear();
 };
 

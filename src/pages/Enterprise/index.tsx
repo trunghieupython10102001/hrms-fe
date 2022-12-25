@@ -16,6 +16,7 @@ import _debounce from 'lodash/debounce';
 
 import './index.less';
 import { UploadFileButton } from '@/components/UploadFile';
+import { exportEnterpriseDataToExcel } from '@/api/business';
 
 export default function EnterpriseListPage() {
   const data = useAppSelector(state => state.enterprise.data.enterprises);
@@ -89,9 +90,17 @@ export default function EnterpriseListPage() {
       return { link: '', errorMgs: 'Bạn chưa chọn bản ghi nào' };
       // return { link: '', errorMgs: 'Có lỗi xảy ra, không thể lấy dữ liệu từ máy chủ' };
     }
-    setSelectedRows([]);
 
-    return { link: '', errorMgs: '' };
+    try {
+      const response = await exportEnterpriseDataToExcel(selectedRows.join(','));
+
+      console.log('Export response: ', response);
+      setSelectedRows([]);
+
+      return { link: response.data, errorMgs: '' };
+    } catch (error) {
+      return { link: '', errorMgs: 'Có lỗi xảy ra, không thể xuất dữ liệu ra file excel' };
+    }
   };
 
   useEffect(() => {
@@ -137,9 +146,7 @@ export default function EnterpriseListPage() {
             onExportToExcelFile={exportSelectedRowToExcel}
             onChooseFile={choosedFileHandler}
             className="import-excel-file-btn"
-          >
-            Nhập file excel
-          </UploadFileButton>
+          />
         )}
       </div>
       <EnterpriseList

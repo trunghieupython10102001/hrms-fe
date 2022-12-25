@@ -52,13 +52,18 @@ export default function EditUserInfoPage() {
   const editUserHandler = async (data: { user: IUser; role: IUserRole[]; file?: File }) => {
     try {
       const updateForm = {
-        // avatarUrl: detailInfo?.user.avatarUrl || '',
-        dateOfBirth: data.user.dateOfBirth,
+        avatarUrl: detailInfo?.user.avatarUrl || '',
+        dateOfBirth: new Date(data.user.dateOfBirth.toString()).toISOString(),
         email: data.user.email,
         fullname: data.user.fullname,
         phoneNumber: data.user.phoneNumber,
-        password: data.user.password,
       };
+
+      if (data.user.password) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        updateForm.password = data.user.password;
+      }
       const [_result, error] = await editUser(Number(params.id) || NaN, updateForm);
 
       if (error) {

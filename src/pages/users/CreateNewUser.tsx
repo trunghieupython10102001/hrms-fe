@@ -37,6 +37,8 @@ export default function CreateNewUser() {
     setIsSubmitting(true);
 
     try {
+    
+
       const result = await createNewUserAPI(form.user);
 
       console.log('Signup result', result);
