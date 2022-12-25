@@ -4,7 +4,7 @@ import './CreateNewUser.less';
 import { Link, useNavigate } from 'react-router-dom';
 import { IUser, IUserRole } from '@/interface/user/user';
 import { useEffect, useState } from 'react';
-import { createNewUser as createNewUserAPI } from '@/api/user.api';
+import { createNewUser as createNewUserAPI, uploadUserAvatar } from '@/api/user.api';
 import { notification } from 'antd';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { userAsyncActions } from '@/stores/user.store';
@@ -33,7 +33,7 @@ export default function CreateNewUser() {
   const [userPermissons, setUserPermissons] = useState<IUserRole[]>(roleList);
   const navigator = useNavigate();
 
-  const createNewUser = async (form: { user: IUser; role: IUserRole[] }) => {
+  const createNewUser = async (form: { user: IUser; role: IUserRole[]; file?: File }) => {
     setIsSubmitting(true);
 
     try {
@@ -63,7 +63,6 @@ export default function CreateNewUser() {
       if (roles.length > 0) {
         const result = await (await Promise.all(roles)).flat(10);
 
-        console.log(result);
         let isValid = true;
 
         for (let i = 1; i < result.length; i += 2) {
@@ -74,18 +73,33 @@ export default function CreateNewUser() {
           }
         }
 
-        if (isValid) {
-          notification.success({
-            message: 'Tạo người dùng thành công',
-            description: 'Thông tin người dùng đã được thêm vào cơ sở dữ liệu',
-          });
-          navigator('/nguoi-dung');
-        } else {
+        if (!isValid) {
           notification.error({
             message: 'Lỗi hệ thống',
             description: 'Người dùng đã được tạo, nhưng dữ liệu về quyền chưa được lưu lại',
           });
+
+          return;
         }
+
+        if (form.file) {
+          const formData = new FormData();
+
+          formData.append('id', String(newUserData.id));
+          formData.append('file', form.file);
+
+          const uploadResult = await uploadUserAvatar(formData);
+
+          if (uploadResult.data.status < 199 || uploadResult.data.status > 300) {
+            throw new Error('Upload failed');
+          }
+        }
+
+        notification.success({
+          message: 'Tạo người dùng thành công',
+          description: 'Thông tin người dùng đã được thêm vào cơ sở dữ liệu',
+        });
+        navigator('/nguoi-dung');
       }
     } catch (error) {
       notification.error({

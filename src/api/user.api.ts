@@ -16,6 +16,8 @@ export const createNewUser = (form: IUser) => request('post', '/auth/signup', fo
 
 export const changeUserPassword = (form: any) => request('patch', '/auth/updatePassword', form);
 
+export const getRefreshToken = (refreshToken: string) => request('post', '/auth/refreshToken', { refreshToken });
+
 export const editUser = async (uid: number, form: any) => {
   try {
     const response: any = await request('put', `/auth/${uid}`, form);
@@ -92,3 +94,5 @@ export const editUserRole = async (role: {
     return [undefined, error];
   }
 };
+
+export const uploadUserAvatar = async (form: FormData) => request('post', '/auth/avatar', form);

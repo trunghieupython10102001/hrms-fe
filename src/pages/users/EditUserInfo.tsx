@@ -1,8 +1,10 @@
-import { editUser, getUserDetail } from '@/api/user.api';
+import { editUser, getRefreshToken, getUserDetail, uploadUserAvatar } from '@/api/user.api';
+import { CUSTOM_EVENTS } from '@/constants/keys';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import type { IUser, IUserRole } from '@/interface/user/user';
 import { setGlobalState } from '@/stores/global.store';
 import { userAsyncActions } from '@/stores/user.store';
+import dispatchCustomEvent from '@/utils/dispatchCustomEvent';
 import { notification } from 'antd';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -22,31 +24,71 @@ export default function EditUserInfoPage() {
   const userId = String(useAppSelector(state => state.user.id));
   const dispatch = useAppDispatch();
 
-  const editUserHandler = async (data: { user: IUser; role: IUserRole[] }) => {
-    console.log('User: ', data);
-    const updateForm = {
-      avatarUrl: data.user.avatarUrl,
-      dateOfBirth: data.user.dateOfBirth,
-      email: data.user.email,
-      fullname: data.user.fullname,
-      phoneNumber: data.user.phoneNumber,
-      password: data.user.password,
-    };
-    const [result, error] = await editUser(Number(params.id) || NaN, updateForm);
-
-    console.log('Result: ', result);
-
-    if (error) {
-      notification.error({
-        message: 'Cập nhật người dùng không thành công',
-      });
-
+  const refreshUserRole = async () => {
+    if (params.id !== userId) {
       return;
     }
 
-    notification.success({
-      message: 'Cập nhật thành công',
-    });
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+
+      if (!refreshToken) {
+        dispatchCustomEvent(CUSTOM_EVENTS.SESSION_EXPIRE);
+
+        return;
+      }
+
+      const result = await getRefreshToken(refreshToken);
+      const loginTokens = result.data;
+
+      localStorage.setItem('accessToken', loginTokens.accessToken);
+      localStorage.setItem('refreshToken', loginTokens.refreshToken);
+      dispatch(userAsyncActions.getUserRole());
+    } catch (error) {
+      console.log('Error: ', error);
+    }
+  };
+
+  const editUserHandler = async (data: { user: IUser; role: IUserRole[]; file?: File }) => {
+    try {
+      const updateForm = {
+        // avatarUrl: detailInfo?.user.avatarUrl || '',
+        dateOfBirth: data.user.dateOfBirth,
+        email: data.user.email,
+        fullname: data.user.fullname,
+        phoneNumber: data.user.phoneNumber,
+        password: data.user.password,
+      };
+      const [_result, error] = await editUser(Number(params.id) || NaN, updateForm);
+
+      if (error) {
+        notification.error({
+          message: 'Cập nhật người dùng không thành công',
+        });
+
+        return;
+      }
+
+      if (data.file) {
+        const formData = new FormData();
+
+        formData.append('id', String(params.id));
+        formData.append('file', data.file || '');
+        const uploadResult = await uploadUserAvatar(formData);
+
+        if (uploadResult.data.status < 199 || uploadResult.data.status > 300) {
+          throw new Error('Upload failed');
+        }
+      }
+
+      notification.success({
+        message: 'Cập nhật thành công',
+      });
+    } catch (error) {
+      notification.error({
+        message: 'Có lỗi xảy ra, cập nhật thông tin không thành công',
+      });
+    }
   };
 
   useEffect(() => {
@@ -94,7 +136,7 @@ export default function EditUserInfoPage() {
         isEditable
         userPermisions={detailInfo?.roles || ([] as IUserRole[])}
         onSubmit={editUserHandler}
-        refreshUserRole={params.id === userId ? () => dispatch(userAsyncActions.getUserRole()) : undefined}
+        refreshUserRole={refreshUserRole}
       />
     </div>
   );

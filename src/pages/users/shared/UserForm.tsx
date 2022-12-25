@@ -18,7 +18,7 @@ interface IComponentProps {
   isSubmitting?: boolean;
   userPermisions?: IUserRole[];
   refreshUserRole?: () => void;
-  onSubmit?: (form: { user: IUser; role: IUserRole[] }) => Promise<void>;
+  onSubmit?: (form: { user: IUser; role: IUserRole[]; file?: File }) => Promise<void>;
 }
 
 interface IUploadOptions {
@@ -66,6 +66,7 @@ export default function UserForm({
   const userRole = userHasRole(ROLES_ID.USER_MANAGEMENT, userRoles);
 
   const [, forceUpdate] = useState(0);
+  const [uploadAvatar, setUploadAvatar] = useState<File | undefined>();
   const [localRoles, setLocalRoles] = useState<IUserRole[]>([]);
   const [isSubmittingRoleChange, setIsSubmittingRoleChange] = useState(false);
 
@@ -78,7 +79,7 @@ export default function UserForm({
     const base64URL = await readFileAsync(file, 'readAsDataURL');
 
     form.setFields([{ name: 'avatarUrl', value: base64URL }]);
-    forceUpdate(i => i + 1);
+    setUploadAvatar(file);
   };
 
   const validateFile: UploadProps['beforeUpload'] = file => {
@@ -101,8 +102,13 @@ export default function UserForm({
 
     if (onSubmit) {
       formData.createdBy = userId;
-      onSubmit({ user: formData, role: localRoles });
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      delete formData.avatarUrl;
+      onSubmit({ user: formData, role: localRoles, file: uploadAvatar });
     }
+
+    setUploadAvatar(undefined);
   };
 
   const onUpdateRole = async (index: number, key: string) => {
@@ -265,7 +271,7 @@ export default function UserForm({
           <Form.Item
             label="Mật khẩu"
             name="password"
-            rules={[{ required: true, message: 'Mật khẩu không được để trống' }]}
+            rules={[{ required: !user, message: 'Mật khẩu không được để trống' }]}
           >
             <Input.Password disabled={!isEditable} size="large" />
           </Form.Item>

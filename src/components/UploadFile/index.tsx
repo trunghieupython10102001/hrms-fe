@@ -28,7 +28,7 @@ export function UploadFileButton({ className = '', children, onChooseFile }: ICo
     const aEl = document.createElement('a');
 
     aEl.href = ENTERPRISE_EXCEL_TEMPLATE_URL;
-    aEl.download = 'template.xsl';
+    aEl.download = 'template.xls';
     aEl.style.display = 'none';
     aEl.target = '_blank';
     document.body.appendChild(aEl);
@@ -40,7 +40,7 @@ export function UploadFileButton({ className = '', children, onChooseFile }: ICo
     const aEl = document.createElement('a');
 
     aEl.href = ENTERPRISE_LIST_EXCEL_URL;
-    aEl.download = 'data.xsl';
+    aEl.download = 'data.xls';
     aEl.style.display = 'none';
     aEl.target = '_blank';
     document.body.appendChild(aEl);
