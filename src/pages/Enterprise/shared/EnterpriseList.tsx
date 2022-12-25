@@ -2,9 +2,10 @@ import { IEnterprise, EEnterpriseType } from '@/interface/business';
 import { UnorderedListOutlined } from '@ant-design/icons';
 import { Dropdown, Menu, Table, TableColumnsType, TablePaginationConfig } from 'antd';
 import type { MenuProps } from 'antd';
-import { useMemo } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { IUserRole } from '@/interface/user/user';
+import _intersection from 'lodash/intersection';
 
 interface IComponentProps {
   data: IEnterprise[];
@@ -12,8 +13,10 @@ interface IComponentProps {
   loading: boolean;
   contactLogRole?: IUserRole;
   enterpriseProductRole?: IUserRole;
+  selectedRows: number[];
   onShowEnterpriseContactHistory: (enterprise: IEnterprise) => void;
   onShowEnterPriseProducts: (enterprise: IEnterprise) => void;
+  onSelectRows: (rowKeys: number[], isSelected: boolean) => void;
 }
 
 export default function EnterpriseList({
@@ -22,6 +25,8 @@ export default function EnterpriseList({
   loading,
   contactLogRole,
   enterpriseProductRole,
+  selectedRows,
+  onSelectRows,
   onShowEnterpriseContactHistory,
   onShowEnterPriseProducts,
 }: IComponentProps) {
@@ -44,6 +49,26 @@ export default function EnterpriseList({
 
     onShowEnterPriseProducts(enterprise);
   };
+
+  const rowSelectHandler = (record: IEnterprise, selected: boolean, selectedRows: IEnterprise[]) => {
+    console.log('Selections: ', record, selected, selectedRows);
+    onSelectRows([record.id], selected);
+  };
+
+  const rowSelection = useMemo(() => {
+    // const currentPageRows = data.map(enterprise => enterprise.id);
+    // const isCheckedAll = _intersection(selectedRows, currentPageRows).length === currentPageRows.length;
+
+    return {
+      hideSelectAll: true,
+      selectedRowKeys: selectedRows,
+      columnTitle: null,
+      onSelect: rowSelectHandler,
+      renderCell: (_: boolean, _item: IEnterprise, _index: number, originNode: ReactNode) => {
+        return originNode;
+      },
+    };
+  }, [data, selectedRows]);
 
   const tableColumns: TableColumnsType<IEnterprise> = useMemo<TableColumnsType<IEnterprise>>(() => {
     return [
@@ -121,5 +146,14 @@ export default function EnterpriseList({
     ];
   }, [data]);
 
-  return <Table pagination={pagination} rowKey="id" columns={tableColumns} dataSource={data} loading={loading} />;
+  return (
+    <Table
+      rowSelection={rowSelection}
+      pagination={pagination}
+      rowKey="id"
+      columns={tableColumns}
+      dataSource={data}
+      loading={loading}
+    />
+  );
 }

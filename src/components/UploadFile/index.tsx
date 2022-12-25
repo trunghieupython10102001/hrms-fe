@@ -1,16 +1,17 @@
 import { ENTERPRISE_EXCEL_TEMPLATE_URL, ENTERPRISE_LIST_EXCEL_URL } from '@/constants/file';
 import { CUSTOM_EVENTS } from '@/constants/keys';
 import dispatchCustomEvent from '@/utils/dispatchCustomEvent';
-import { Dropdown, Menu, type MenuProps } from 'antd';
+import { Dropdown, Menu, notification, type MenuProps } from 'antd';
 import { ChangeEvent, ReactNode, useRef } from 'react';
 
 interface IComponentProps {
-  onChooseFile: (file: File) => void;
   children: ReactNode;
   className?: string;
+  onChooseFile: (file: File) => void;
+  onExportToExcelFile: () => Promise<{ link: string; errorMgs: string }>;
 }
 
-export function UploadFileButton({ className = '', children, onChooseFile }: IComponentProps) {
+export function UploadFileButton({ className = '', children, onChooseFile, onExportToExcelFile }: IComponentProps) {
   const rfInput = useRef<HTMLInputElement>(null);
 
   const chooseFileHandler = () => {
@@ -36,16 +37,24 @@ export function UploadFileButton({ className = '', children, onChooseFile }: ICo
     aEl.remove();
   };
 
-  const exportDataToExcelFile = () => {
-    const aEl = document.createElement('a');
+  const exportDataToExcelFile = async () => {
+    const result = await onExportToExcelFile();
 
-    aEl.href = ENTERPRISE_LIST_EXCEL_URL;
-    aEl.download = 'data.xls';
-    aEl.style.display = 'none';
-    aEl.target = '_blank';
-    document.body.appendChild(aEl);
-    aEl.click();
-    aEl.remove();
+    if (!result.errorMgs) {
+      console.log('link: ', result);
+
+      const aEl = document.createElement('a');
+
+      aEl.href = ENTERPRISE_LIST_EXCEL_URL;
+      aEl.download = 'data.xls';
+      aEl.style.display = 'none';
+      aEl.target = '_blank';
+      document.body.appendChild(aEl);
+      aEl.click();
+      aEl.remove();
+    } else {
+      notification.error({ message: result.errorMgs });
+    }
   };
 
   const dropdownItemClickHandler: MenuProps['onClick'] = event => {

@@ -5,7 +5,9 @@ import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { IEnterprise } from '@/interface/business';
 import { enterpriseActions, enterpriseAsyncActions } from '@/stores/enterprise.store';
 import { Input, Modal } from 'antd';
-import { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import _union from 'lodash/union';
+import _difference from 'lodash/difference';
 import { Link, useSearchParams } from 'react-router-dom';
 import EnterpriseList from './shared/EnterpriseList';
 import { userHasRole } from '@/utils/hasRole';
@@ -31,6 +33,7 @@ export default function EnterpriseListPage() {
   const [isShowEnterpriseProductsModal, setIsShowEnterpriseProductsModal] = useState(false);
   const [activeEnterprise, setActiveEnterprise] = useState<IEnterprise | undefined>();
   const [keyword, setKeyword] = useState('');
+  const [selectedRows, setSelectedRows] = useState<number[]>([]);
 
   const showEnterpriseContactHistoryHandler = (enterprise: IEnterprise) => {
     setActiveEnterprise(enterprise);
@@ -72,6 +75,25 @@ export default function EnterpriseListPage() {
     console.log('File:', file);
   };
 
+  const selectRowsHandler = (keys: number[], isSelected: boolean) => {
+    if (isSelected) {
+      setSelectedRows(rowKeys => _union(rowKeys, keys));
+    } else {
+      setSelectedRows(rowKeys => _difference(rowKeys, keys));
+    }
+  };
+
+  const exportSelectedRowToExcel = async () => {
+    console.log('Selected records: ', selectedRows);
+    if (selectedRows.length === 0) {
+      return { link: '', errorMgs: 'Bạn chưa chọn bản ghi nào' };
+      // return { link: '', errorMgs: 'Có lỗi xảy ra, không thể lấy dữ liệu từ máy chủ' };
+    }
+    setSelectedRows([]);
+
+    return { link: '', errorMgs: '' };
+  };
+
   useEffect(() => {
     if (data.length === 0 && (dataStatus === 'init' || dataStatus === 'error')) {
       dispatch(enterpriseAsyncActions.getEnterpriseList({ businessName: keyword || undefined }));
@@ -111,7 +133,11 @@ export default function EnterpriseListPage() {
           </Link>
         )}
         {userEnterpriseRole?.isInsert && (
-          <UploadFileButton onChooseFile={choosedFileHandler} className="import-excel-file-btn">
+          <UploadFileButton
+            onExportToExcelFile={exportSelectedRowToExcel}
+            onChooseFile={choosedFileHandler}
+            className="import-excel-file-btn"
+          >
             Nhập file excel
           </UploadFileButton>
         )}
@@ -126,6 +152,8 @@ export default function EnterpriseListPage() {
         contactLogRole={userContactLogRole}
         enterpriseProductRole={userEnterpriseProductRole}
         loading={dataStatus === 'loading'}
+        selectedRows={selectedRows}
+        onSelectRows={selectRowsHandler}
         onShowEnterpriseContactHistory={showEnterpriseContactHistoryHandler}
         onShowEnterPriseProducts={showEnterpriseProductsHandler}
       />
