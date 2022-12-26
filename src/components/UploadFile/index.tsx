@@ -3,7 +3,7 @@ import { CUSTOM_EVENTS } from '@/constants/keys';
 import { ROOT_URL } from '@/constants/request';
 import dispatchCustomEvent from '@/utils/dispatchCustomEvent';
 import { DownOutlined } from '@ant-design/icons';
-import { Button, Dropdown, Menu, notification, type MenuProps } from 'antd';
+import { Button, Dropdown, Menu, notification, Space, type MenuProps } from 'antd';
 import { ChangeEvent, useRef } from 'react';
 
 interface IComponentProps {
@@ -95,23 +95,24 @@ export function UploadFileButton({ className = '', onChooseFile, onExportToExcel
         onChange={importFileChangeHandler}
         accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
       />
-      <Dropdown
-        overlay={
-          <Menu onClick={selectEnterpriseImportTypeHandler}>
-            <Menu.Item key="import">Nhập công ty nhập khẩu</Menu.Item>
-            <Menu.Item key="export">Nhập công ty xuất khẩu</Menu.Item>
-          </Menu>
-        }
-      >
-        <Button>
-          <span>Nhập file excel</span>
-          <DownOutlined />
-        </Button>
-      </Dropdown>
-      {/* <Button onClick={chooseFileHandler}>Nhập công ty xuất khẩu từ file excel</Button>
-      <Button onClick={chooseFileHandler}>Nhập công ty nhập khẩu từ file excel</Button> */}
-      <Button onClick={downloadTemplateExcel}>Tải file excel mẫu</Button>
-      <Button onClick={exportDataToExcelFile}>Xuất file excel</Button>
+      <Space>
+        <Dropdown
+          overlay={
+            <Menu onClick={selectEnterpriseImportTypeHandler}>
+              <Menu.Item key="import">Nhập công ty nhập khẩu</Menu.Item>
+              <Menu.Item key="export">Nhập công ty xuất khẩu</Menu.Item>
+            </Menu>
+          }
+          trigger={['click']}
+        >
+          <Button>
+            <span>Nhập file excel</span>
+            <DownOutlined />
+          </Button>
+        </Dropdown>
+        <Button onClick={downloadTemplateExcel}>Tải file excel mẫu</Button>
+        <Button onClick={exportDataToExcelFile}>Xuất file excel</Button>
+      </Space>
     </div>
   );
 }

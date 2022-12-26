@@ -16,6 +16,7 @@ export interface IEnterpriseAPIResponse {
   BusinessName?: string;
   BusinessType?: TEnterpriseType;
   BusinessAreaID?: number;
+  BusinessAreaName?: string;
   BusinessAddress?: string;
   BusinessEmail?: string;
   BusinessPhone?: string;
@@ -35,6 +36,7 @@ export interface IEnterprise {
   name: string;
   type: TEnterpriseType;
   areaID: number;
+  areaName: string;
   address: string;
   email: string;
   phone: string;
@@ -95,4 +97,12 @@ export interface IEnterpriseProduct {
   price: string;
   createAt: string;
   createBy: string;
+}
+
+export interface IEnterpriseFilterForm {
+  enterpriseName?: string;
+  enterpriseEmail?: string;
+  enterprisePhone?: string;
+  enterpriseType?: number;
+  enterpriseArea?: number;
 }

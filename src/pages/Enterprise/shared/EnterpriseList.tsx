@@ -91,6 +91,12 @@ export default function EnterpriseList({
         render: type => <span className="capitalized">{EEnterpriseType[type]}</span>,
       },
       {
+        title: 'Lĩnh vực kinh doanh',
+        dataIndex: 'areaName',
+        key: 'areaName',
+        render: areaName => <span className="capitalized">{areaName}</span>,
+      },
+      {
         title: 'Email',
         dataIndex: 'email',
         key: 'email',

@@ -6,6 +6,7 @@ export function mapEnterpriseAPIResponseToEnterprise(data: IEnterpriseAPIRespons
     name: data.BusinessName as string,
     type: data.BusinessType as 1 | 2,
     areaID: data.BusinessAreaID as number,
+    areaName: data.BusinessAreaName || '',
     address: data.BusinessAddress as string,
     email: data.BusinessEmail as string,
     phone: data.BusinessPhone as string,

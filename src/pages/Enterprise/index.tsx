@@ -1,11 +1,10 @@
 import ContactHistoryList from '@/components/ContactHistory/ContactHitories';
 import EnterpriseProductsList from '@/components/EnterpriseProduct';
-import { QUERY_KEYS } from '@/constants/keys';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
-import { IEnterprise } from '@/interface/business';
-import { enterpriseActions, enterpriseAsyncActions } from '@/stores/enterprise.store';
-import { Input, Modal } from 'antd';
-import React, { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { IEnterprise, IEnterpriseFilterForm } from '@/interface/business';
+import { enterpriseAsyncActions } from '@/stores/enterprise.store';
+import { Modal, Space } from 'antd';
+import { useEffect, useState } from 'react';
 import _union from 'lodash/union';
 import _difference from 'lodash/difference';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -17,6 +16,7 @@ import _debounce from 'lodash/debounce';
 import './index.less';
 import { UploadFileButton } from '@/components/UploadFile';
 import { exportEnterpriseDataToExcel } from '@/api/business';
+import EnterpriseFilter from './shared/FIlter';
 
 export default function EnterpriseListPage() {
   const data = useAppSelector(state => state.enterprise.data.enterprises);
@@ -33,8 +33,16 @@ export default function EnterpriseListPage() {
   const [isShowContactHistoryModal, setIsShowContactHistoryModal] = useState(false);
   const [isShowEnterpriseProductsModal, setIsShowEnterpriseProductsModal] = useState(false);
   const [activeEnterprise, setActiveEnterprise] = useState<IEnterprise | undefined>();
-  const [keyword, setKeyword] = useState('');
+  // const [keyword, setKeyword] = useState('');
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
+
+  const [filter, setFilter] = useState<IEnterpriseFilterForm>({
+    enterpriseArea: undefined,
+    enterpriseEmail: '',
+    enterpriseName: '',
+    enterprisePhone: '',
+    enterpriseType: undefined,
+  });
 
   const showEnterpriseContactHistoryHandler = (enterprise: IEnterprise) => {
     setActiveEnterprise(enterprise);
@@ -56,20 +64,63 @@ export default function EnterpriseListPage() {
     setIsShowEnterpriseProductsModal(false);
   };
 
-  const deferedSearch = useMemo(() => {
-    return _debounce((searchValue: string) => {
-      dispatch(enterpriseAsyncActions.getEnterpriseList({ businessName: searchValue || undefined }));
-    }, 500);
-  }, [dispatch]);
+  const filterEnterpriseHandler = (form: IEnterpriseFilterForm) => {
+    console.log('Filter form 2: ', form);
+    const { enterpriseArea, enterpriseEmail, enterpriseName, enterprisePhone, enterpriseType } = form;
 
-  const searchEnterpriseHandler = (event: ChangeEvent<HTMLInputElement>) => {
-    const searchValue = event.target.value.trim();
+    if (enterpriseName) {
+      queryParams.set('enterpriseName', enterpriseName);
+    } else {
+      queryParams.delete('enterpriseName');
+    }
 
-    setKeyword(searchValue);
+    if (enterpriseArea) {
+      queryParams.set('enterpriseArea', String(enterpriseArea));
+    } else {
+      queryParams.delete('enterpriseArea');
+    }
 
-    dispatch(enterpriseActions.setFetchingStatus('loading'));
+    if (enterpriseEmail) {
+      queryParams.set('enterpriseEmail', enterpriseEmail);
+    } else {
+      queryParams.delete('enterpriseEmail');
+    }
 
-    deferedSearch(searchValue);
+    if (enterprisePhone) {
+      queryParams.set('enterprisePhone', enterprisePhone);
+    } else {
+      queryParams.delete('enterprisePhone');
+    }
+
+    if (enterpriseType) {
+      queryParams.set('enterpriseType', String(enterpriseType));
+    } else {
+      queryParams.delete('enterpriseType');
+    }
+
+    const queries: IEnterpriseFilterForm = {
+      enterpriseEmail: enterpriseEmail || undefined,
+      enterpriseName: enterpriseName || undefined,
+      enterprisePhone: enterprisePhone || undefined,
+      enterpriseArea: Number(enterpriseArea) || undefined,
+      enterpriseType: Number(enterpriseType) || undefined,
+    };
+
+    dispatch(enterpriseAsyncActions.getEnterpriseList(queries));
+
+    setQueryParams(queryParams);
+  };
+
+  const clearFilter = () => {
+    setFilter({
+      enterpriseArea: undefined,
+      enterpriseEmail: '',
+      enterpriseName: '',
+      enterprisePhone: '',
+      enterpriseType: undefined,
+    });
+
+    setQueryParams(new URLSearchParams());
   };
 
   const choosedFileHandler = (file: File) => {
@@ -104,31 +155,63 @@ export default function EnterpriseListPage() {
   };
 
   useEffect(() => {
-    if (data.length === 0 && (dataStatus === 'init' || dataStatus === 'error')) {
-      dispatch(enterpriseAsyncActions.getEnterpriseList({ businessName: keyword || undefined }));
+    if (dataStatus === 'init' || dataStatus === 'error') {
+      const enterpriseName = queryParams.get('enterpriseName') || undefined;
+      const enterpriseEmail = queryParams.get('enterpriseEmail') || undefined;
+      const enterprisePhone = queryParams.get('enterprisePhone') || undefined;
+      const enterpriseType = queryParams.get('enterpriseType') || undefined;
+      const enterpriseArea = queryParams.get('enterpriseArea') || undefined;
+
+      const queries: IEnterpriseFilterForm = {
+        enterpriseEmail: enterpriseEmail || undefined,
+        enterpriseName: enterpriseName || undefined,
+        enterprisePhone: enterprisePhone || undefined,
+        enterpriseArea: Number(enterpriseArea) || undefined,
+        enterpriseType: Number(enterpriseType) || undefined,
+      };
+
+      setFilter(queries);
+
+      dispatch(enterpriseAsyncActions.getEnterpriseList(queries));
     }
   }, []);
 
-  useEffect(() => {
-    const searchKeywork = queryParams.get(QUERY_KEYS.SEARCH) || '';
+  // useEffect(() => {
+  //   const searchKeywork = queryParams.get(QUERY_KEYS.SEARCH) || '';
 
-    setKeyword(searchKeywork);
-  }, []);
+  //   setKeyword(searchKeywork);
+  // }, []);
 
-  useEffect(() => {
-    if (keyword === '') {
-      queryParams.delete(QUERY_KEYS.SEARCH);
-    } else {
-      queryParams.set(QUERY_KEYS.SEARCH, keyword);
-    }
+  // useEffect(() => {
+  //   if (keyword === '') {
+  //     queryParams.delete(QUERY_KEYS.SEARCH);
+  //   } else {
+  //     queryParams.set(QUERY_KEYS.SEARCH, keyword);
+  //   }
 
-    setQueryParams(queryParams);
-  }, [keyword]);
+  //   setQueryParams(queryParams);
+  // }, [keyword]);
 
   return (
     <main className="enterprise-list-page">
-      <h1 className="page-title">Danh sách doanh nghiệp</h1>
-      <div className="page-action-main">
+      <div className="flex justify-between items-center">
+        <h1 className="page-title">Danh sách doanh nghiệp</h1>
+        {userEnterpriseRole?.isInsert && (
+          <Space>
+            <Link to="/doanh-nghiep/tao-moi" className="page-navigate-link">
+              Thêm mới
+            </Link>
+            <UploadFileButton
+              onExportToExcelFile={exportSelectedRowToExcel}
+              onChooseFile={choosedFileHandler}
+              className="import-excel-file-btn"
+            />
+          </Space>
+        )}
+      </div>
+      <EnterpriseFilter filter={filter} onFilter={filterEnterpriseHandler} onClearFilter={clearFilter} />
+      {/* <div className="page-action-main">
+        
         <Input.Search
           className="page-search-box"
           placeholder="Tìm kiếm doanh nghiệp theo tên"
@@ -136,19 +219,7 @@ export default function EnterpriseListPage() {
           value={keyword}
           enterButton
         />
-        {userEnterpriseRole?.isInsert && (
-          <Link to="/doanh-nghiep/tao-moi" className="page-navigate-link">
-            Thêm mới
-          </Link>
-        )}
-        {userEnterpriseRole?.isInsert && (
-          <UploadFileButton
-            onExportToExcelFile={exportSelectedRowToExcel}
-            onChooseFile={choosedFileHandler}
-            className="import-excel-file-btn"
-          />
-        )}
-      </div>
+      </div> */}
       <EnterpriseList
         data={data}
         pagination={{
@@ -173,7 +244,6 @@ export default function EnterpriseListPage() {
       >
         <ContactHistoryList enterprise={activeEnterprise as IEnterprise} />
       </Modal>
-
       <Modal
         visible={isShowEnterpriseProductsModal}
         onCancel={hideEnterpriseProductListModal}
