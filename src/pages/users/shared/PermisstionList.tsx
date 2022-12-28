@@ -2,7 +2,6 @@ import { ROLES_ID, ROLE_CHILD_PARENT } from '@/constants/roles';
 import { IUserRole } from '@/interface/user/user';
 import { Checkbox, Table, TableColumnsType } from 'antd';
 import _cloneDeep from 'lodash/cloneDeep';
-import _some from 'lodash/some';
 import { useMemo } from 'react';
 
 interface IComponentProps {
@@ -24,40 +23,40 @@ export default function PermisstionList({ isEditable, roles, onSelectAllRole, on
       title: 'Được xem',
       dataIndex: 'isGrant',
       key: 'isGrant',
-      render: (isGrant, _, i) => (
-        <Checkbox onChange={() => onUpdateRole(i, 'isGrant')} checked={isGrant} disabled={!isEditable} />
+      render: (isGrant, record) => (
+        <Checkbox onChange={() => onUpdateRole(record.id, 'isGrant')} checked={isGrant} disabled={!isEditable} />
       ),
     },
     {
       title: 'Được thêm',
       dataIndex: 'isInsert',
       key: 'isInsert',
-      render: (isInsert, _, i) => (
-        <Checkbox onChange={() => onUpdateRole(i, 'isInsert')} checked={isInsert} disabled={!isEditable} />
+      render: (isInsert, record) => (
+        <Checkbox onChange={() => onUpdateRole(record.id, 'isInsert')} checked={isInsert} disabled={!isEditable} />
       ),
     },
     {
       title: 'Được sửa',
       dataIndex: 'isUpdate',
       key: 'isUpdate',
-      render: (isUpdate, _, i) => (
-        <Checkbox onChange={() => onUpdateRole(i, 'isUpdate')} checked={isUpdate} disabled={!isEditable} />
+      render: (isUpdate, record) => (
+        <Checkbox onChange={() => onUpdateRole(record.id, 'isUpdate')} checked={isUpdate} disabled={!isEditable} />
       ),
     },
     {
       title: 'Được xóa',
       dataIndex: 'isDelete',
       key: 'isDelete',
-      render: (isDelete, _, i) => (
-        <Checkbox onChange={() => onUpdateRole(i, 'isDelete')} checked={isDelete} disabled={!isEditable} />
+      render: (isDelete, record) => (
+        <Checkbox onChange={() => onUpdateRole(record.id, 'isDelete')} checked={isDelete} disabled={!isEditable} />
       ),
     },
     {
       title: 'Chọn toàn bộ',
       key: 'all',
-      render: (_, record, i) => (
+      render: (_, record) => (
         <Checkbox
-          onChange={() => onSelectAllRole(i)}
+          onChange={() => onSelectAllRole(record.id)}
           checked={record.isGrant && record.isUpdate && record.isInsert && record.isDelete}
           disabled={!isEditable}
         />
@@ -66,11 +65,16 @@ export default function PermisstionList({ isEditable, roles, onSelectAllRole, on
   ];
 
   const tableRoleData = useMemo(() => {
+    if (!roles) {
+      return [];
+    }
+
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const tableData = [];
+    const cloneRoleList = _cloneDeep(roles);
 
-    roles?.forEach(role => {
+    cloneRoleList.forEach(role => {
       if (role.id in ROLE_CHILD_PARENT) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore

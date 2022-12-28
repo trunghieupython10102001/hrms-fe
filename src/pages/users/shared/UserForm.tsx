@@ -112,8 +112,13 @@ export default function UserForm({
     setUploadAvatar(undefined);
   };
 
-  const onUpdateRole = async (index: number, key: string) => {
-    const updatePermission = { ...localRoles[index] };
+  const onUpdateRole = async (id: IUserRole['id'], key: string) => {
+    const updatePermission = localRoles.find(role => role.id === id);
+
+    if (!updatePermission) {
+      return;
+    }
+    const index = localRoles.findIndex(role => role.id === id);
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -160,9 +165,13 @@ export default function UserForm({
     setIsSubmittingRoleChange(false);
   };
 
-  const onSelectAllRole = async (index: number) => {
-    const updatePermission = { ...localRoles[index] };
+  const onSelectAllRole = async (id: IUserRole['id']) => {
+    const updatePermission = localRoles.find(role => role.id === id);
+    const index = localRoles.findIndex(role => role.id === id);
 
+    if (!updatePermission) {
+      return;
+    }
     if (
       updatePermission.isGrant &&
       updatePermission.isUpdate &&

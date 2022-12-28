@@ -98,12 +98,12 @@ export default function EnterpriseListPage() {
       queryParams.delete('enterpriseType');
     }
 
-    const queries: IEnterpriseFilterForm = {
-      enterpriseEmail: enterpriseEmail || undefined,
-      enterpriseName: enterpriseName || undefined,
-      enterprisePhone: enterprisePhone || undefined,
-      enterpriseArea: Number(enterpriseArea) || undefined,
-      enterpriseType: Number(enterpriseType) || undefined,
+    const queries = {
+      businessEmail: enterpriseEmail || undefined,
+      businessName: enterpriseName || undefined,
+      businessPhone: enterprisePhone || undefined,
+      businessAreaId: Number(enterpriseArea) || undefined,
+      businessType: Number(enterpriseType) || undefined,
     };
 
     dispatch(enterpriseAsyncActions.getEnterpriseList(queries));

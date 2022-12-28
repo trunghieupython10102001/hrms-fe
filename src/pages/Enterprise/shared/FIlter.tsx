@@ -21,7 +21,6 @@ export default function EnterpriseFilter({ filter, onFilter, onClearFilter }: IC
   const dispatch = useAppDispatch();
 
   const filterEnterpriseHander: FormProps<IEnterpriseFilterForm>['onFinish'] = form => {
-    console.log('Filter: ', form);
     onFilter({
       enterpriseArea: form.enterpriseArea,
       enterpriseEmail: form.enterpriseEmail?.trim(),
@@ -33,6 +32,14 @@ export default function EnterpriseFilter({ filter, onFilter, onClearFilter }: IC
 
   const clearFilterHandler = () => {
     onClearFilter();
+
+    onFilter({
+      enterpriseArea: undefined,
+      enterpriseEmail: '',
+      enterpriseName: '',
+      enterprisePhone: '',
+      enterpriseType: undefined,
+    });
   };
 
   useEffect(() => {
