@@ -92,6 +92,7 @@ const getUserList = createAsyncThunk('user/getUserList', async (params?: object)
 
 const _logout: CaseReducer<UserState> = state => {
   state.username = '';
+  state.avatar = '';
   state.id = undefined;
   state.logged = false;
   state.role = {
@@ -206,6 +207,8 @@ const userSlice = createSlice({
       }
 
       state.role.data = roles.roles;
+      state.avatar = roles.user.avatarUrl;
+      state.username = roles.user.username;
       state.role.status = 'success';
     });
   },

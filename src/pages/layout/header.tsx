@@ -1,10 +1,9 @@
 import { FC } from 'react';
-import { LogoutOutlined, UserOutlined, MenuUnfoldOutlined, MenuFoldOutlined, LockOutlined } from '@ant-design/icons';
-import { Layout, Dropdown, Menu } from 'antd';
+import { LogoutOutlined, UserOutlined, LockOutlined } from '@ant-design/icons';
+import { Layout, Dropdown, Menu, MenuProps } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import Avator from '@/assets/header/avator.jpeg';
 import Logo from '@/assets/logo/Logo.jpg';
-import { LocaleFormatter } from '@/locales';
 import { logout, setPasswordModalVisibility } from '@/stores/user.store';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -15,56 +14,59 @@ interface HeaderProps {
   toggle: () => void;
 }
 
-type Action = 'userInfo' | 'userSetting' | 'logout' | 'userChangePassword';
+const HeaderComponent: FC<HeaderProps> = ({ collapsed }) => {
+  const { logged, device, id: uid, avatar, username } = useSelector(state => state.user);
 
-const HeaderComponent: FC<HeaderProps> = ({ collapsed, toggle }) => {
-  const { logged, device, id: uid } = useSelector(state => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const onActionClick = async (action: Action) => {
-    switch (action) {
-      case 'userInfo':
-        return;
-      case 'userChangePassword':
-        dispatch(setPasswordModalVisibility(true));
-
-        return;
-      case 'logout':
-        dispatch(logout());
-        navigate('/login');
-
-        return;
-    }
-  };
 
   const toLogin = () => {
     navigate('/login');
   };
 
+  const menuOptionClickHandler: MenuProps['onClick'] = event => {
+    const { key: option } = event;
+
+    switch (option) {
+      case 'my-account':
+        navigate(`/nguoi-dung/${uid}`);
+
+        break;
+      case 'change-password':
+        dispatch(setPasswordModalVisibility(true));
+
+        break;
+      case 'logout':
+        dispatch(logout());
+        navigate('/login');
+
+        break;
+
+      default:
+        break;
+    }
+  };
+
   const menu = (
-    <Menu>
-      <Menu.Item key="1">
+    <Menu onClick={menuOptionClickHandler}>
+      <Menu.Item key="my-account">
         <span className="layout-page-user-options">
           <UserOutlined />
-          <span onClick={() => navigate(`/nguoi-dung/${uid}`)}>Tài khoản của tôi</span>
+          <span>Tài khoản của tôi</span>
         </span>
       </Menu.Item>
       <Menu.Divider />
-      <Menu.Item key="1">
+      <Menu.Item key="change-password">
         <span className="layout-page-user-options">
           <LockOutlined />
-          <span onClick={() => onActionClick('userChangePassword')}>Đổi mật khẩu</span>
+          <span>Đổi mật khẩu</span>
         </span>
       </Menu.Item>
       <Menu.Divider />
-      <Menu.Item key="2">
+      <Menu.Item key="logout">
         <span className="layout-page-user-options">
           <LogoutOutlined />
-          <span onClick={() => onActionClick('logout')}>
-            {/* <LocaleFormatter id="header.avator.logout" /> */}
-            Đăng xuất
-          </span>
+          <span>Đăng xuất</span>
         </span>
       </Menu.Item>
     </Menu>
@@ -80,11 +82,14 @@ const HeaderComponent: FC<HeaderProps> = ({ collapsed, toggle }) => {
       <div className="layout-page-header-main">
         <div className="actions">
           {logged ? (
-            <Dropdown overlay={menu} trigger={['click']}>
-              <span className="user-action">
-                <img src={Avator} className="user-avator" alt="avator" />
-              </span>
-            </Dropdown>
+            <div>
+              <span className="welcome">Xin chào, {username}</span>
+              <Dropdown overlay={menu} trigger={['click']}>
+                <span className="user-action">
+                  <img src={avatar || Avator} className="user-avator" alt="avator" />
+                </span>
+              </Dropdown>
+            </div>
           ) : (
             <span style={{ cursor: 'pointer' }} onClick={toLogin}>
               Đăng nhập

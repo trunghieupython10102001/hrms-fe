@@ -283,7 +283,7 @@ export default function UserForm({
             name="password"
             rules={[{ required: !user, message: 'Mật khẩu không được để trống' }]}
           >
-            <Input.Password autoComplete={false} disabled={!isEditable} size="large" />
+            <Input.Password autoComplete="false" disabled={!isEditable} size="large" />
           </Form.Item>
         </div>
         <div className="w-1/2">

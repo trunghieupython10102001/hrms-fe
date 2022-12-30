@@ -21,7 +21,7 @@ const WIDTH = 992;
 
 const LayoutPage: FC = () => {
   const location = useLocation();
-  const [openKey, setOpenkey] = useState<string>();
+  const [openKey, setOpenkey] = useState<string>(location.pathname);
   const [selectedKey, setSelectedKey] = useState<string>(location.pathname);
   const [menuList, setMenuList] = useState<MenuList>([]);
   const { device, collapsed, isChangingPassword } = useSelector(state => state.user);
@@ -58,7 +58,7 @@ const LayoutPage: FC = () => {
 
     if (userManagementRoles?.isGrant) {
       menuList.push({
-        code: 'nguoi-dung',
+        code: '/nguoi-dung',
         label: 'Danh sách người dùng',
         path: '/nguoi-dung',
         icon: <UsergroupAddOutlined />,
@@ -66,7 +66,7 @@ const LayoutPage: FC = () => {
     }
     if (userEnterpriseRoles?.isGrant) {
       menuList.push({
-        code: 'doanh-nghiep',
+        code: '/doanh-nghiep',
         label: 'Danh sách doanh nghiệp',
         path: '/doanh-nghiep',
         icon: <UsergroupAddOutlined />,
@@ -74,7 +74,7 @@ const LayoutPage: FC = () => {
     }
     if (userCategoriesRoles?.isGrant) {
       menuList.push({
-        code: 'linh-vuc-kinh-doanh',
+        code: '/linh-vuc-kinh-doanh',
         label: 'Quản lý lĩnh vực kinh doanh',
         path: '/linh-vuc-kinh-doanh',
         icon: <UsergroupAddOutlined />,
@@ -117,8 +117,8 @@ const LayoutPage: FC = () => {
               menuList={menuList}
               openKey={openKey}
               onChangeOpenKey={k => setOpenkey(k)}
-              selectedKey={selectedKey}
-              onChangeSelectedKey={k => setSelectedKey(k)}
+              selectedKey={openKey}
+              onChangeSelectedKey={k => setOpenkey(k)}
             />
           </Sider>
         ) : (

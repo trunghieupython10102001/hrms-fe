@@ -7,6 +7,7 @@ export type Locale = 'zh_CN' | 'en_US';
 export interface UserState {
   id?: number;
   username: string;
+  avatar: string;
 
   /** menu list for init tagsView */
   menuList: MenuChild[];
