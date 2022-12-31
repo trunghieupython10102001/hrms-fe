@@ -1,9 +1,9 @@
 import ContactHistoryList from '@/components/ContactHistory/ContactHitories';
 import EnterpriseProductsList from '@/components/EnterpriseProduct';
 import { useAppDispatch, useAppSelector } from '@/hooks/store';
-import { IEnterprise, IEnterpriseFilterForm } from '@/interface/business';
+import { IEnterprise, IEnterpriseFilterForm, TEnterpriseType } from '@/interface/business';
 import { enterpriseAsyncActions } from '@/stores/enterprise.store';
-import { Modal, Space } from 'antd';
+import { Modal, notification, Space } from 'antd';
 import { useEffect, useState } from 'react';
 import _union from 'lodash/union';
 import _difference from 'lodash/difference';
@@ -13,10 +13,11 @@ import { userHasRole } from '@/utils/hasRole';
 import { ROLES_ID } from '@/constants/roles';
 import _debounce from 'lodash/debounce';
 
-import './index.less';
 import { UploadFileButton } from '@/components/UploadFile';
-import { exportEnterpriseDataToExcel } from '@/api/business';
+import { exportEnterpriseDataToExcel, importEnterpriseExcelFile } from '@/api/business';
 import EnterpriseFilter from './shared/FIlter';
+
+import './index.less';
 
 export default function EnterpriseListPage() {
   const data = useAppSelector(state => state.enterprise.data.enterprises);
@@ -123,8 +124,41 @@ export default function EnterpriseListPage() {
     setQueryParams(new URLSearchParams());
   };
 
-  const choosedFileHandler = (file: File) => {
-    console.log('File:', file);
+  const choosedFileHandler = async (file: File, type: TEnterpriseType) => {
+    console.log('File:', file, type);
+
+    try {
+      const formData = new FormData();
+
+      formData.append('file', file);
+
+      const response = await importEnterpriseExcelFile(formData, type);
+
+      console.log('Response : ', response);
+      notification.success({
+        message: 'Nhập dữ liệu thành công',
+      });
+
+      const enterpriseName = queryParams.get('enterpriseName') || undefined;
+      const enterpriseEmail = queryParams.get('enterpriseEmail') || undefined;
+      const enterprisePhone = queryParams.get('enterprisePhone') || undefined;
+      const enterpriseType = queryParams.get('enterpriseType') || undefined;
+      const enterpriseArea = queryParams.get('enterpriseArea') || undefined;
+
+      const queries: IEnterpriseFilterForm = {
+        enterpriseEmail: enterpriseEmail || undefined,
+        enterpriseName: enterpriseName || undefined,
+        enterprisePhone: enterprisePhone || undefined,
+        enterpriseArea: Number(enterpriseArea) || undefined,
+        enterpriseType: Number(enterpriseType) || undefined,
+      };
+
+      dispatch(enterpriseAsyncActions.getEnterpriseList(queries));
+    } catch (error) {
+      notification.error({
+        message: 'Có lỗi xảy ra, vui lòng thử lại sau',
+      });
+    }
   };
 
   const selectRowsHandler = (keys: number[], isSelected: boolean) => {
@@ -176,22 +210,6 @@ export default function EnterpriseListPage() {
     }
   }, []);
 
-  // useEffect(() => {
-  //   const searchKeywork = queryParams.get(QUERY_KEYS.SEARCH) || '';
-
-  //   setKeyword(searchKeywork);
-  // }, []);
-
-  // useEffect(() => {
-  //   if (keyword === '') {
-  //     queryParams.delete(QUERY_KEYS.SEARCH);
-  //   } else {
-  //     queryParams.set(QUERY_KEYS.SEARCH, keyword);
-  //   }
-
-  //   setQueryParams(queryParams);
-  // }, [keyword]);
-
   return (
     <main className="enterprise-list-page">
       <div className="flex justify-between items-center">
@@ -210,16 +228,6 @@ export default function EnterpriseListPage() {
         )}
       </div>
       <EnterpriseFilter filter={filter} onFilter={filterEnterpriseHandler} onClearFilter={clearFilter} />
-      {/* <div className="page-action-main">
-        
-        <Input.Search
-          className="page-search-box"
-          placeholder="Tìm kiếm doanh nghiệp theo tên"
-          onChange={searchEnterpriseHandler}
-          value={keyword}
-          enterButton
-        />
-      </div> */}
       <EnterpriseList
         data={data}
         pagination={{

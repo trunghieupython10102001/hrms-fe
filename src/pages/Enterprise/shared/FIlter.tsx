@@ -43,7 +43,7 @@ export default function EnterpriseFilter({ filter, onFilter, onClearFilter }: IC
   };
 
   useEffect(() => {
-    if (fetchAreasStatus === 'init' || fetchAreasStatus === 'error') {
+    if (fetchAreasStatus === 'init') {
       dispatch(bussinessAreaAsyncActions.getBusinessAreaList());
     }
   }, [fetchAreasStatus]);
@@ -87,7 +87,7 @@ export default function EnterpriseFilter({ filter, onFilter, onClearFilter }: IC
           <Form.Item name="enterpriseType" label="Loại hình doanh nghiệp">
             <Select className="capitalized" size="large">
               <Select.Option className="capitalized" value={''}>
-                --
+                Tất cả
               </Select.Option>
               {EEnterpriseType.map((type, i) => {
                 if (i > 0) {
@@ -105,7 +105,7 @@ export default function EnterpriseFilter({ filter, onFilter, onClearFilter }: IC
           <Form.Item name="enterpriseArea" label="Lĩnh vực kinh doanh">
             <Select className="capitalized" size="large" loading={fetchAreasStatus === 'loading'}>
               <Select.Option className="capitalized" value={''}>
-                --
+                Tất cả
               </Select.Option>
               {areas.map(area => {
                 return (

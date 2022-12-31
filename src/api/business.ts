@@ -32,3 +32,7 @@ export const getBussinessTemplateFile = async () => {
 export const exportEnterpriseDataToExcel = async (ids: string) => {
   return request<string>('get', '/business/excel', { ids });
 };
+
+export const importEnterpriseExcelFile = async (formData: FormData, type: number) => {
+  return request<string>('post', `/business/excel/${type}`, formData);
+};

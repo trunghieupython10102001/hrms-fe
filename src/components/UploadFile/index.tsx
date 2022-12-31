@@ -1,27 +1,43 @@
 import { getBussinessTemplateFile } from '@/api/business';
-import { CUSTOM_EVENTS } from '@/constants/keys';
 import { ROOT_URL } from '@/constants/request';
-import dispatchCustomEvent from '@/utils/dispatchCustomEvent';
 import { DownOutlined } from '@ant-design/icons';
 import { Button, Dropdown, Menu, notification, Space, type MenuProps } from 'antd';
 import { ChangeEvent, useRef } from 'react';
+import { TEnterpriseType } from '@/interface/business';
+
+enum EEnterpriseType {
+  IMPORT = 2,
+  EXPORT = 1,
+}
 
 interface IComponentProps {
   className?: string;
-  onChooseFile: (file: File) => void;
+  onChooseFile: (file: File, type: TEnterpriseType) => void;
   onExportToExcelFile: () => Promise<{ link: string; errorMgs: string }>;
 }
 
 export function UploadFileButton({ className = '', onChooseFile, onExportToExcelFile }: IComponentProps) {
   const rfInput = useRef<HTMLInputElement>(null);
+  const rfEnterpriseType = useRef<TEnterpriseType>(1);
 
   const chooseFileHandler = () => {
     rfInput.current?.click();
   };
 
+  const resetInputValue = () => {
+    if (rfInput.current) {
+      rfInput.current.value = null;
+    }
+  };
+
   const importFileChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
+    console.log('Imported:');
+
     if (event.target.files?.[0]) {
-      onChooseFile(event.target.files[0]);
+      const file = event.target.files[0];
+
+      onChooseFile(file, rfEnterpriseType.current);
+      event.target.files = [] as any;
     }
   };
 
@@ -73,10 +89,12 @@ export function UploadFileButton({ className = '', onChooseFile, onExportToExcel
 
     switch (enterpriseType) {
       case 'import':
+        rfEnterpriseType.current = EEnterpriseType.IMPORT;
         chooseFileHandler();
 
         break;
       case 'export':
+        rfEnterpriseType.current = EEnterpriseType.EXPORT;
         chooseFileHandler();
 
         break;
@@ -91,6 +109,7 @@ export function UploadFileButton({ className = '', onChooseFile, onExportToExcel
         type="file"
         hidden
         ref={rfInput}
+        onClick={resetInputValue}
         onChange={importFileChangeHandler}
         accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
       />
