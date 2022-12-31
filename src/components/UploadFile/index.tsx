@@ -17,7 +17,6 @@ export function UploadFileButton({ className = '', onChooseFile, onExportToExcel
 
   const chooseFileHandler = () => {
     rfInput.current?.click();
-    dispatchCustomEvent(CUSTOM_EVENTS.UPDATE_INTERACTION_TIME);
   };
 
   const importFileChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {

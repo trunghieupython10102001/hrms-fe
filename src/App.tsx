@@ -16,6 +16,7 @@ import { useAppSelector } from './hooks/store';
 import { logout, userAsyncActions } from './stores/user.store';
 import { CUSTOM_EVENTS } from './constants/keys';
 import { TIME_THRESHOR } from './constants/time';
+import dispatchCustomEvent from './utils/dispatchCustomEvent';
 
 const isDev = import.meta.env.MODE === 'development';
 
@@ -92,12 +93,18 @@ const App: React.FC = () => {
       expireTimer = setTimeout(sessionExpireHandler, TIME_THRESHOR);
     };
 
+    const userInteractionHandler = () => {
+      dispatchCustomEvent(CUSTOM_EVENTS.UPDATE_INTERACTION_TIME);
+    };
+
     window.addEventListener(CUSTOM_EVENTS.SESSION_EXPIRE, sessionExpireHandler);
     window.addEventListener(CUSTOM_EVENTS.UPDATE_INTERACTION_TIME, updateExpireTimer);
+    window.addEventListener('click', userInteractionHandler);
 
     return () => {
       window.removeEventListener(CUSTOM_EVENTS.SESSION_EXPIRE, sessionExpireHandler);
       window.removeEventListener(CUSTOM_EVENTS.UPDATE_INTERACTION_TIME, updateExpireTimer);
+      window.removeEventListener('click', userInteractionHandler);
     };
   }, []);
 
