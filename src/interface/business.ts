@@ -25,6 +25,7 @@ export interface IEnterpriseAPIResponse {
   ContactedTimes?: number;
   Note?: string;
   Status?: 1 | 0;
+  ImageLink?: string;
   CreateTime?: string;
   CreateUser?: string;
   UpdateTime?: string;
@@ -48,6 +49,7 @@ export interface IEnterprise {
   createTime: string;
   createUser?: string;
   updateTime: string;
+  image: string;
   updateUser?: string;
 }
 

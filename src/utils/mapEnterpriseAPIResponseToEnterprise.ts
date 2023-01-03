@@ -19,6 +19,7 @@ export function mapEnterpriseAPIResponseToEnterprise(data: IEnterpriseAPIRespons
     createUser: data.CreateUser as string,
     updateTime: data.UpdateTime as string,
     updateUser: data.UpdateUser as string,
+    image: data.ImageLink as string,
   };
 }
 

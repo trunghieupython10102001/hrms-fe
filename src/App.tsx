@@ -66,9 +66,12 @@ const App: React.FC = () => {
     }
 
     initApp();
+    let expireTimer: NodeJS.Timeout;
 
     const sessionExpireHandler = () => {
       dispatch(logout());
+
+      console.log('ExpireTime: ', expireTimer, Date.now());
 
       if (!expireTimer) {
         clearTimeout(expireTimer);
@@ -82,8 +85,6 @@ const App: React.FC = () => {
         description: 'Bạn vui lòng đăng nhập lại để tiếp tục',
       });
     };
-
-    let expireTimer: NodeJS.Timeout;
 
     const updateExpireTimer = () => {
       if (!expireTimer) {

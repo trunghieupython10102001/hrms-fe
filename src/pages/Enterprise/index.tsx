@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from '@/hooks/store';
 import { IEnterprise, IEnterpriseFilterForm, TEnterpriseType } from '@/interface/business';
 import { enterpriseAsyncActions } from '@/stores/enterprise.store';
 import { Modal, notification, Space } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import _union from 'lodash/union';
 import _difference from 'lodash/difference';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -18,6 +18,9 @@ import { exportEnterpriseDataToExcel, importEnterpriseExcelFile } from '@/api/bu
 import EnterpriseFilter from './shared/FIlter';
 
 import './index.less';
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_PAGE_SIZE = 10;
 
 export default function EnterpriseListPage() {
   const data = useAppSelector(state => state.enterprise.data.enterprises);
@@ -34,8 +37,8 @@ export default function EnterpriseListPage() {
   const [isShowContactHistoryModal, setIsShowContactHistoryModal] = useState(false);
   const [isShowEnterpriseProductsModal, setIsShowEnterpriseProductsModal] = useState(false);
   const [activeEnterprise, setActiveEnterprise] = useState<IEnterprise | undefined>();
-  // const [keyword, setKeyword] = useState('');
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(DEFAULT_PAGE);
 
   const [filter, setFilter] = useState<IEnterpriseFilterForm>({
     enterpriseArea: undefined,
@@ -188,26 +191,34 @@ export default function EnterpriseListPage() {
     }
   };
 
+  const pageChangeHandler = (page: number) => {
+    console.log('Page: ', { page });
+    setCurrentPage(page);
+  };
+
+  const currentPageData = useMemo<IEnterprise[]>(() => {
+    return data.slice((currentPage - 1) * DEFAULT_PAGE_SIZE, currentPage * DEFAULT_PAGE_SIZE);
+  }, [currentPage, data]);
+
   useEffect(() => {
-    if (dataStatus === 'init' || dataStatus === 'error') {
-      const enterpriseName = queryParams.get('enterpriseName') || undefined;
-      const enterpriseEmail = queryParams.get('enterpriseEmail') || undefined;
-      const enterprisePhone = queryParams.get('enterprisePhone') || undefined;
-      const enterpriseType = queryParams.get('enterpriseType') || undefined;
-      const enterpriseArea = queryParams.get('enterpriseArea') || undefined;
+    // if (dataStatus === 'init' || dataStatus === 'error') {
+    const enterpriseName = queryParams.get('enterpriseName') || undefined;
+    const enterpriseEmail = queryParams.get('enterpriseEmail') || undefined;
+    const enterprisePhone = queryParams.get('enterprisePhone') || undefined;
+    const enterpriseType = queryParams.get('enterpriseType') || undefined;
+    const enterpriseArea = queryParams.get('enterpriseArea') || undefined;
 
-      const queries: IEnterpriseFilterForm = {
-        enterpriseEmail: enterpriseEmail || undefined,
-        enterpriseName: enterpriseName || undefined,
-        enterprisePhone: enterprisePhone || undefined,
-        enterpriseArea: Number(enterpriseArea) || undefined,
-        enterpriseType: Number(enterpriseType) || undefined,
-      };
+    const queries: IEnterpriseFilterForm = {
+      enterpriseEmail: enterpriseEmail || undefined,
+      enterpriseName: enterpriseName || undefined,
+      enterprisePhone: enterprisePhone || undefined,
+      enterpriseArea: Number(enterpriseArea) || undefined,
+      enterpriseType: Number(enterpriseType) || undefined,
+    };
 
-      setFilter(queries);
+    setFilter(queries);
 
-      dispatch(enterpriseAsyncActions.getEnterpriseList(queries));
-    }
+    dispatch(enterpriseAsyncActions.getEnterpriseList(queries));
   }, []);
 
   return (
@@ -229,11 +240,14 @@ export default function EnterpriseListPage() {
       </div>
       <EnterpriseFilter filter={filter} onFilter={filterEnterpriseHandler} onClearFilter={clearFilter} />
       <EnterpriseList
-        data={data}
+        data={currentPageData}
         pagination={{
-          pageSize: 10,
+          current: currentPage,
+          pageSize: DEFAULT_PAGE_SIZE,
           position: ['bottomCenter'],
           className: 'table-pagination',
+          onChange: pageChangeHandler,
+          total: data.length,
         }}
         contactLogRole={userContactLogRole}
         enterpriseProductRole={userEnterpriseProductRole}

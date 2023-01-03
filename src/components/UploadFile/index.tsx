@@ -26,6 +26,8 @@ export function UploadFileButton({ className = '', onChooseFile, onExportToExcel
 
   const resetInputValue = () => {
     if (rfInput.current) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       rfInput.current.value = null;
     }
   };
@@ -123,7 +125,7 @@ export function UploadFileButton({ className = '', onChooseFile, onExportToExcel
           }
           trigger={['click']}
         >
-          <Button>
+          <Button className="enterprise-list__import-excel">
             <span>Nhập file excel</span>
             <DownOutlined />
           </Button>

@@ -34,7 +34,7 @@ interface IUploadOptions {
   headers?: object;
 }
 
-const FILE_SIZE_LIMIT = 1024;
+const FILE_SIZE_LIMIT = 1024 * 1024;
 const ALLOWED_FILE_EXTENSIONS = ['.png', '.jpg'];
 
 const defaultForm: IUser = {

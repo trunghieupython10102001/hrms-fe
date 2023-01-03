@@ -47,4 +47,39 @@
   .table-pagination .ant-pagination-options {
     display: none;
   }
+
+  .enterprise-list {
+    &-container {
+      th.ant-table-cell {
+        padding: 0;
+      }
+
+      .ant-table-content {
+        width: 100%;
+        overflow: auto;
+      }
+    }
+
+    &__reset-btn {
+      display: block;
+      margin-left: auto;
+      margin-bottom: 1rem;
+    }
+
+    &__header-cell {
+      display: block;
+      width: 100%;
+      padding: 1rem;
+    }
+
+    &__import-excel {
+      padding: 0.25rem 2.5rem;
+    }
+  }
+}
+
+.enterprise-list__header__actions-container {
+  .ant-popover-inner-content {
+    padding: 0;
+  }
 }

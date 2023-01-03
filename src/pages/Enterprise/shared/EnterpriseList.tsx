@@ -1,8 +1,9 @@
 import { IEnterprise, EEnterpriseType } from '@/interface/business';
 import { UnorderedListOutlined } from '@ant-design/icons';
-import { Dropdown, Menu, Table, TableColumnsType, TablePaginationConfig } from 'antd';
-import type { MenuProps } from 'antd';
-import { ReactNode, useMemo } from 'react';
+import { Dropdown, Menu, Table, Popover, Button, Checkbox } from 'antd';
+import type { MenuProps, TableColumnsType, TablePaginationConfig, CheckboxProps } from 'antd';
+import { ReactNode, useMemo, useState } from 'react';
+
 import { Link } from 'react-router-dom';
 import { IUserRole } from '@/interface/user/user';
 import _intersection from 'lodash/intersection';
@@ -19,6 +20,44 @@ interface IComponentProps {
   onSelectRows: (rowKeys: number[], isSelected: boolean) => void;
 }
 
+function TableHeaderCell({
+  children,
+  onContextMenu,
+  dataIndex,
+}: {
+  children: ReactNode;
+  dataIndex: string;
+  onContextMenu: (key: string) => void;
+}) {
+  return (
+    <Popover
+      title={null}
+      overlayClassName="enterprise-list__header__actions-container"
+      content={
+        <div>
+          <Button onClick={() => onContextMenu(dataIndex)} type="text">
+            Ẩn trường này
+          </Button>
+        </div>
+      }
+      trigger="contextMenu"
+    >
+      <span className="enterprise-list__header-cell">{children}</span>
+    </Popover>
+  );
+}
+
+const defaultHeaderVisibility = {
+  name: true,
+  type: true,
+  areaName: true,
+  email: true,
+  phone: true,
+  contactedTimes: true,
+  address: true,
+  actions: true,
+};
+
 export default function EnterpriseList({
   data,
   pagination,
@@ -30,6 +69,8 @@ export default function EnterpriseList({
   onShowEnterpriseContactHistory,
   onShowEnterPriseProducts,
 }: IComponentProps) {
+  const [showFields, setShowFields] = useState(defaultHeaderVisibility);
+
   const menuItemClickHandler: MenuProps['onClick'] = event => {
     const { key } = event;
 
@@ -50,19 +91,30 @@ export default function EnterpriseList({
     onShowEnterPriseProducts(enterprise);
   };
 
-  const rowSelectHandler = (record: IEnterprise, selected: boolean, selectedRows: IEnterprise[]) => {
-    console.log('Selections: ', record, selected, selectedRows);
+  const rowSelectHandler = (record: IEnterprise, selected: boolean) => {
     onSelectRows([record.id], selected);
   };
 
+  const selectAllRowHandler: CheckboxProps['onChange'] = event => {
+    const { checked: isChecked } = event.target;
+
+    onSelectRows(
+      data.map(row => row.id),
+      isChecked,
+    );
+  };
+
   const rowSelection = useMemo(() => {
-    // const currentPageRows = data.map(enterprise => enterprise.id);
-    // const isCheckedAll = _intersection(selectedRows, currentPageRows).length === currentPageRows.length;
+    const selectedRowId = _intersection(
+      selectedRows,
+      data.map(record => record.id),
+    );
+
+    const isCheckedAll = data.length !== 0 && selectedRowId.length === data.length;
 
     return {
-      hideSelectAll: true,
       selectedRowKeys: selectedRows,
-      columnTitle: null,
+      columnTitle: <Checkbox checked={isCheckedAll} onChange={selectAllRowHandler} />,
       onSelect: rowSelectHandler,
       renderCell: (_: boolean, _item: IEnterprise, _index: number, originNode: ReactNode) => {
         return originNode;
@@ -70,96 +122,181 @@ export default function EnterpriseList({
     };
   }, [data, selectedRows]);
 
-  const tableColumns: TableColumnsType<IEnterprise> = useMemo<TableColumnsType<IEnterprise>>(() => {
-    return [
-      {
-        title: 'Mã doanh nghiệp',
-        dataIndex: 'id',
-        key: 'id',
-        render: id => <Link to={`/doanh-nghiep/${id}`}>{id}</Link>,
-      },
-      {
-        title: 'Tên doanh nghiệp',
+  const toggleTableHeaderCellVisibilityHandler = (key: string) => {
+    const showFieldsList = { ...showFields };
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    showFieldsList[key] = !showFieldsList[key];
+
+    setShowFields(showFieldsList);
+  };
+
+  const resetHeaderStateHandler = () => {
+    setShowFields({ ...defaultHeaderVisibility });
+  };
+
+  const tableColumns = useMemo<TableColumnsType<IEnterprise>>(() => {
+    const tableHeaderCols: TableColumnsType<IEnterprise> = [];
+
+    tableHeaderCols.push({
+      title: 'Mã doanh nghiệp',
+      dataIndex: 'id',
+      key: 'id',
+      width: 124,
+      render: id => <Link to={`/doanh-nghiep/${id}`}>{id}</Link>,
+    });
+
+    if (showFields.name) {
+      tableHeaderCols.push({
+        title: (
+          <TableHeaderCell dataIndex="name" onContextMenu={toggleTableHeaderCellVisibilityHandler}>
+            Tên doanh nghiệp
+          </TableHeaderCell>
+        ),
         dataIndex: 'name',
         key: 'name',
+        width: 228,
+        ellipsis: true,
         render: name => <span className="capitalized">{name}</span>,
-      },
-      {
-        title: 'Loại doanh nghiệp',
+      });
+    }
+
+    if (showFields.type) {
+      tableHeaderCols.push({
+        title: (
+          <TableHeaderCell dataIndex="type" onContextMenu={toggleTableHeaderCellVisibilityHandler}>
+            Loại doanh nghiệp
+          </TableHeaderCell>
+        ),
         dataIndex: 'type',
         key: 'type',
+        width: 171,
         render: type => <span className="capitalized">{EEnterpriseType[type]}</span>,
-      },
-      {
-        title: 'Lĩnh vực kinh doanh',
+      });
+    }
+
+    if (showFields.areaName) {
+      tableHeaderCols.push({
+        title: (
+          <TableHeaderCell dataIndex="areaName" onContextMenu={toggleTableHeaderCellVisibilityHandler}>
+            Lĩnh vực kinh doanh
+          </TableHeaderCell>
+        ),
         dataIndex: 'areaName',
         key: 'areaName',
+        width: 177,
         render: areaName => <span className="capitalized">{areaName}</span>,
-      },
-      {
-        title: 'Email',
+      });
+    }
+
+    if (showFields.email) {
+      tableHeaderCols.push({
+        title: (
+          <TableHeaderCell dataIndex="email" onContextMenu={toggleTableHeaderCellVisibilityHandler}>
+            Email
+          </TableHeaderCell>
+        ),
         dataIndex: 'email',
         key: 'email',
+        width: 229,
         render: email => <span className="capitalized">{email}</span>,
-      },
-      {
-        title: 'Số điện thoại',
+      });
+    }
+    if (showFields.phone) {
+      tableHeaderCols.push({
+        title: (
+          <TableHeaderCell dataIndex="phone" onContextMenu={toggleTableHeaderCellVisibilityHandler}>
+            Số điện thoại
+          </TableHeaderCell>
+        ),
         dataIndex: 'phone',
         key: 'phone',
+        width: 128,
         render: phoneNumber => <span className="capitalized">{phoneNumber}</span>,
-      },
-      {
-        title: 'Số lần tiếp cận',
+      });
+    }
+    if (showFields.contactedTimes) {
+      tableHeaderCols.push({
+        title: (
+          <TableHeaderCell dataIndex="contactedTimes" onContextMenu={toggleTableHeaderCellVisibilityHandler}>
+            Số lần tiếp cận
+          </TableHeaderCell>
+        ),
         dataIndex: 'contactedTimes',
         key: 'contactedTimes',
+        width: 138,
         render: contactedTimes => <span className="capitalized">{contactedTimes}</span>,
-      },
-      {
-        title: 'Địa chỉ',
+      });
+    }
+    if (showFields.address) {
+      tableHeaderCols.push({
+        title: (
+          <TableHeaderCell dataIndex="address" onContextMenu={toggleTableHeaderCellVisibilityHandler}>
+            Địa chỉ
+          </TableHeaderCell>
+        ),
         dataIndex: 'address',
         key: 'address',
+        ellipsis: true,
+        width: 228,
         render: address => <span className="capitalized">{address}</span>,
+      });
+    }
+
+    tableHeaderCols.push({
+      key: 'actions',
+      width: 50,
+      render: (_, record) => {
+        return (
+          <Dropdown
+            trigger={['click']}
+            disabled={!contactLogRole?.isGrant && !enterpriseProductRole?.isGrant}
+            overlay={
+              <Menu style={{ width: 200 }} onClick={menuItemClickHandler}>
+                {contactLogRole?.isGrant && (
+                  <Menu.Item key={`/lich-su-tiep-can/${record.id}`}>
+                    <div className="menu-item">Lịch sử tiếp cận</div>
+                  </Menu.Item>
+                )}
+                {enterpriseProductRole?.isGrant && (
+                  <Menu.Item key={`/mat-hang-kinh-doanh/${record.id}`}>
+                    <div className="menu-item">Mặt hàng kinh doanh</div>
+                  </Menu.Item>
+                )}
+              </Menu>
+            }
+          >
+            <div style={{ cursor: 'pointer' }}>
+              <UnorderedListOutlined />
+            </div>
+          </Dropdown>
+        );
       },
-      {
-        key: 'actions',
-        render: (_, record) => {
-          return (
-            <Dropdown
-              trigger={['click']}
-              disabled={!contactLogRole?.isGrant && !enterpriseProductRole?.isGrant}
-              overlay={
-                <Menu style={{ width: 200 }} onClick={menuItemClickHandler}>
-                  {contactLogRole?.isGrant && (
-                    <Menu.Item key={`/lich-su-tiep-can/${record.id}`}>
-                      <div className="menu-item">Lịch sử tiếp cận</div>
-                    </Menu.Item>
-                  )}
-                  {enterpriseProductRole?.isGrant && (
-                    <Menu.Item key={`/mat-hang-kinh-doanh/${record.id}`}>
-                      <div className="menu-item">Mặt hàng kinh doanh</div>
-                    </Menu.Item>
-                  )}
-                </Menu>
-              }
-            >
-              <div style={{ cursor: 'pointer' }}>
-                <UnorderedListOutlined />
-              </div>
-            </Dropdown>
-          );
-        },
-      },
-    ];
-  }, [data]);
+    });
+
+    return tableHeaderCols;
+  }, [data, showFields]);
+
+  const isShowResetButton = useMemo<boolean>(() => {
+    return Object.values(showFields).reduce((isShow: boolean, show: boolean) => isShow && show);
+  }, [showFields]);
 
   return (
-    <Table
-      rowSelection={rowSelection}
-      pagination={pagination}
-      rowKey="id"
-      columns={tableColumns}
-      dataSource={data}
-      loading={loading}
-    />
+    <div className="enterprise-list-container">
+      {!isShowResetButton && (
+        <Button className="enterprise-list__reset-btn" type="primary" onClick={resetHeaderStateHandler}>
+          Khôi phục bảng
+        </Button>
+      )}
+      <Table
+        rowSelection={rowSelection}
+        pagination={pagination}
+        rowKey="id"
+        columns={tableColumns}
+        dataSource={data}
+        loading={loading}
+      />
+    </div>
   );
 }
