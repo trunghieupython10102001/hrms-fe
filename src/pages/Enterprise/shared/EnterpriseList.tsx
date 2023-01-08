@@ -56,6 +56,7 @@ const defaultHeaderVisibility = {
   contactedTimes: true,
   address: true,
   actions: true,
+  image: true,
 };
 
 export default function EnterpriseList({
@@ -146,6 +147,20 @@ export default function EnterpriseList({
       width: 124,
       render: id => <Link to={`/doanh-nghiep/${id}`}>{id}</Link>,
     });
+
+    if (showFields.image) {
+      tableHeaderCols.push({
+        title: (
+          <TableHeaderCell dataIndex="image" onContextMenu={toggleTableHeaderCellVisibilityHandler}>
+            Ảnh đại diện
+          </TableHeaderCell>
+        ),
+        dataIndex: 'image',
+        key: 'image',
+        width: 200,
+        render: (image: string, record) => (image ? <img src={image} alt={record.name} /> : <span></span>),
+      });
+    }
 
     if (showFields.name) {
       tableHeaderCols.push({

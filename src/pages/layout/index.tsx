@@ -116,7 +116,7 @@ const LayoutPage: FC = () => {
             <MenuComponent
               menuList={menuList}
               openKey={openKey}
-              onChangeOpenKey={k => setOpenkey(k)}
+              onChangeOpenKey={k => setOpenkey(k as string)}
               selectedKey={openKey}
               onChangeSelectedKey={k => setOpenkey(k)}
             />
@@ -133,7 +133,7 @@ const LayoutPage: FC = () => {
             <MenuComponent
               menuList={menuList}
               openKey={openKey}
-              onChangeOpenKey={k => setOpenkey(k)}
+              onChangeOpenKey={k => setOpenkey(k as string)}
               selectedKey={selectedKey}
               onChangeSelectedKey={k => setSelectedKey(k)}
             />

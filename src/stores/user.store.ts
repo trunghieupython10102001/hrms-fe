@@ -16,6 +16,7 @@ const initialState: UserState = {
   logged: localStorage.getItem(KEY_ACCESS_TOKEN) ? true : false,
   menuList: [],
   username: localStorage.getItem('username') || '',
+  avatar: '',
   role: {
     data: [],
     status: 'init',
