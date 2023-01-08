@@ -261,7 +261,7 @@ export default function EnterpriseListPage() {
         visible={isShowContactHistoryModal}
         onCancel={hideEnterpriseContactHistoryHandler}
         footer={null}
-        width={window.innerWidth / 2}
+        width={window.innerWidth / 1.5}
         destroyOnClose
       >
         <ContactHistoryList enterprise={activeEnterprise as IEnterprise} />

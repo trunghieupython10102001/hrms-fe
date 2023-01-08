@@ -6,6 +6,7 @@ export function mapAPIResponseToContactHistories(data: IContactHistoryAPIRespons
     content: data.Content,
     logID: data.LogID,
     note: data.Note,
+    filesAttached: data.FilesAttached,
     createTime: data.CreateTime,
     createUser: data.CreateUser,
     updateTime: data.UpdateTime,

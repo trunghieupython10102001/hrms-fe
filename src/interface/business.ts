@@ -58,6 +58,7 @@ export interface IContact {
   businessID: number;
   content: string;
   note: string;
+  filesAttached: string;
   createTime?: string;
   createUser?: string;
   updateTime?: string;
@@ -69,6 +70,7 @@ export interface IContactHistoryAPIResponse {
   BusinessID: number;
   Content: string;
   Note: string;
+  FilesAttached: string;
   CreateTime: string;
   CreateUser: string;
   UpdateTime: string;

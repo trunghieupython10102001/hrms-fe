@@ -39,7 +39,6 @@ export default function AddNewContact({ enterprise, onClose }: IComponentProps) 
   return (
     <main className="add-new-contact-page">
       <h1 className="page-title">Thêm lần tiếp cận mới</h1>
-      <p>Doanh nghiệp: {enterprise.name}</p>
       <ContactForm
         isEditable
         enterprise={enterprise as IEnterprise}

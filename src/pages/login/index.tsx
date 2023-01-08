@@ -52,11 +52,11 @@ const LoginForm: FC = () => {
         notification.success({
           message: 'Đăng nhập thành công',
         });
+        setIsSubmitting(false);
         navigate(from);
       }
     } catch (error) {
       console.log('Error: ', error);
-    } finally {
       setIsSubmitting(false);
     }
   };

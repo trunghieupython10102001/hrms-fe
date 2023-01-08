@@ -41,7 +41,6 @@ export default function EditContact({ enterprise, contact, onClose }: IComponent
   return (
     <main className="add-new-contact-page">
       <h1 className="page-title">Cập nhật thông tin tiếp cận</h1>
-      <p>Doanh nghiệp: {enterprise.name}</p>
       <ContactForm
         data={contact}
         isEditable
