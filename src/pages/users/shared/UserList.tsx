@@ -38,7 +38,7 @@ export default function UserList({ data, pagination, loading, canDeleteUser, onD
         title: 'Email',
         dataIndex: 'email',
         key: 'email',
-        render: email => <span className="capitalized">{email}</span>,
+        render: email => <span>{email}</span>,
       },
       {
         title: 'Số điện thoại',

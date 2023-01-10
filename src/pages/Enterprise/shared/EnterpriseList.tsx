@@ -215,7 +215,7 @@ export default function EnterpriseList({
         dataIndex: 'email',
         key: 'email',
         width: 229,
-        render: email => <span className="capitalized">{email}</span>,
+        render: email => <span>{email}</span>,
       });
     }
     if (showFields.phone) {
